@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Prevent autoconnection"
+sudo systemctl stop netctl-auto@wlan0.service
+
+echo "Stopping current connection"
+sudo netctl stop csstudent
+
+echo "Bring up USB network connections..."
+read
+
+echo "Enable mptcp kernel debug"
+sudo sysctl -w net.mptcp.mptcp_debug=1

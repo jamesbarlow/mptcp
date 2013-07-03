@@ -1,0 +1,7 @@
+#!/bin/bash
+W=`curl --silent --interface wlan0 amiusingmptcp.com | grep big | sed 's/^.*\(green\|red\).*$/\1/'`
+if [[ $W == 'green' ]]; then
+  echo "MPTCP enabled"
+else
+  echo "MPTCP not enabled"
+fi

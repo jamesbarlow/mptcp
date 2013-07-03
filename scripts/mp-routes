@@ -1,0 +1,36 @@
+#!/bin/bash
+echo "Finding wireless interfaces"
+is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort`
+first="yes"
+for i in $is; do
+  echo "==> Found $i"
+  if [[ $first == 'yes' ]]; then
+    t="1"
+  else
+    t="2"
+  fi
+
+  ip=`ip addr show $i | grep "inet " | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/'`
+  echo " --> Has IP $ip"
+
+  te=`sudo ip rule | grep "from $ip"`
+  if [[ ! -z $te ]]; then
+    echo " --> Purging routes and rules"
+    sudo ip rule del table $t
+    sudo ip route del 128.16.80.0/22 table $t
+    sudo ip route del table $t
+  fi
+
+  echo " --> Setting up routes"
+  sudo ip rule add from $ip table $t
+  sudo ip route add 128.16.80.0/22 dev $i scope link table $t
+  sudo ip route add default via 128.16.80.1 dev $i table $t
+
+  if [[ $first == 'yes' ]]; then
+    echo "==> Setting $i as default interface"
+    sudo ip route del default scope global
+    sudo ip route add default scope global nexthop via 128.16.80.1 dev $i
+  fi
+
+  first="no"
+done
