@@ -1,36 +1,46 @@
 #!/bin/bash
+echo "Cleaning rule tables"
+ts=`sudo ip rule | grep -P "lookup \d" | sed 's/^.*lookup //'`
+for t in $ts; do
+  echo "==> Purging table $t"
+  echo " --> Purging table routes"
+  sudo ip route del 128.16.80.0/22 table $t
+  #sudo ip route del table $t
+
+  echo " --> Purging table rule"
+  sudo ip rule del table $t
+done
+
+echo "==> Removing old default route"
+sudo ip route del default scope global
+
+if [[ -z "$ts" ]]; then
+  echo "==> No old rules to purge"
+fi
+
+echo
 echo "Finding wireless interfaces"
 is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort`
 first="yes"
+t=1
 for i in $is; do
   echo "==> Found $i"
-  if [[ $first == 'yes' ]]; then
-    t="1"
-  else
-    t="2"
-  fi
 
   ip=`ip addr show $i | grep "inet " | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/'`
-  echo " --> Has IP $ip"
-
-  te=`sudo ip rule | grep "from $ip"`
-  if [[ ! -z $te ]]; then
-    echo " --> Purging routes and rules"
-    sudo ip rule del table $t
-    sudo ip route del 128.16.80.0/22 table $t
-    sudo ip route del table $t
-  fi
-
-  echo " --> Setting up routes"
-  sudo ip rule add from $ip table $t
-  sudo ip route add 128.16.80.0/22 dev $i scope link table $t
-  sudo ip route add default via 128.16.80.1 dev $i table $t
+  echo " --> Has IP: $ip"
 
   if [[ $first == 'yes' ]]; then
-    echo "==> Setting $i as default interface"
-    sudo ip route del default scope global
+    echo " --> Setting as default interface"
     sudo ip route add default scope global nexthop via 128.16.80.1 dev $i
   fi
 
+  echo " --> Setting up rules"
+  sudo ip rule add from $ip table $t
+
+  echo " --> Setting up routes"
+  sudo ip route add 128.16.80.0/22 dev $i scope link table $t
+  #sudo ip route add default via 128.16.80.1 dev $i table $t
+
   first="no"
+  t=`echo "$t+1" | bc`
 done
