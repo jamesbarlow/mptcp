@@ -3,10 +3,9 @@ echo "Prevent autoconnection"
 sudo systemctl stop netctl-auto@wlan0.service
 
 echo "Stopping current connection"
-sudo netctl stop csstudent
-
-echo "Bring up USB network connections..."
-read
+sudo netctl stop-all
 
 echo "Enable mptcp kernel debug"
 sudo sysctl -w net.mptcp.mptcp_debug=1
+
+echo "Bring interfaces up and run mp-routes"
