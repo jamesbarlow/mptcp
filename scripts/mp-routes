@@ -4,8 +4,10 @@ ts=`sudo ip rule | grep -P "lookup \d" | sed 's/^.*lookup //'`
 for t in $ts; do
   echo "==> Purging table $t"
   echo " --> Purging table routes"
-  sudo ip route del 128.16.80.0/22 table $t
-  #sudo ip route del table $t
+  # > /dev/null because these aren't necessary if the profile has been
+  # diconnected (netctl removes it)
+  sudo ip route del 128.16.80.0/22 table $t 2>/dev/null
+  sudo ip route del table $t 2>/dev/null
 
   echo " --> Purging table rule"
   sudo ip rule del table $t
