@@ -102,7 +102,7 @@ if [[ $direction == "down" && -z "$netserver_started" ]]; then
 fi
 
 echo -en "  -> Starting tcpdump...\t\t"
-sudo $base/mp-tcpdump -tt -ni any 2>/dev/null > tcpdump.pcap &
+sudo $base/mp-tcpdump -tt -qni any 2>/dev/null > tcpdump.pcap &
 echo -e "\e[37m done\e[0m"
 
 if [[ $direction == "down" ]]; then
