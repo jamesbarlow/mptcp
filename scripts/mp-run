@@ -95,10 +95,14 @@ echo -e "\e[37m################################################\e[0m"
 
 echo -e "\e[37m# Test done!\e[0m"
 
-echo -en "\e[37m#\e[0m Cleaning up..."
+
+echo -en "\e[37m#\e[0m Stopping services..."
 sudo pkill tcpdump
 pkill netserver
-cd ..
+echo -e "\e[37m done\e[0m"
+
+echo -en "\e[37m#\e[0m Compressing dump..."
+gzip -8 tcp.dump
 echo -e "\e[37m done\e[0m"
 
 if [[ $both == 'yes' ]]; then
