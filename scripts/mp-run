@@ -3,23 +3,32 @@ testlength=5
 printinterval=1
 testname=$1
 direction=$2
+both="no"
 base=`dirname $0`
+
+if [[ $direction == 'both' ]]; then
+  direction="up"
+  both="yes"
+fi
 
 if [[ -z $1 || -z $2 ]]; then
   echo "Usage: $0 <name> <down|up>"
   exit 1
 fi
 
-echo "Running mp-routes"
-$base/mp-routes
+if [[ -z $3 ]]; then
+  echo "Running mp-routes"
+  $base/mp-routes
+  echo
+fi
 
-echo
-echo -e "Preparing ${direction}link test \e[37m$testname\e[0m"
+echo -e "\e[37m################################################\e[0m"
+echo -e "\e[37m#\e[0m Preparing \e[37m${direction}\e[0mlink test \e[37m$testname\e[0m"
 
 mkdir -p "$testname-$direction"
 cd "$testname-$direction"
 
-echo -n "Finding primary local IP: "
+echo -en "\e[37m#\e[0m Finding primary local IP: "
 ip=`ip addr | grep "inet 128.16.8" | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1`
 
 if [[ -z $ip ]]; then
@@ -31,12 +40,12 @@ else
   echo -e "\e[37m$ip\e[0m"
 fi
 
-echo -n "Detecting testing server: "
+echo -en "\e[37m#\e[0m Detecting testing server: "
 ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -- "-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/'`
 
 if [[ -z $a ]]; then
   echo -e "\e[1;31mundetectable\e[0m"
-  echo -ne "Use testing server \e[37m"
+  echo -ne "\e[37m#\e[0m Use testing server \e[37m"
   read ap
   echo -en "\e[0m"
 else
@@ -44,22 +53,21 @@ else
 fi
 
 if [[ $direction == "down" ]]; then
-  echo -ne "\e[1mStarting netserver locally for downlink test..."
+  echo -ne "\e[1m\e[37m#\e[0m Starting netserver locally for downlink test..."
   netserver > /dev/null
   echo -e "\e[37m done\e[0m"
 fi
 
-echo -n "Starting tcpdump..."
+echo -en "\e[37m#\e[0m Starting tcpdump..."
 $base/mp-tcpdump 2>/dev/null > tcp.dump &
 echo -e "\e[37m done\e[0m"
 
 if [[ $direction == "down" ]]; then
-  echo "Starting netperf on remote server"
+  echo -e "\e[37m#\e[0m Starting netperf on remote server"
 else
-  echo "Starting netperf on local machine"
+  echo -e "\e[37m#\e[0m Starting netperf on local machine"
 fi
 
-echo
 echo -e "\e[37m################################################\e[0m"
 echo -ne "\e[2m"
 
@@ -72,12 +80,14 @@ fi
 echo -ne "\e[0m"
 echo -e "\e[37m################################################\e[0m"
 
-echo
-echo -e "\e[37mTest done!\e[0m"
-echo
+echo -e "\e[37m# Test done!\e[0m"
 
-echo -n "Cleaning up..."
+echo -en "\e[37m#\e[0m Cleaning up..."
 sudo pkill tcpdump
 pkill netserver
 cd ..
 echo -e "\e[37m done\e[0m"
+
+if [[ $both == 'yes' ]]; then
+  $base/mp-run $testname down no
+fi
