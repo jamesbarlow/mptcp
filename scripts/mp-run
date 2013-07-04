@@ -52,9 +52,22 @@ else
   echo -e "\e[37m$ap\e[0m"
 fi
 
+is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+echo -en "\e[37m#\e[0m Sampling wireless environment..."
+sudo iwlist $is scan > iwlist.log
+echo -e "\e[37m done\e[0m"
+
+echo -en "\e[37m#\e[0m Logging ip addr..."
+ip addr > ips.log
+echo -e "\e[37m done\e[0m"
+
+echo -en "\e[37m#\e[0m Logging iwconfig..."
+iwconfig 2>/dev/null > iwconfig.log
+echo -e "\e[37m done\e[0m"
+
 if [[ $direction == "down" ]]; then
   echo -ne "\e[1m\e[37m#\e[0m Starting netserver locally for downlink test..."
-  netserver > /dev/null
+  netserver > /dev/null 2> /dev/null
   echo -e "\e[37m done\e[0m"
 fi
 
