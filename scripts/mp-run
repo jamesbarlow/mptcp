@@ -11,7 +11,7 @@ if [[ $UID -eq 0 ]]; then
 fi
 
 # Make the user type her password as early as possible
-sudo echo
+sudo echo -n
 
 if [[ $direction == 'both' ]]; then
   direction="up"
@@ -46,7 +46,7 @@ if [[ -z $3 ]]; then
     $base/mp-routes
     echo
   else
-    echo -e "\e[37m  -> Not running mp-routes on non-UCL network\e[0m"
+    echo -e "\e[37m  -> Not running mp-routes outside 128.16.80.0/22\e[0m"
   fi
 fi
 
@@ -99,6 +99,8 @@ if [[ $direction == "down" && -z "$netserver_started" ]]; then
   netserver > /dev/null 2> /dev/null
   netserver_started=1
   echo -e "\e[37m done\e[0m"
+else
+  netserver_started=0
 fi
 
 echo -en "  -> Starting tcpdump...\t\t"
@@ -118,10 +120,10 @@ while [[ $err -gt 0 ]]; do
   echo -ne "\e[34;2m"
 
   if [[ $direction == "down" ]]; then
-    ssh $ap netperf -H $ip -l $testlength -D $printinterval | tee -a perf.log
+    ssh $ap netperf -P 0 -H $ip -l $testlength -D $printinterval | tee -a perf.log
     err=${PIPESTATUS[0]}
   else
-    netperf -H $ap -l $testlength -D $printinterval | tee -a perf.log
+    netperf -P 0 -H $ap -l $testlength -D $printinterval | tee -a perf.log
     err=${PIPESTATUS[0]}
   fi
 
@@ -129,25 +131,29 @@ while [[ $err -gt 0 ]]; do
 
   if [[ $err -gt 0 ]]; then
     end=`date +%s`
-    echo -e "\e[1;31mTest interrupted - enter to continue or Ctrl+D to end test\e[0m"
+    testlength=`echo "$testlength-($end-$begin)" | bc`
+    echo -e "\e[1;31mTest interrupted with ${testlength}s left"
+    echo -ne "Press enter to continue or Ctrl+D to end test\e[0m"
     read
 
     if [[ $? -gt 0 ]]; then
+      echo
       break
     fi
 
-    testlength=`echo "$testlength-($end-$begin)" | bc`
     echo -e "==> Running test for another \e[37m$testlength\e[0m seconds"
   fi
 done
 
-echo
-echo -en "==> Stopping services... \t\t"
+echo -e "==> Stopping services... \t\t"
+echo -en "  -> Stopping tcpdump...\t\t"
 sudo pkill tcpdump
-if [[ $netserver_started -gt 0 ]]; then
-  pkill netserver
-fi
 echo -e "\e[37m done\e[0m"
+if [[ $netserver_started -gt 0 ]]; then
+  echo -en "  -> Stopping local netserver...\t"
+  pkill netserver
+  echo -e "\e[37m done\e[0m"
+fi
 
 echo -en "==> Compressing dump... \t\t"
 gzip -f8 tcpdump.pcap
@@ -160,5 +166,6 @@ else
 fi
 
 if [[ $both == 'yes' ]]; then
+  echo
   $base/mp-run $testname down $ap
 fi
