@@ -1,6 +1,8 @@
 #!/bin/bash
 testlength=5400
 printinterval=60
+
+inittestlength=$testlength
 testname=$1
 direction=$2
 both="no"
@@ -161,7 +163,11 @@ gzip -f8 tcpdump.pcap
 echo -e "\e[37m done\e[0m"
 
 if [[ $err -gt 0 ]]; then
-  echo -e "\e[33m==> Test only partially completed =/\e[0m"
+  if [[ $testlength -eq $inittestlength ]]; then
+    echo -e "\e[31m==> Test failed to run =(\e[0m"
+  else
+    echo -e "\e[33m==> Test only partially completed =/\e[0m"
+  fi
 else
   echo -e "\e[32m==> Test completed successfully =)\e[0m"
 fi
