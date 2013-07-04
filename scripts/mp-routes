@@ -1,27 +1,26 @@
 #!/bin/bash
-echo -e "\e[1m:: Cleaning rule tables\e[0m"
 ts=`sudo ip rule | grep -P "lookup \d" | sed 's/^.*lookup //'`
-for t in $ts; do
-  echo "==> Purging table $t"
-  echo "  -> Purging table routes"
-  # > /dev/null because these aren't necessary if the profile has been
-  # diconnected (netctl removes it)
-  sudo ip route del 128.16.80.0/22 table $t 2>/dev/null
-  sudo ip route del table $t 2>/dev/null
+if [[ ! -z "$ts" ]]; then
+  echo -e "\e[1m:: Cleaning rule tables\e[0m"
+  for t in $ts; do
+    echo "==> Purging table $t"
+    echo "  -> Purging table routes"
+    # > /dev/null because these aren't necessary if the profile has been
+    # diconnected (netctl removes it)
+    sudo ip route del 128.16.80.0/22 table $t 2>/dev/null
+    sudo ip route del table $t 2>/dev/null
 
-  echo "  -> Purging table rule"
-  sudo ip rule del table $t
-done
+    echo "  -> Purging table rule"
+    sudo ip rule del table $t
+  done
 
-if [[ -z "$ts" ]]; then
-  echo "==> No old rules to purge"
+  echo "==> Removing old default routes"
+  # > /dev/null because we might not have a previous default
+  sudo ip route del default scope global via 128.16.80.1 2> /dev/null
+
+  echo
 fi
 
-echo "==> Removing old default route"
-# > /dev/null because we might not have a previous default
-sudo ip route del default scope global 2> /dev/null
-
-echo
 echo -e "\e[1m:: Discovering wireless interfaces\e[0m"
 is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort`
 first="yes"
@@ -32,7 +31,11 @@ for i in $is; do
   ip=`ip addr show $i | grep "inet " | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/'`
 
   if [[ -z "$ip" ]]; then
-    echo -e "\e[31;1;5m  -> No IP found for interface!\e[0m"
+    echo -e "\e[31;5m  -> No IP found for interface\e[0m"
+    continue
+  fi
+  if [[ -z `echo $ip | grep -P "/^128\.16\.8/"` ]]; then
+    echo -e "\e[31m  -> Skipping since not in 128.16.80.0/22\e[0m"
     continue
   fi
   echo -e "  -> Has IP: \e[37m$ip\e[0m"
