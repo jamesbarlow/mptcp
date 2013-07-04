@@ -14,7 +14,8 @@ for t in $ts; do
 done
 
 echo "==> Removing old default route"
-sudo ip route del default scope global
+# > /dev/null because we might not have a previous default
+sudo ip route del default scope global 2> /dev/null
 
 if [[ -z "$ts" ]]; then
   echo "==> No old rules to purge"
