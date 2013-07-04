@@ -43,7 +43,7 @@ fi
 echo -en "\e[37m#\e[0m Detecting testing server: "
 ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -- "-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/'`
 
-if [[ -z $a ]]; then
+if [[ -z $ap ]]; then
   echo -e "\e[1;31mundetectable\e[0m"
   echo -ne "\e[37m#\e[0m Use testing server \e[37m"
   read ap
@@ -65,6 +65,15 @@ echo -en "\e[37m#\e[0m Logging iwconfig..."
 iwconfig 2>/dev/null > iwconfig.log
 echo -e "\e[37m done\e[0m"
 
+echo -en "\e[37m#\e[0m Preparing report...";
+echo -n "TEST NAME: $testname
+DONE BY: `whoami`@`hostname`
+
+TEST TIME: `date`
+TEST LOCATION: _TH FLOOR MPEB
+TEST DURATION: 1.5 HOURS" > test.txt
+echo -e "\e[37m done\e[0m"
+
 if [[ $direction == "down" ]]; then
   echo -ne "\e[1m\e[37m#\e[0m Starting netserver locally for downlink test..."
   netserver > /dev/null 2> /dev/null
@@ -72,7 +81,7 @@ if [[ $direction == "down" ]]; then
 fi
 
 echo -en "\e[37m#\e[0m Starting tcpdump..."
-$base/mp-tcpdump 2>/dev/null > tcp.dump &
+sudo $base/mp-tcpdump 2>/dev/null > tcp.dump &
 echo -e "\e[37m done\e[0m"
 
 if [[ $direction == "down" ]]; then
