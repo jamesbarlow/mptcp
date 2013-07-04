@@ -1,28 +1,28 @@
 #!/bin/bash
-echo "Cleaning rule tables"
+echo -e "\e[1m:: Cleaning rule tables\e[0m"
 ts=`sudo ip rule | grep -P "lookup \d" | sed 's/^.*lookup //'`
 for t in $ts; do
   echo "==> Purging table $t"
-  echo " --> Purging table routes"
+  echo "  -> Purging table routes"
   # > /dev/null because these aren't necessary if the profile has been
   # diconnected (netctl removes it)
   sudo ip route del 128.16.80.0/22 table $t 2>/dev/null
   sudo ip route del table $t 2>/dev/null
 
-  echo " --> Purging table rule"
+  echo "  -> Purging table rule"
   sudo ip rule del table $t
 done
-
-echo "==> Removing old default route"
-# > /dev/null because we might not have a previous default
-sudo ip route del default scope global 2> /dev/null
 
 if [[ -z "$ts" ]]; then
   echo "==> No old rules to purge"
 fi
 
+echo "==> Removing old default route"
+# > /dev/null because we might not have a previous default
+sudo ip route del default scope global 2> /dev/null
+
 echo
-echo "Finding wireless interfaces"
+echo -e "\e[1m:: Discovering wireless interfaces\e[0m"
 is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort`
 first="yes"
 t=1
@@ -32,20 +32,20 @@ for i in $is; do
   ip=`ip addr show $i | grep "inet " | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/'`
 
   if [[ -z "$ip" ]]; then
-    echo -e "\e[31;1;5m ==> No IP found for interface!\e[0m"
+    echo -e "\e[31;1;5m  -> No IP found for interface!\e[0m"
     continue
   fi
-  echo -e " --> Has IP: \e[37m$ip\e[0m"
+  echo -e "  -> Has IP: \e[37m$ip\e[0m"
 
-  echo " --> Setting up rules"
+  echo "  -> Setting up rules"
   sudo ip rule add from $ip table $t
 
-  echo " --> Setting up routes"
+  echo "  -> Setting up routes"
   sudo ip route add 128.16.80.0/22 dev $i scope link table $t
   sudo ip route add default via 128.16.80.1 dev $i table $t
 
   if [[ $first == 'yes' ]]; then
-    echo -e "\e[37m --> Setting as default interface\e[0m"
+    echo -e "\e[37m  -> Setting as default interface\e[0m"
     sudo ip route add default scope global nexthop via 128.16.80.1 dev $i
   fi
 
