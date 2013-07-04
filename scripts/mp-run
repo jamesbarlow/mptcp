@@ -43,8 +43,9 @@ fi
 if [[ -z $3 ]]; then
   if [[ ! -z `echo $ip | grep -P "/^128\.16\.8/"` ]]; then
     echo -e "  -> Running mp-routes"
+    echo "-----------------------------------------"
     $base/mp-routes
-    echo
+    echo "-----------------------------------------"
   else
     echo -e "\e[37m  -> Not running mp-routes outside 128.16.80.0/22\e[0m"
   fi
