@@ -6,6 +6,13 @@ direction=$2
 both="no"
 base=`dirname $0`
 
+if [[ $UID -eq 0 ]]; then
+  echo -e "\e[31mThis script should not be run as root\e[0m"
+fi
+
+# Make the user type her password as early as possible
+sudo echo
+
 if [[ $direction == 'both' ]]; then
   direction="up"
   both="yes"
@@ -16,20 +23,14 @@ if [[ -z $1 || -z $2 ]]; then
   exit 1
 fi
 
-if [[ -z $3 ]]; then
-  echo "Running mp-routes"
-  $base/mp-routes
-  echo
-fi
-
-echo -e "\e[37m################################################\e[0m"
-echo -e "\e[37m#\e[0m Preparing \e[37m${direction}\e[0mlink test \e[37m$testname\e[0m"
+echo -e "\e[37m#############################################\e[0m"
+echo -e "\e[37m#\e[0m Preparing \e[37m${direction}link\e[0m test \e[37m$testname\e[0m"
 
 mkdir -p "$testname-$direction"
 cd "$testname-$direction"
 
 echo -en "\e[37m#\e[0m Finding primary local IP: "
-ip=`ip addr | grep "inet 128.16.8" | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1`
+ip=`ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1`
 
 if [[ -z $ip ]]; then
   echo -e "\e[1;5;31mnone found!\e[0m"
@@ -40,32 +41,44 @@ else
   echo -e "\e[37m$ip\e[0m"
 fi
 
-echo -en "\e[37m#\e[0m Detecting testing server: "
-ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -- "-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/'`
-
-if [[ -z $ap ]]; then
-  echo -e "\e[1;31mundetectable\e[0m"
-  echo -ne "\e[37m#\e[0m Use testing server \e[37m"
-  read ap
-  echo -en "\e[0m"
-else
-  echo -e "\e[37m$ap\e[0m"
+if [[ -z $3 ]]; then
+  if [[ ! -z `echo $ip | grep -P "/^128\.16\.8/"` ]]; then
+    echo -e "\e[37m#\e[0m Running mp-routes"
+    $base/mp-routes
+    echo
+  else
+    echo -e "\e[37m# Not running mp-routes on non-UCL network\e[0m"
+  fi
 fi
 
-is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
-echo -en "\e[37m#\e[0m Sampling wireless environment..."
-sudo iwlist $is scan > iwlist.log
-echo -e "\e[37m done\e[0m"
+if [[ -z $3 ]]; then
+  echo -en "\e[37m#\e[0m Detecting testing server: "
+  ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -- "-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/'`
 
-echo -en "\e[37m#\e[0m Logging ip addr..."
+  if [[ -z $ap ]]; then
+    echo -e "\e[1;31mundetectable\e[0m"
+    echo -ne "\e[37m#\e[0m Use testing server \e[37m"
+    read ap
+    echo -en "\e[0m"
+  else
+    echo -e "\e[37m$ap\e[0m"
+  fi
+else
+  ap=$3
+  echo -e "\e[37m#\e[0m Using testing server \e[37m$ap\e[0m"
+fi
+
+echo -e "\e[37m# -------------------------------------------\e[0m"
+
+echo -en "\e[37m#\e[0m Logging ip addr...\t\t\t"
 ip addr > ips.log
 echo -e "\e[37m done\e[0m"
 
-echo -en "\e[37m#\e[0m Logging iwconfig..."
+echo -en "\e[37m#\e[0m Logging iwconfig...\t\t\t"
 iwconfig 2>/dev/null > iwconfig.log
 echo -e "\e[37m done\e[0m"
 
-echo -en "\e[37m#\e[0m Preparing report...";
+echo -en "\e[37m#\e[0m Preparing report...\t\t\t";
 echo -n "TEST NAME: $testname
 DONE BY: `whoami`@`hostname`
 
@@ -74,14 +87,21 @@ TEST LOCATION: _TH FLOOR MPEB
 TEST DURATION: 1.5 HOURS" > test.txt
 echo -e "\e[37m done\e[0m"
 
-if [[ $direction == "down" ]]; then
-  echo -ne "\e[1m\e[37m#\e[0m Starting netserver locally for downlink test..."
+netserver_started=`pidof netserver`
+if [[ $direction == "down" && -z "$netserver_started" ]]; then
+  echo -ne "\e[1m\e[37m#\e[0m Starting local netserver...\t\t"
   netserver > /dev/null 2> /dev/null
+  netserver_started=1
   echo -e "\e[37m done\e[0m"
 fi
 
-echo -en "\e[37m#\e[0m Starting tcpdump..."
-sudo $base/mp-tcpdump 2>/dev/null > tcp.dump &
+is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+echo -en "\e[37m#\e[0m Sampling wireless environment...\t"
+sudo iwlist $is scan > iwlist.log
+echo -e "\e[37m done\e[0m"
+
+echo -en "\e[37m#\e[0m Starting tcpdump...\t\t\t"
+sudo $base/mp-tcpdump -tt -ni any 2>/dev/null > tcpdump.pcap &
 echo -e "\e[37m done\e[0m"
 
 if [[ $direction == "down" ]]; then
@@ -90,30 +110,57 @@ else
   echo -e "\e[37m#\e[0m Starting netperf on local machine"
 fi
 
-echo -e "\e[37m################################################\e[0m"
-echo -ne "\e[2m"
+err=1
+echo "" > perf.log
+while [[ $err -gt 0 ]]; do
+  begin=`date +%s`
+  echo -e "\e[37m#############################################\e[0m"
+  echo -ne "\e[2m"
 
-if [[ $direction == "down" ]]; then
-  ssh $ap netperf -H $ip -l $testlength -D $printinterval | tee perf.log
-else
-  netperf -H $ap -l $testlength -D $printinterval | tee perf.log
-fi
+  if [[ $direction == "down" ]]; then
+    ssh $ap netperf -H $ip -l $testlength -D $printinterval | tee -a perf.log
+    err=${PIPESTATUS[0]}
+  else
+    netperf -H $ap -l $testlength -D $printinterval | tee -a perf.log
+    err=${PIPESTATUS[0]}
+  fi
+
+  if [[ $err -gt 0 ]]; then
+    end=`date +%s`
+    echo -e "\e[1;31mTest interrupted - enter to continue or Ctrl+D to exit\e[0m"
+    read
+
+    if [[ $? -gt 0 ]]; then
+      break
+    fi
+
+    testlength=`echo "$testlength-($end-$begin)" | bc`
+    echo -e "\e[1;37mRunning test for another $testlength seconds\e[0m"
+  fi
+done
 
 echo -ne "\e[0m"
-echo -e "\e[37m################################################\e[0m"
+echo -e "\e[37m#############################################\e[0m"
 
-echo -e "\e[37m# Test done!\e[0m"
-
+if [[ $err -gt 0 ]]; then
+  echo -e "\e[31m# Test failed =(\e[0m"
+else
+  echo -e "\e[37m# Test done =)\e[0m"
+fi
 
 echo -en "\e[37m#\e[0m Stopping services..."
 sudo pkill tcpdump
-pkill netserver
+if [[ $netserver_started -gt 0 ]]; then
+  pkill netserver
+fi
 echo -e "\e[37m done\e[0m"
 
 echo -en "\e[37m#\e[0m Compressing dump..."
-gzip -8 tcp.dump
+gzip -f8 tcpdump.pcap
 echo -e "\e[37m done\e[0m"
 
+echo -e "\e[37m#############################################\e[0m"
+
 if [[ $both == 'yes' ]]; then
-  $base/mp-run $testname down no
+  $base/mp-run $testname down $ap
 fi
