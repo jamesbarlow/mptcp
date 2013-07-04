@@ -26,22 +26,27 @@ is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort
 first="yes"
 t=1
 for i in $is; do
-  echo "==> Found $i"
+  echo -e "==> Found \e[37m$i\e[0m"
 
   ip=`ip addr show $i | grep "inet " | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/'`
-  echo " --> Has IP: $ip"
 
-  if [[ $first == 'yes' ]]; then
-    echo " --> Setting as default interface"
-    sudo ip route add default scope global nexthop via 128.16.80.1 dev $i
+  if [[ -z "$ip" ]]; then
+    echo -e "\e[31;1;5m ==> No IP found for interface!\e[0m"
+    continue
   fi
+  echo -e " --> Has IP: \e[37m$ip\e[0m"
 
   echo " --> Setting up rules"
   sudo ip rule add from $ip table $t
 
   echo " --> Setting up routes"
   sudo ip route add 128.16.80.0/22 dev $i scope link table $t
-  #sudo ip route add default via 128.16.80.1 dev $i table $t
+  sudo ip route add default via 128.16.80.1 dev $i table $t
+
+  if [[ $first == 'yes' ]]; then
+    echo -e "\e[37m --> Setting as default interface\e[0m"
+    sudo ip route add default scope global nexthop via 128.16.80.1 dev $i
+  fi
 
   first="no"
   t=`echo "$t+1" | bc`
