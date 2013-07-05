@@ -43,7 +43,7 @@ else
 fi
 
 if [[ -z $3 ]]; then
-  if [[ ! -z `echo $ip | grep -P "/^128\.16\.8/"` ]]; then
+  if [[ ! -z `echo $ip | grep -P "^128\.16\.8"` ]]; then
     echo -e "  -> Running mp-routes"
     echo "-----------------------------------------"
     $base/mp-routes

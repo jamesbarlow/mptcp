@@ -34,7 +34,7 @@ for i in $is; do
     echo -e "\e[31;5m  -> No IP found for interface\e[0m"
     continue
   fi
-  if [[ -z `echo $ip | grep -P "/^128\.16\.8/"` ]]; then
+  if [[ -z `echo $ip | grep -P "^128\.16\.8"` ]]; then
     echo -e "\e[31m  -> Skipping since not in 128.16.80.0/22\e[0m"
     continue
   fi
