@@ -184,6 +184,7 @@ else
 fi
 
 if [[ $both == 'yes' ]]; then
+  cd ..
   echo
   $base/mp-run $testname down $ap $floor
 fi
