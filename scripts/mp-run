@@ -7,6 +7,7 @@ testname=$1
 direction=$2
 both="no"
 base=`dirname $0`
+base=`realpath $base`
 
 if [[ $UID -eq 0 ]]; then
   echo -e "\e[31mThis script should not be run as root\e[0m"
