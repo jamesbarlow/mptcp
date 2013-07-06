@@ -1,0 +1,31 @@
+#!/bin/bash
+interval=2s
+if [[ ! -z $1 ]]; then
+  interval=$1
+fi
+
+filter=""
+if [[ ! -z $2 ]]; then
+  filter=$2
+  if [[ -z `echo $2 | grep -P "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"` ]]; then
+    filter=`resolveip -s $filter`
+  fi
+fi
+
+echo "'$filter'"
+
+while /bin/true; do
+  date +%s
+  echo "-"
+  grep ":" /proc/net/wireless
+  echo "-"
+  grep "TcpExt:" /proc/net/netstat | grep -v "Syn"
+  echo "-"
+  if [[ -z $2 ]]; then
+    ss -inot
+  else
+    ss -inot | grep -A1 $filter | sed '/^--$/d'
+  fi
+  echo "."
+  sleep $interval
+done

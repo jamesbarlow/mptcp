@@ -120,6 +120,11 @@ echo -en "  -> Starting tcpdump...\t\t"
 sudo $base/mp-tcpdump -tt -qni any 2>/dev/null > tcpdump.pcap &
 echo -e "\e[37m done\e[0m"
 
+echo -en "  -> Starting stats gatherer...\t\t"
+$base/mp-stats 1s $ap > stats.log &
+stats_pid=$!
+echo -e "\e[37m done\e[0m"
+
 if [[ $direction == "down" ]]; then
   echo -ne "==> Running performance test (remote)"
 else
@@ -159,17 +164,33 @@ while [[ $err -gt 0 ]]; do
   fi
 done
 
-echo -e "==> Stopping services... \t\t"
+echo -e "==> Stopping services..."
 echo -en "  -> Stopping tcpdump...\t\t"
 sudo pkill tcpdump
 echo -e "\e[37m done\e[0m"
+
+echo -en "  -> Stopping stats gatherer...\t\t"
+kill $stats_pid
+wait $stats_pid 2>/dev/null # http://stackoverflow.com/a/5722850
+echo -e "\e[37m done\e[0m"
+
 if [[ $netserver_started -gt 0 ]]; then
   echo -en "  -> Stopping local netserver...\t"
   pkill netserver
   echo -e "\e[37m done\e[0m"
 fi
 
-echo -en "==> Compressing dump... \t\t"
+echo -e "==> Compressing data..."
+
+echo -en "  -> Compressing iwlist...\t\t"
+gzip -f8 iwlist.log
+echo -e "\e[37m done\e[0m"
+
+echo -en "  -> Compressing stats...\t\t"
+gzip -f8 stats.log
+echo -e "\e[37m done\e[0m"
+
+echo -en "  -> Compressing tcpdump...\t\t"
 gzip -f8 tcpdump.pcap
 echo -e "\e[37m done\e[0m"
 
