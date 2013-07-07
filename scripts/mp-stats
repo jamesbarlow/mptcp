@@ -12,20 +12,23 @@ if [[ ! -z $2 ]]; then
   fi
 fi
 
-echo "'$filter'"
-
-while /bin/true; do
+#while /bin/true; do
   date +%s
   echo "-"
-  grep ":" /proc/net/wireless
+  iwconfig 2> /dev/null \
+    | grep -E "ESSID|Freq|Rate|Signal" \
+    | sed 's/ *IEEE.*//' | sed 's/Mode:Managed  //' \
+    | paste -s | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g'
   echo "-"
-  grep "TcpExt:" /proc/net/netstat | grep -v "Syn"
+  grep ":" /proc/net/wireless | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
+  echo "-"
+  grep "TcpExt:" /proc/net/netstat | grep -v "Syn" | sed 's/^TcpExt: //'
   echo "-"
   if [[ -z $2 ]]; then
-    ss -inot
+    ss -inot | grep -v "State"
   else
-    ss -inot | grep -A1 $filter | sed '/^--$/d'
+    ss -inot | grep -v "State" | grep -A1 $filter | sed '/^--$/d'
   fi
   echo "."
-  sleep $interval
-done
+#  sleep $interval
+#done
