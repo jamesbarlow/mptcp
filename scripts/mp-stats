@@ -12,7 +12,7 @@ if [[ ! -z $2 ]]; then
   fi
 fi
 
-#while /bin/true; do
+while /bin/true; do
   date +%s
   echo "-"
   iwconfig 2> /dev/null \
@@ -30,5 +30,5 @@ fi
     ss -inot | grep -v "State" | grep -A1 $filter | sed '/^--$/d'
   fi
   echo "."
-#  sleep $interval
-#done
+  sleep $interval
+done
