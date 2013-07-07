@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+die "Usage: $0 <testdir>\n" unless @ARGV > 0;
+
+my $int = 300;
+chdir $ARGV[0] or die "Test directory could not be accessed: $!";
+
+my %ifaces = ();
+open my $iwc, '<', 'iwconfig.log';
+while (<$iwc>) {
+  next if /^\s/;
+  next if /ESSID:off/;
+  /^(\S+).*ESSID:"([^"]+)"/;
+  $ifaces{$1} = {essid => $2};
+  open $ifaces{$1}->{'data'}, '>', "$1.dat";
+}
+close $iwc;
+
+my %iptoif = ();
+open my $ips, '<', 'ips.log';
+my $if;
+while (<$ips>) {
+  $if = $1 if /^\d+: (.*?):/ and defined $ifaces{$1};
+  next if not defined $if;
+  $ifaces{$if}->{'ip'} = $1 if /inet (.*?)\//;
+  $iptoif{$ifaces{$if}->{'ip'}} = $if;
+}
+close $ips;
+
+my %last = ();
+
+my $time = 0;
+my $rmod = 0;
+open my $tcp, '-|', 'zcat tcpdump.pcap.gz';
+open my $stats, '-|', 'zcat stats.log.gz';
+while (<$stats>) {
+  if (/^\;$/) {
+    $rmod++;
+    next;
+  }
+
+  if (/^\.$/) {
+    $rmod = 0;
+    # loop through tcpdumps up to this point
+    # calculate distribution and print
+    foreach $if (values %ifaces) {
+      $if->{'out'} = 0;
+      $if->{'in'} = 0;
+    }
+
+    while (<$tcp>) {
+      /^(\d+)\.\d+ (\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+ \> (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+: (\w+) (\d+)$/;
+      last if $2 != "IP" or $5 != "tcp";
+      # TODO: Avoid skipping last record of every interval
+      last if $1 > $time;
+
+      my $ip = defined $iptoif{$3} ? $3 : $4;
+      last if not defined $iptoif{$ip};
+      $if = $iptoif{$ip};
+
+      $ifaces{$if}->{$ip == $3 ? 'out' : 'in'} += $6;
+    }
+
+    foreach $if (values %ifaces) {
+      my $f = $if->{'data'};
+      printf $f "%d %d\n", $if->{'out'}, $if->{'in'};
+    }
+    next;
+  }
+
+  if (0) { # to align below
+  } elsif ($rmod eq 0) {
+    # date
+    /^(\d+)$/;
+    $time = $1;
+    printf "%d ", $1;
+  } elsif ($rmod eq 1) {
+    # iwconfig
+    # iface,frequency,bssid,speed,txpower,link-quality,signal-level
+    my @d = split /,/;
+    $if = $d[0];
+
+    $d[3] =~ /^(\d+)/;
+    my $speed = $1;
+
+    $d[5] =~ /^(\d+)\//;
+    my $qlty = $1;
+
+    $d[6] =~ /^-(\d+)/;
+    my $sgnl = $1;
+
+    my $f = $ifaces{$if}->{'data'};
+    printf $f "%d %d %d ", $speed, $qlty, $sgnl;
+  } elsif ($rmod eq 2) {
+    # /proc/net/dev
+    # iface,rx-b,rx-p,rx-err,rx-drop,#,#,#,#,tx-b,tx-p,tx-err,...
+    next;
+  } elsif ($rmod eq 3) {
+    # /proc/net/wireless
+    # iface,status,link,level,noise,err-nwid,err-crypt,err-frag,err-retry,err-misc,missed,WE
+    my @d = split /,/;
+    $if = $d[0];
+    next if not defined $ifaces{$if};
+
+    my $retry = $d[8];
+    $retry = 0 if not defined $last{'retry'}; # So we don't have an initial spike
+    $retry -= $last{'retry'} if defined $last{'retry'};
+    $last{'retry'} = $d[8];
+
+    my $f = $ifaces{$if}->{'data'};
+    printf $f "%d ", $retry;
+  } elsif ($rmod eq 4) {
+    # /proc/net/netstat
+    my @d = split / /;
+
+    my $fast_rt = $d[44];
+    $fast_rt = 0 if not defined $last{'fast-rt'};
+    $fast_rt -= $last{'fast-rt'} if defined $last{'fast-rt'};
+    $last{'fast_rt'} = $d[44];
+
+    my $slow_rt = $d[46];
+    $slow_rt = 0 if not defined $last{'slow-rt'};
+    $slow_rt -= $last{'slow-rt'} if defined $last{'slow-rt'};
+    $last{'slow_rt'} = $d[46];
+
+    foreach $if (values %ifaces) {
+      my $f = $if->{'data'};
+      printf $f "%d %d ", $fast_rt, $slow_rt;
+    }
+  } elsif ($rmod eq 5) {
+    # ss -inot
+    if (/^\S/) {
+      # connection line
+      my $ip;
+      while (/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+        $ip = $1;
+        next if not defined $iptoif{$ip};
+        $if = $iptoif{$ip};
+        last;
+      }
+      last;
+    } else {
+      # extended info line
+      /rtt:([\d\.]+).*rcv_rtt:([\d\.]+)/;
+      my $f = $ifaces{$if}->{'data'};
+      # TODO: there may be multiple here for each if/ip
+      # how to print them?
+      #printf $f "%d %d ", $1, $2;
+    }
+  }
+}
