@@ -14,18 +14,18 @@ fi
 
 while /bin/true; do
   date +%s
-  echo "-"
+  echo ";"
   iwconfig 2> /dev/null \
     | grep -E "ESSID|Freq|Rate|Signal" \
     | sed 's/ *IEEE.*//' | sed 's/Mode:Managed  //' \
     | paste -s | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g'
-  echo "-"
+  echo ";"
   grep "^ w" /proc/net/dev | grep -v "wan" | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
-  echo "-"
+  echo ";"
   grep ":" /proc/net/wireless | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
-  echo "-"
+  echo ";"
   grep "TcpExt:" /proc/net/netstat | grep -v "Syn" | sed 's/^TcpExt: //'
-  echo "-"
+  echo ";"
   if [[ -z $2 ]]; then
     ss -inot | grep -v "State"
   else
