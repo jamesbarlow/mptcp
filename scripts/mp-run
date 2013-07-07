@@ -117,7 +117,7 @@ else
 fi
 
 echo -en "  -> Starting tcpdump...\t\t"
-sudo $base/mp-tcpdump -tt -qni any 2>/dev/null > tcpdump.pcap &
+sudo $base/mp-tcpdump -tt -qni any tcp and host $ap 2>/dev/null > tcpdump.pcap &
 echo -e "\e[37m done\e[0m"
 
 echo -en "  -> Starting stats gatherer...\t\t"
