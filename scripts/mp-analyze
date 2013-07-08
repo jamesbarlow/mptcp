@@ -40,6 +40,7 @@ my $line=0;
 
 my $time = 0;
 my $rmod = 0;
+my $ran5 = 0;
 open my $tcp, '-|', 'zcat tcpdump.pcap.gz';
 open my $stats, '-|', 'zcat stats.log.gz';
 while (<$stats>) {
@@ -81,7 +82,9 @@ while (<$stats>) {
     foreach $if (values %ifaces) {
       $last{'in_total'} += $if->{'in'};
       $last{'out_total'} += $if->{'out'};
+      $if->{'data'} .= "0 0 " if not $ran5;
     }
+    $ran5 = 0;
 
     my $tdiff = 0;
     $tdiff = $e - $b if defined $b;
@@ -188,6 +191,7 @@ while (<$stats>) {
       }
       # Don't include control port
       $if = undef if /:12865/;
+      $ran5 = 1;
     } elsif (defined $if and /rtt:/) {
       # extended info line
       /rtt:([\d\.]+)/;
