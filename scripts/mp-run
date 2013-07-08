@@ -13,17 +13,27 @@ if [[ $UID -eq 0 ]]; then
   echo -e "\e[31mThis script should not be run as root\e[0m"
 fi
 
+if [[ -z $1 || -z $2 ]]; then
+  echo "Usage: $0 <name> <down|up> [server] [floor]"
+  exit 1
+fi
+
+if [[ -z $CHECKED_MPTCP_SCRIPTS ]]; then
+  echo -e "\e[34mUpdate to latest version..."
+  cd "$base"
+  git pull
+  cd - > /dev/null
+  export CHECKED_MPTCP_SCRIPTS=1
+  echo -en "\e[0m"
+  exec $0 "$1" "$2" "$3" "$4"
+fi
+
 # Make the user type her password as early as possible
 sudo echo -n
 
 if [[ $direction == 'both' ]]; then
   direction="up"
   both="yes"
-fi
-
-if [[ -z $1 || -z $2 ]]; then
-  echo "Usage: $0 <name> <down|up> [server] [floor]"
-  exit 1
 fi
 
 echo -e "==> Preparing \e[37m${direction}link\e[0m test \e[37m$testname\e[0m"
