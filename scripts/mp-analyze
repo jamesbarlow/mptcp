@@ -35,6 +35,9 @@ close $ips;
 
 my %last = ();
 
+my $reads=`zcat stats.log.gz | grep -P '^\\.\$' | wc -l`;
+my $line=0;
+
 my $time = 0;
 my $rmod = 0;
 open my $tcp, '-|', 'zcat tcpdump.pcap.gz';
@@ -79,6 +82,9 @@ while (<$stats>) {
       my $i = $if->{'in'} > 0 ? 100*$if->{'in'}/$last{'in_total'} : 0;
       printf $f "%.1f %.1f\n", $o, $i;
     }
+
+    print "$line/$reads";
+    $line++;
     next;
   }
 
