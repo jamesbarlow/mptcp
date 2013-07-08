@@ -16,9 +16,12 @@ while /bin/true; do
   date +%s.%N
   echo ";"
   iwconfig 2> /dev/null \
+    | grep 'ESSID:"' -A5 \
     | grep -E "ESSID|Freq|Rate|Signal" \
-    | sed 's/ *IEEE.*//' | sed 's/Mode:Managed  //' \
-    | paste -s | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g'
+    | sed 's/^\([^ ]*\) *IEEE.*/CUT\1/' | sed 's/Mode:Managed  //' \
+    | paste -s \
+    | sed 's/CUT/\n/g' \
+    | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g'
   echo ";"
   grep ":" /proc/net/dev | grep -vE "usb|wan|lo" | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
   echo ";"
