@@ -20,7 +20,7 @@ while /bin/true; do
     | sed 's/ *IEEE.*//' | sed 's/Mode:Managed  //' \
     | paste -s | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g'
   echo ";"
-  grep "^ " /proc/net/dev | grep -vE "wan|lo" | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
+  grep ":" /proc/net/dev | grep -vE "usb|wan|lo" | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
   echo ";"
   grep ":" /proc/net/wireless | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
   echo ";"
