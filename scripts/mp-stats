@@ -13,7 +13,7 @@ if [[ ! -z $2 ]]; then
 fi
 
 while /bin/true; do
-  date +%s
+  date +%s.%N
   echo ";"
   iwconfig 2> /dev/null \
     | grep -E "ESSID|Freq|Rate|Signal" \
