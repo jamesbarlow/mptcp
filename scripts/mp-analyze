@@ -59,16 +59,22 @@ while (<$stats>) {
       $if->{'in'} = 0;
     }
 
+    my $b;
+    my $e;
     while (<$tcp>) {
       /^(\d+\.\d+) (\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+ \> (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+: (\w+) (\d+)$/;
-      last if $2 ne "IP" or $5 ne "tcp";
+      next if $2 ne "IP" or $5 ne "tcp";
+
+      my $ip = defined $iptoif{$3} ? $3 : $4;
+      next if not defined $iptoif{$ip};
+
+      $b = $1 if not defined $b;
+      $e = $1;
+
       # TODO: Avoid skipping last record of every interval
       last if $1 > $time;
 
-      my $ip = defined $iptoif{$3} ? $3 : $4;
-      last if not defined $iptoif{$ip};
       $if = $iptoif{$ip};
-
       $ifaces{$if}->{$ip eq $3 ? 'out' : 'in'} += $6;
     }
 
@@ -76,11 +82,18 @@ while (<$stats>) {
       $last{'in_total'} += $if->{'in'};
       $last{'out_total'} += $if->{'out'};
     }
+    my $tdiff = $e - $b;
     foreach $if (values %ifaces) {
       my $f = $if->{'data'};
       my $o = $if->{'out'} > 0 ? 100*$if->{'out'}/$last{'out_total'} : 0;
       my $i = $if->{'in'} > 0 ? 100*$if->{'in'}/$last{'in_total'} : 0;
-      printf $f "%.1f %.1f\n", $o, $i;
+      my $ot = 0;
+      my $it = 0;
+      if (defined $b and $e > $b) {
+        $ot = $if->{'out'}/$tdiff;
+        $it = $if->{'in'}/$tdiff;
+      }
+      printf $f "%.1f %.1f %.1f %.1f\n", $o, $i, $ot, $it;
     }
 
     print "$line/$reads";
