@@ -21,7 +21,8 @@ while /bin/true; do
     | sed 's/^\([^ ]*\) *IEEE.*/CUT\1/' | sed 's/Mode:Managed  //' \
     | paste -s \
     | sed 's/CUT/\n/g' \
-    | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g'
+    | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g' \
+    | tail -n +2
   echo ";"
   grep ":" /proc/net/dev | grep -vE "usb|wan|lo" | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
   echo ";"
