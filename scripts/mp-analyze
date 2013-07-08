@@ -13,8 +13,8 @@ while (<$iwc>) {
   next if /^\s/;
   next if /ESSID:off/;
   /^(\S+).*ESSID:"([^"]+)"/;
-  $ifaces{$1} = {essid => $2};
-  open $ifaces{$1}->{'data'}, '>', "$1.dat";
+  $ifaces{$1} = {essid => $2, data => ""};
+  open $ifaces{$1}->{'file'}, '>', "$1.dat";
 }
 close $iwc;
 
@@ -78,23 +78,29 @@ while (<$stats>) {
       $ifaces{$if}->{$ip eq $3 ? 'out' : 'in'} += $6;
     }
 
-    next if not defined $e;
     foreach $if (values %ifaces) {
       $last{'in_total'} += $if->{'in'};
       $last{'out_total'} += $if->{'out'};
     }
-    my $tdiff = $e - $b;
+
+    my $tdiff = 0;
+    $tdiff = $e - $b if defined $b;
     foreach $if (values %ifaces) {
-      my $f = $if->{'data'};
-      my $o = $if->{'out'} > 0 ? 100*$if->{'out'}/$last{'out_total'} : 0;
-      my $i = $if->{'in'} > 0 ? 100*$if->{'in'}/$last{'in_total'} : 0;
-      my $ot = 0;
-      my $it = 0;
       if (defined $b and $e > $b) {
-        $ot = $if->{'out'}/$tdiff;
-        $it = $if->{'in'}/$tdiff;
+        my $o = $if->{'out'} > 0 ? 100*$if->{'out'}/$last{'out_total'} : 0;
+        my $i = $if->{'in'} > 0 ? 100*$if->{'in'}/$last{'in_total'} : 0;
+        my $ot = $if->{'out'}/$tdiff;
+        my $it = $if->{'in'}/$tdiff;
+        $if->{'data'} .= sprintf "%.1f %.1f %.1f %.1f\n", $o, $i, $ot, $it;
+      } else {
+        $if->{'data'} .= "0 0 0 0\n";
       }
-      printf $f "%.1f %.1f %.1f %.1f\n", $o, $i, $ot, $it;
+    }
+
+    foreach $if (values %ifaces) {
+      my $f = $if->{'file'};
+      print $f $if->{'data'};
+      $if->{'data'} = "";
     }
 
     print "$line/$reads";
@@ -109,8 +115,7 @@ while (<$stats>) {
     $time = $1;
 
     foreach $if (values %ifaces) {
-      my $f = $if->{'data'};
-      printf $f "%d ", $1;
+      $if->{'data'} .= sprintf "%d ", $1;
     }
   } elsif ($rmod == 1) {
     # iwconfig
@@ -127,8 +132,7 @@ while (<$stats>) {
     $d[6] =~ /^-(\d+)/;
     my $sgnl = $1;
 
-    my $f = $ifaces{$if}->{'data'};
-    printf $f "%d %d %d ", $speed, $qlty, $sgnl;
+    $ifaces{$if}->{'data'} .= sprintf "%d %d %d ", $speed, $qlty, $sgnl;
   } elsif ($rmod == 2) {
     # /proc/net/dev
     # iface,rx-b,rx-p,rx-err,rx-drop,#,#,#,#,tx-b,tx-p,tx-err,...
@@ -138,7 +142,10 @@ while (<$stats>) {
     # iface,status,link,level,noise,err-nwid,err-crypt,err-frag,err-retry,err-misc,missed,WE
     my @d = split /,/;
     $if = $d[0];
-    next if not defined $ifaces{$if};
+    if (not defined $ifaces{$if}) {
+      $ifaces{$if}->{'data'} .= "0 0 ";
+      next;
+    }
 
     my $retry = $d[8];
     $retry = 0 if not defined $last{"retry-$if"}; # So we don't have an initial spike
@@ -150,8 +157,7 @@ while (<$stats>) {
     $misc -= $last{"misc-$if"} if defined $last{"misc-$if"};
     $last{"misc-$if"} = $d[9];
 
-    my $f = $ifaces{$if}->{'data'};
-    printf $f "%d %d ", $retry, $misc;
+    $ifaces{$if}->{'data'} .= sprintf "%d %d ", $retry, $misc;
   } elsif ($rmod == 4) {
     # /proc/net/netstat
     my @d = split / /;
@@ -167,8 +173,7 @@ while (<$stats>) {
     $last{'slow_rt'} = $d[46];
 
     foreach $if (values %ifaces) {
-      my $f = $if->{'data'};
-      printf $f "%d %d ", $fast_rt, $slow_rt;
+      $if->{'data'} .= sprintf "%d %d ", $fast_rt, $slow_rt;
     }
   } elsif ($rmod == 5) {
     # ss -inot
@@ -185,19 +190,18 @@ while (<$stats>) {
       $if = undef if /:12865/;
     } elsif (defined $if and /rtt:/) {
       # extended info line
-      my $f = $ifaces{$if}->{'data'};
       /rtt:([\d\.]+)/;
-      printf $f "%d ", $1;
+      $ifaces{$if}->{'data'} .= sprintf "%d ", $1;
       if (/rcv_rtt:([\d\.]+)/) {
-        printf $f "%d ", $1;
+        $ifaces{$if}->{'data'} .= sprintf "%d ", $1;
       } else {
-        printf $f "0 ";
+        $ifaces{$if}->{'data'} .= "0 ";
       }
     }
   }
 }
 
 foreach $if (values %ifaces) {
-  my $f = $if->{'data'};
+  my $f = $if->{'file'};
   close $f;
 }
