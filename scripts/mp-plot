@@ -8,13 +8,13 @@ for f in `ls *.dat`; do
   end=`tail -n1 "$f" | cut -d' ' -f1`
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
-    io="'$f' using 1:(\$8/10) title 'rtt' with lines, \
-        '$f' using 1:10 title 'out frac' with lines, \
-        '$f' using 1:(8*\$12/1000000) title 'out speed' with lines"
+    io="'$f' using 1:(\$9/10) title 'rtt' with lines, \
+        '$f' using 1:11 title 'out frac' with lines, \
+        '$f' using 1:(8*\$13/1000000) title 'out speed' with lines"
   else
-    io="'$f' using 1:(\$9/10) title 'rcv_rtt' with lines, \
-        '$f' using 1:11 title 'in frac' with lines, \
-        '$f' using 1:(8*\$13/1000000) title 'in speed' with lines"
+    io="'$f' using 1:(\$10/10) title 'rcv_rtt' with lines, \
+        '$f' using 1:12 title 'in frac' with lines, \
+        '$f' using 1:(8*\$14/1000000) title 'in speed' with lines"
   fi
 
   echo "
@@ -29,7 +29,8 @@ for f in `ls *.dat`; do
        '$f' using 1:3 title 'quality' with lines, \
        '$f' using 1:4 title 'signal' with lines, \
        '$f' using 1:5 title 'tx-retry' with lines, \
-       '$f' using 1:6 title 'fast rt' with lines, \
-       '$f' using 1:7 title 'slow rt' with lines, \
+       '$f' using 1:6 title 'tx-misc' with lines, \
+       '$f' using 1:7 title 'fast rt' with lines, \
+       '$f' using 1:8 title 'slow rt' with lines, \
        $io" | gnuplot -p -
 done

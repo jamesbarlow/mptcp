@@ -78,6 +78,7 @@ while (<$stats>) {
       $ifaces{$if}->{$ip eq $3 ? 'out' : 'in'} += $6;
     }
 
+    next if not defined $e;
     foreach $if (values %ifaces) {
       $last{'in_total'} += $if->{'in'};
       $last{'out_total'} += $if->{'out'};
@@ -140,12 +141,17 @@ while (<$stats>) {
     next if not defined $ifaces{$if};
 
     my $retry = $d[8];
-    $retry = 0 if not defined $last{'retry'}; # So we don't have an initial spike
-    $retry -= $last{'retry'} if defined $last{'retry'};
-    $last{'retry'} = $d[8];
+    $retry = 0 if not defined $last{"retry-$if"}; # So we don't have an initial spike
+    $retry -= $last{"retry-$if"} if defined $last{"retry-$if"};
+    $last{"retry-$if"} = $d[8];
+
+    my $misc = $d[9];
+    $misc = 0 if not defined $last{"misc-$if"};
+    $misc -= $last{"misc-$if"} if defined $last{"misc-$if"};
+    $last{"misc-$if"} = $d[9];
 
     my $f = $ifaces{$if}->{'data'};
-    printf $f "%d ", $retry;
+    printf $f "%d %d ", $retry, $misc;
   } elsif ($rmod == 4) {
     # /proc/net/netstat
     my @d = split / /;
