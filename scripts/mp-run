@@ -1,5 +1,5 @@
 #!/bin/bash
-testlength=5400
+testlength=1800
 printinterval=60
 
 inittestlength=$testlength
