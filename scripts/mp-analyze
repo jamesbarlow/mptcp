@@ -45,6 +45,8 @@ while (<$stats>) {
     $rmod = 0;
     # loop through tcpdumps up to this point
     # calculate distribution and print
+    $last{'in_total'} = 0;
+    $last{'out_total'} = 0;
     foreach $if (values %ifaces) {
       $if->{'out'} = 0;
       $if->{'in'} = 0;
@@ -64,8 +66,12 @@ while (<$stats>) {
     }
 
     foreach $if (values %ifaces) {
+      $last{'in_total'} += $if->{'in'};
+      $last{'out_total'} += $if->{'out'};
+    }
+    foreach $if (values %ifaces) {
       my $f = $if->{'data'};
-      printf $f "%d %d\n", $if->{'out'}, $if->{'in'};
+      printf $f "%.1f %.1f\n", 100*$if->{'out'}/$last{'out_total'}, 100*$if->{'in'}/$last{'in_total'};
     }
     next;
   }
