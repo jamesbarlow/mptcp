@@ -24,9 +24,9 @@ while /bin/true; do
     | perl -pe 's/\s{2,}.*?[:=] ?(.*?)/,\1/g' \
     | tail -n +2
   echo ";"
-  grep ":" /proc/net/dev | grep -vE "usb|wan|lo" | perl -pe 's/(: |\s{2,})/,/g' | sed 's/^ *//'
+  grep ":" /proc/net/dev | grep -vE "usb|wan|lo" | sed 's/^ *//' | perl -pe 's/:? +/,/g'
   echo ";"
-  grep ":" /proc/net/wireless | sed 's/^ *//' | perl -pe 's/(: | +)/,/g'
+  grep ":" /proc/net/wireless | sed 's/^ *//' | perl -pe 's/:? +/,/g'
   echo ";"
   grep "TcpExt:" /proc/net/netstat | grep -v "Syn" | sed 's/^TcpExt: //'
   echo ";"
