@@ -173,6 +173,8 @@ while (<$stats>) {
       }
       # Don't include control port
       $if = undef if /:12865/;
+      # or SSH
+      $if = undef if /:22\b/;
       $ran5 = 1;
     } elsif (defined $if and /rtt:/) {
       # extended info line
