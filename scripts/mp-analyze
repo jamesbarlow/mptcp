@@ -129,13 +129,10 @@ while (<$stats>) {
     $d[3] =~ /^(\d+)/;
     my $speed = $1;
 
-    $d[5] =~ /^(\d+)\//;
-    my $qlty = $1;
-
     $d[6] =~ /^(-\d+)/;
     my $sgnl = $1;
 
-    $ifaces{$if}->{'data'} .= sprintf "%d %d %d ", $speed, $qlty, $sgnl;
+    $ifaces{$if}->{'data'} .= sprintf "%d %d ", $speed, $sgnl;
   } elsif ($rmod == 2) {
     # /proc/net/dev
     # iface,rx-b,rx-p,rx-err,rx-drop,#,#,#,#,tx-b,tx-p,tx-err,...
@@ -162,21 +159,7 @@ while (<$stats>) {
     $ifaces{$if}->{'data'} .= sprintf "%d %d ", $retry, $misc;
   } elsif ($rmod == 4) {
     # /proc/net/netstat
-    my @d = split / /;
-
-    my $fast_rt = $d[44];
-    $fast_rt = 0 if not defined $last{'fast-rt'};
-    $fast_rt -= $last{'fast-rt'} if defined $last{'fast-rt'};
-    $last{'fast_rt'} = $d[44];
-
-    my $slow_rt = $d[46];
-    $slow_rt = 0 if not defined $last{'slow-rt'};
-    $slow_rt -= $last{'slow-rt'} if defined $last{'slow-rt'};
-    $last{'slow_rt'} = $d[46];
-
-    foreach $if (values %ifaces) {
-      $if->{'data'} .= sprintf "%d %d ", $fast_rt, $slow_rt;
-    }
+    next;
   } elsif ($rmod == 5) {
     # ss -inot
     if (/^\S/) {
