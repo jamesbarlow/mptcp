@@ -146,7 +146,6 @@ while (<$stats>) {
     my @d = split /,/;
     $if = $d[0];
     if (not defined $ifaces{$if}) {
-      $ifaces{$if}->{'data'} .= "0 0 ";
       next;
     }
 
