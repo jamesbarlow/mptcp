@@ -27,7 +27,7 @@ for f in `ls *.dat`; do
   set title '${f%.dat}'
   plot '$f' using 1:2 title 'bitrate' with lines, \
        '$f' using 1:3 title 'quality' with lines, \
-       '$f' using 1:4 title 'signal' with lines, \
+       '$f' using 1:(100+\$4) title 'signal' with lines, \
        '$f' using 1:5 title 'tx-retry' with lines, \
        '$f' using 1:6 title 'tx-misc' with lines, \
        '$f' using 1:7 title 'fast rt' with lines, \

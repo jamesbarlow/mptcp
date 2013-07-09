@@ -132,7 +132,7 @@ while (<$stats>) {
     $d[5] =~ /^(\d+)\//;
     my $qlty = $1;
 
-    $d[6] =~ /^-(\d+)/;
+    $d[6] =~ /^(-\d+)/;
     my $sgnl = $1;
 
     $ifaces{$if}->{'data'} .= sprintf "%d %d %d ", $speed, $qlty, $sgnl;
