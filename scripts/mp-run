@@ -171,6 +171,9 @@ while [[ $err -gt 0 ]]; do
   fi
 done
 
+# sudo might have timed out by now
+sudo echo -n
+
 echo -e "==> Stopping services..."
 echo -en "  -> Stopping tcpdump...\t\t"
 sudo pkill tcpdump
