@@ -18,16 +18,6 @@ if [[ -z $1 || -z $2 ]]; then
   exit 1
 fi
 
-if [[ -z $CHECKED_MPTCP_SCRIPTS ]]; then
-  echo -e "\e[34mUpdate to latest version..."
-  cd "$base"
-  git pull
-  cd - > /dev/null
-  export CHECKED_MPTCP_SCRIPTS=1
-  echo -en "\e[0m"
-  exec $0 "$1" "$2" "$3" "$4"
-fi
-
 # Make the user type her password as early as possible
 sudo echo -n
 
