@@ -3,34 +3,39 @@
 dir="$1"
 cd "$1"
 
+s="
+set xlabel 'seconds'
+set grid
+set yrange [0:100]
+set offset graph 0.02, 0.02
+set key right top
+
+plot \\"
+
 for f in `ls *.dat`; do
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
+  title="${f%.dat}"
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
-    io="'$f' using 1:(\$9/10) title 'rtt' with lines, \
-        '$f' using 1:11 title 'out frac' with lines, \
-        '$f' using 1:(8*\$13/1000000) title 'out speed' with lines"
+    io="'$f' using 1:(\$9/10) title '$title rtt' with lines, \
+        '$f' using 1:(80+\$11/5) title '$title out frac' with lines, \
+        '$f' using 1:(8*\$13/1000000) title '$title out speed' with lines,"
   else
-    io="'$f' using 1:(\$10/10) title 'rcv_rtt' with lines, \
-        '$f' using 1:12 title 'in frac' with lines, \
-        '$f' using 1:(8*\$14/1000000) title 'in speed' with lines"
+    io="'$f' using 1:(\$10/10) title '$title rcv_rtt' with lines, \
+        '$f' using 1:(80+\$12/5) title '$title in frac' with lines, \
+        '$f' using 1:(8*\$14/1000000) title '$title in speed' with lines,"
   fi
 
-  echo "
-  set xlabel 'seconds'
-  set grid
-  set xrange [$begin:$end]
-  set offset graph 0.02, 0.02
-  set key right top
-
-  set title '${f%.dat}'
-  plot '$f' using 1:2 title 'bitrate' with lines, \
-       '$f' using 1:3 title 'quality' with lines, \
-       '$f' using 1:(100+\$4) title 'signal' with lines, \
-       '$f' using 1:5 title 'tx-retry' with lines, \
-       '$f' using 1:6 title 'tx-misc' with lines, \
-       '$f' using 1:7 title 'fast rt' with lines, \
-       '$f' using 1:8 title 'slow rt' with lines, \
-       $io" | gnuplot -p -
+  s="$s
+    '$f' using 1:2 title '$title bitrate' with lines, \
+    '$f' using 1:3 title '$title quality' with lines, \
+    '$f' using 1:(100+\$4) title '$title signal' with lines, \
+    '$f' using 1:5 title '$title tx-retry' with lines, \
+    '$f' using 1:6 title '$title tx-misc' with lines, \
+    '$f' using 1:7 title '$title fast rt' with lines, \
+    '$f' using 1:8 title '$title slow rt' with lines, \
+    $io \\"
 done
+
+echo "${s%, \\}" | gnuplot -p -
