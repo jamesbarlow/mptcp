@@ -8,4 +8,8 @@ sudo netctl stop-all
 echo "Enable mptcp kernel debug"
 sudo sysctl -w net.mptcp.mptcp_debug=1
 
+echo "Stopping daemons"
+pkill dropbox
+pkill hasmail
+
 echo "Bring interfaces up and run mp-routes"
