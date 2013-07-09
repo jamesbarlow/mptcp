@@ -215,7 +215,11 @@ else
 fi
 
 if [[ $both == 'yes' ]]; then
-  cd ..
-  echo
-  $base/mp-run $testname down $ap $floor
+  if [[ $err -gt 0 ]]; then
+    echo -e "\e[33m==> Not running downlink test after premature exit\e[0m"
+  else
+    cd ..
+    echo
+    $base/mp-run $testname down $ap $floor
+  fi
 fi
