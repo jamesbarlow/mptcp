@@ -3,9 +3,14 @@
 dir="$1"
 cd "$1"
 
+begin=`head -n1 "*.dat" | cut -d' ' -f1`
+end=`tail -n1 "$f" | cut -d' ' -f1`
+dur=`echo "$end-$begin" | bc`
+
 s="
 set xlabel 'seconds'
 set grid
+set xrange [0:$dur]
 set yrange [0:100]
 set offset graph 0.02, 0.02
 set key right top
