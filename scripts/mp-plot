@@ -15,29 +15,50 @@ set yrange [0:100]
 set offset graph 0.02
 set key right top
 
+set style line 1 lt 1 lc rgb \"red\"
+set style line 2 lt 2 lc rgb \"royalblue\"
+set style line 3 lt 3 lc rgb \"orange-red\"
+set style line 4 lt 4 lc rgb \"dark-blue\"
+set style line 5 lt 5 lc rgb \"dark-orange\"
+set style line 6 lt 6 lc rgb \"magenta\"
+set style line 7 lt 7 lc rgb \"blue\"
+set style line 8 lt 8 lc rgb \"dark-red\"
+set style line 9 lt 9 lc rgb \"gray\"
+set style line 10 lt 10 lc rgb \"forest-green\"
+set style line 11 lt 11 lc rgb \"black\"
+
 plot \\"
 
+o="1"
 for f in `ls *.dat`; do
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
   title="${f%.dat}"
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
-    io="'$f' using (\$1-$begin):(\$6/10) title '$title rtt' with lines, \
-        '$f' using (\$1-$begin):(80+\$8/5) title '$title utilization' with lines, \
-        '$f' using (\$1-$begin):(8*\$10/1000000) title '$title throughput' with lines,"
+    io="'$f' using (\$1-$begin):(\$10/10) title '$title rtt' with lines ls ($o+4), \
+        '$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \
+        '$f' using (\$1-$begin):(8*\$14/1000000) title '$title throughput' with lines ls ($o+6),"
   else
-    io="'$f' using (\$1-$begin):(\$7/10) title '$title rtt' with lines, \
-        '$f' using (\$1-$begin):(80+\$9/5) title '$title utilization' with lines, \
-        '$f' using (\$1-$begin):(8*\$11/1000000) title '$title throughput' with lines,"
+    io="'$f' using (\$1-$begin):(\$11/10) title '$title rtt' with lines ls ($o+4), \
+        '$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \
+        '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6),"
   fi
 
   s="$s
-    '$f' using (\$1-$begin):2 title '$title bitrate' with lines, \
-    '$f' using (\$1-$begin):(100+\$3) title '$title signal' with lines, \
-    '$f' using (\$1-$begin):4 title '$title tx-fail' with lines, \
-    '$f' using (\$1-$begin):5 title '$title rx-drop' with lines, \
+    '$f' using (\$1-$begin):2 title '$title bitrate' with lines ls ($o), \
+    '$f' using (\$1-$begin):(100+\$3) title '$title signal' with lines ls ($o+1), \
+    '$f' using (\$1-$begin):4 title '$title tx-fail' with lines ls ($o+2), \
+    '$f' using (\$1-$begin):5 title '$title rx-drop' with lines ls ($o+3), \
     $io \\"
+  o=`echo "$o+1" | bc`
 done
 
-echo "${s%, \\}" | gnuplot -p -
+f=`ls *.dat | head -n1`
+s="$s
+  '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 8, \
+  '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 9, \
+  '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 10, \
+  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 11"
+
+echo "$s" | gnuplot -p -
