@@ -159,7 +159,31 @@ while (<$stats>) {
     $ifaces{$if}->{'data'} .= sprintf "%d %d ", $retry, $misc;
   } elsif ($rmod == 4) {
     # /proc/net/netstat
-    next;
+    my @d = split / /;
+
+    my $fast_rt = $d[44];
+    my $forward_rt = $d[45];
+    my $slow_rt = $d[46];
+    my $other_rt = $d[47];
+
+    $fast_rt = 0 if not defined $last{'fast-rt'};
+    $forward_rt = 0 if not defined $last{'forward-rt'};
+    $slow_rt = 0 if not defined $last{'slow-rt'};
+    $other_rt = 0 if not defined $last{'other-rt'};
+
+    $fast_rt -= $last{'fast-rt'} if defined $last{'fast-rt'};
+    $forward_rt -= $last{'forward-rt'} if defined $last{'forward-rt'};
+    $slow_rt -= $last{'slow-rt'} if defined $last{'slow-rt'};
+    $other_rt -= $last{'other-rt'} if defined $last{'other-rt'};
+
+    $last{'fast-rt'} = $d[44];
+    $last{'forward-rt'} = $d[45];
+    $last{'slow-rt'} = $d[46];
+    $last{'other-rt'} = $d[47];
+
+    foreach $if (values %ifaces) {
+      $if->{'data'} .= sprintf "%d %d %d %d ", $fast_rt, $forward_rt, $slow_rt, $other_rt;
+    }
   } elsif ($rmod == 5) {
     # ss -inot
     if (/^\S/) {
