@@ -146,7 +146,7 @@ while [[ $err -gt 0 ]]; do
   echo -ne "\e[34;2m"
 
   if [[ $direction == "down" ]]; then
-    ssh $ap netperf -P 0 -H $ip -l $testlength -D $printinterval | tee -a perf.log
+    ssh msc@$ap netperf -P 0 -H $ip -l $testlength -D $printinterval | tee -a perf.log
     err=${PIPESTATUS[0]}
   else
     netperf -P 0 -H $ap -l $testlength -D $printinterval | tee -a perf.log
