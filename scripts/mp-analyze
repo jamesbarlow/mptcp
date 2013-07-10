@@ -41,6 +41,8 @@ my $line=0;
 my $time = 0;
 my $rmod = 0;
 my $ran5 = 0;
+my $perc = -1;
+printf "Analyzing: [%s] [00.0%%]\r", '-' x 100;
 open my $tcp, '-|', 'zcat tcpdump.pcap.gz';
 open my $stats, '-|', 'zcat stats.log.gz';
 while (<$stats>) {
@@ -106,7 +108,11 @@ while (<$stats>) {
       $if->{'data'} = "";
     }
 
-    print "$line/$reads";
+    my $p = (100.0 * $line)/$reads;
+    if ($p != $perc) {
+      printf "Analyzing: [%s%s] [%2.1f%%]\r", '#' x int($p), '-' x (100-int($p)), $p;
+      $perc = $p;
+    }
     $line++;
     next;
   }
@@ -221,3 +227,5 @@ foreach $if (values %ifaces) {
   my $f = $if->{'file'};
   close $f;
 }
+
+printf "Analyzing: [%s] [DONE!]\n", '#' x 100;
