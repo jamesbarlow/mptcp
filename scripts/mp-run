@@ -56,7 +56,7 @@ fi
 
 if [[ -z $3 ]]; then
   echo -en "==> Detecting testing server: "
-  ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -- "-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1`
+  ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1`
 
   if [[ -z $ap ]]; then
     echo -e "\e[1;31mundetectable\e[0m"
