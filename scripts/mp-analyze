@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 die "Usage: $0 <testdir>\n" unless @ARGV > 0;
+$| = 1;
 
 my $int = 300;
 chdir $ARGV[0] or die "Test directory could not be accessed: $!";
