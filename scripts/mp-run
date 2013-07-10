@@ -1,5 +1,5 @@
 #!/bin/bash
-testlength=900
+testlength=300
 printinterval=60
 
 inittestlength=$testlength
@@ -107,7 +107,7 @@ echo -e "\e[37m done\e[0m"
 echo -e "==> Starting services"
 
 echo -en "  -> Starting tcpdump...\t\t"
-sudo $base/mp-tcpdump -tt -qni any tcp and host $ap 2>/dev/null > tcpdump.pcap &
+sudo tcpdump -tt -qni any tcp and host $ap 2>/dev/null > tcpdump.pcap &
 if [[ $? -gt 0 ]]; then
   echo -e "\e[31m fail\e[0m"
   cd ..
