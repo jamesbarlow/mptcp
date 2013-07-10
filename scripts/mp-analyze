@@ -85,7 +85,7 @@ while (<$stats>) {
     foreach $if (keys %ifaces) {
       $last{'in_total'} += $ifaces{$if}->{'in'};
       $last{'out_total'} += $ifaces{$if}->{'out'};
-      $if->{'data'} .= "0 0 " if not defined $ran5{$if};
+      $ifaces{$if}->{'data'} .= "0 0 " if not defined $ran5{$if};
     }
     %ran5 = ();
 
