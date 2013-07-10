@@ -30,10 +30,16 @@ set style line 11 lt 11 lc rgb \"black\"
 plot \\"
 
 o="1"
+title=""
 for f in `ls *.dat`; do
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
-  title="${f%.dat}"
+  ap=`cat "iwconfig.log" | grep "${f%.dat}" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+  if [[ $ap == $title ]]; then
+    title="$ap (2)"
+  else
+    title="$ap"
+  fi
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
     io="'$f' using (\$1-$begin):(\$10/10) title '$title rtt' with lines ls ($o+4), \
