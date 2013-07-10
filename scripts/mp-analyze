@@ -40,7 +40,7 @@ my $line=0;
 
 my $time = 0;
 my $rmod = 0;
-my $ran5 = 0;
+my %ran5 = ();
 my $perc = -1;
 printf "Analyzing: [%s] [00.0%%]\r", '-' x 100;
 open my $tcp, '-|', 'zcat tcpdump.pcap.gz';
@@ -84,9 +84,9 @@ while (<$stats>) {
     foreach $if (values %ifaces) {
       $last{'in_total'} += $if->{'in'};
       $last{'out_total'} += $if->{'out'};
-      $if->{'data'} .= "0 0 " if not $ran5;
+      $if->{'data'} .= "0 0 " if not defined $ran5{$if};
     }
-    $ran5 = 0;
+    %ran5 = ();
 
     my $tdiff = 0;
     $tdiff = $e - $b if defined $b;
@@ -207,7 +207,7 @@ while (<$stats>) {
       $if = undef if /:22\b/;
       # or IPv6
       $if = undef if /::ffff:/;
-    } elsif (defined $if and $ran5 == 0 and /rtt:/) {
+    } elsif (defined $if and not defined $ran5{$if} and /rtt:/) {
       # extended info line
       /rtt:([\d\.]+)/;
       $ifaces{$if}->{'data'} .= sprintf "%d ", $1;
@@ -216,7 +216,7 @@ while (<$stats>) {
       } else {
         $ifaces{$if}->{'data'} .= "0 ";
       }
-      $ran5++;
+      $ran5{$if} = 1;
     } elsif (defined $if and /rtt:/) {
       printf "\nFound multiple rtt readings at line $.\n";
     }
