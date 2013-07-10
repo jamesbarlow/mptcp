@@ -199,8 +199,9 @@ while (<$stats>) {
       $if = undef if /:12865/;
       # or SSH
       $if = undef if /:22\b/;
-      $ran5 = 1;
-    } elsif (defined $if and /rtt:/) {
+      # or IPv6
+      $if = undef if /::ffff:/;
+    } elsif (defined $if and $ran5 == 0 and /rtt:/) {
       # extended info line
       /rtt:([\d\.]+)/;
       $ifaces{$if}->{'data'} .= sprintf "%d ", $1;
@@ -209,6 +210,9 @@ while (<$stats>) {
       } else {
         $ifaces{$if}->{'data'} .= "0 ";
       }
+      $ran5++;
+    } elsif (defined $if and /rtt:/) {
+      printf "\nFound multiple rtt readings at line $.\n";
     }
   }
 }
