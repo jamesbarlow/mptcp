@@ -1,9 +1,14 @@
 #!/bin/bash
 echo "Prevent autoconnection"
-sudo systemctl stop netctl-auto@wlan0.service
+if=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+sudo systemctl stop "netctl-auto@${if}.service"
 
 echo "Stopping current connection"
 sudo netctl stop-all
+
+echo "Enable mptcp coupled congestion control"
+sudo modprobe mptcp_coupled
+sudo sysctl -w net.ipv4.tcp_congestion_control=coupled
 
 echo "Enable mptcp kernel debug"
 sudo sysctl -w net.mptcp.mptcp_debug=1
@@ -11,5 +16,3 @@ sudo sysctl -w net.mptcp.mptcp_debug=1
 echo "Stopping daemons"
 pkill dropbox
 pkill hasmail
-
-echo "Bring interfaces up and run mp-routes"
