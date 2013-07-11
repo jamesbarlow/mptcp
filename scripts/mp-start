@@ -8,6 +8,7 @@ sudo netctl stop-all
 
 echo "Enable mptcp coupled congestion control"
 sudo modprobe mptcp_coupled
+sudo sysctl -w "net.ipv4.tcp_allowed_congestion_control=coupled cubic reno"
 sudo sysctl -w net.ipv4.tcp_congestion_control=coupled
 
 echo "Enable mptcp kernel debug"
