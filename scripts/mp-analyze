@@ -66,8 +66,8 @@ while (<$stats>) {
     my $b;
     my $e;
     while (<$tcp>) {
-      /^(\d+\.\d+) (\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+ \> (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+: (\w+) (\d+)$/;
-      next if not defined $2 or $2 ne "IP" or $5 ne "tcp";
+      /^(\d+\.\d+) (\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+ \> (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+: (\w+)(, length)? (\d+)$/;
+      next if not defined $2 or $2 ne "IP";
 
       my $ip = defined $iptoif{$3} ? $3 : $4;
       next if not defined $iptoif{$ip};
@@ -79,7 +79,7 @@ while (<$stats>) {
       last if $1 > $time;
 
       $if = $iptoif{$ip};
-      $ifaces{$if}->{$ip eq $3 ? 'out' : 'in'} += $6;
+      $ifaces{$if}->{$ip eq $3 ? 'out' : 'in'} += $7;
     }
 
     foreach $if (keys %ifaces) {

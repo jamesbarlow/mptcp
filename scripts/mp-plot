@@ -4,6 +4,8 @@ dir="$1"
 testname=`basename "$dir"`
 cd "$1"
 
+int=`cat test.txt | grep interrupt | wc -l`
+
 begin=`head -n1 *.dat | tail -n1 | cut -d' ' -f1`
 end=`tail -n1 *.dat | tail -n1 | cut -d' ' -f1`
 dur=`echo "$end-$begin" | bc`
@@ -45,15 +47,25 @@ for f in `ls *.dat`; do
   fi
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
-    io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \
-        '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \
-        '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \
-        '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6),"
+    if [[ $int -eq 0 ]]; then
+      io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \
+          '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \
+          '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \
+          '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6),"
+    else
+      io="'$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \
+          '$f' using (\$1-$begin):(8*\$14/65536000) title '$title throughput' with lines ls ($o+6),"
+    fi
   else
-    io="'$f' using (\$1-$begin):(\$10) title '$title recvq' with lines ls ($o+7), \
-        '$f' using (\$1-$begin):(\$13/10) title '$title rtt' with lines ls ($o+4), \
-        '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \
-        '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6),"
+    if [[ $int -eq 0 ]]; then
+      io="'$f' using (\$1-$begin):(\$10) title '$title recvq' with lines ls ($o+7), \
+          '$f' using (\$1-$begin):(\$13/10) title '$title rtt' with lines ls ($o+4), \
+          '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \
+          '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6),"
+    else
+      io="'$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \
+          '$f' using (\$1-$begin):(8*\$15/65536000) title '$title throughput' with lines ls ($o+6),"
+    fi
   fi
 
   s="$s
