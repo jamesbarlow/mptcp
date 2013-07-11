@@ -194,27 +194,32 @@ while [[ $err -gt 0 ]]; do
   fi
 
   err=0
-  while [[ $err -eq 0 && $testlength -gt 0 ]]; do
+  remains=$testlength
+  while [[ $err -eq 0 && $remains -gt 0 ]]; do
+    intbeg=`date +%s`
+    intfor=$printinterval
+    if [[ $testlength -lt $intfor ]]; then
+      intfor=$testlength
+    fi
     if [[ $int -eq 0 ]]; then
-      echo -e "\e[0m\e[37m==> Sleeping for $printinterval seconds\e[34;2m"
-      sleep $printinterval
+      echo -e "\e[0m\e[37m==> Sleeping for $intfor seconds\e[34;2m"
+      sleep $intfor
       err=$?
       int=1
     else
-      echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $printinterval seconds\e[34;2m"
+      echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $intfor seconds\e[34;2m"
       if [[ $direction == "down" ]]; then
-        ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $printinterval 2>&1 >/dev/null
+        ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor 2>&1 >/dev/null
         err=$?
       else
-        netperf -t UDP_STREAM -P 0 -L ${ips[1]} -H $ap -l $printinterval 2>&1 >/dev/null
+        netperf -t UDP_STREAM -P 0 -L ${ips[1]} -H $ap -l $intfor 2>&1 >/dev/null
         err=$?
       fi
       int=0
     fi
 
     end=`date +%s`
-    testlength=`echo "$testlength-($end-$begin)" | bc`
-    begin=$end
+    remains=`echo "$remains-($end-$intbeg)" | bc`
   done
 
   if [[ $err -gt 0 ]]; then
@@ -226,6 +231,8 @@ while [[ $err -gt 0 ]]; do
 
   echo -ne "\e[0m"
 
+  end=`date +%s`
+  testlength=`echo "$testlength-($end-$begin)" | bc`
   if [[ $err -gt 0 ]]; then
     echo -e "\e[1;31mTest interrupted with ${testlength}s left"
     echo -ne "Press enter to continue or Ctrl+D to end test\e[0m"
