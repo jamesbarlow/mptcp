@@ -208,6 +208,9 @@ while (<$stats>) {
       $if = undef if /:22\b/;
       # or IPv6
       $if = undef if /::ffff:/;
+
+      /^[^ ]+\s*(\d+)\s*(\d+)/;
+      $ifaces{$if}->{'data'} .= sprintf "%d %d ", $1, $2 if defined $if and not defined $ran5{$if};
     } elsif (defined $if and not defined $ran5{$if} and /rtt:/) {
       # extended info line
       /rtt:([\d\.]+)/;

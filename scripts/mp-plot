@@ -26,6 +26,7 @@ set style line 8 lt 8 lc rgb \"dark-red\"
 set style line 9 lt 9 lc rgb \"gray\"
 set style line 10 lt 10 lc rgb \"forest-green\"
 set style line 11 lt 11 lc rgb \"black\"
+set style line 12 lt 12 lc rgb \"dark-magenta\"
 
 plot \\"
 
@@ -42,13 +43,15 @@ for f in `ls *.dat`; do
   fi
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
-    io="'$f' using (\$1-$begin):(\$10/10) title '$title rtt' with lines ls ($o+4), \
-        '$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \
-        '$f' using (\$1-$begin):(8*\$14/1000000) title '$title throughput' with lines ls ($o+6),"
+    io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \
+        '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \
+        '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \
+        '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6),"
   else
-    io="'$f' using (\$1-$begin):(\$11/10) title '$title rtt' with lines ls ($o+4), \
-        '$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \
-        '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6),"
+    io="'$f' using (\$1-$begin):(\$10) title '$title recvq' with lines ls ($o+7), \
+        '$f' using (\$1-$begin):(\$13/10) title '$title rtt' with lines ls ($o+4), \
+        '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \
+        '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6),"
   fi
 
   s="$s
@@ -62,9 +65,9 @@ done
 
 f=`ls *.dat | head -n1`
 s="$s
-  '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 8, \
-  '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 9, \
-  '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 10, \
-  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 11"
+  '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \
+  '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 10, \
+  '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \
+  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12"
 
 echo "$s" | gnuplot -p -
