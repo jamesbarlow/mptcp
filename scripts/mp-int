@@ -161,6 +161,14 @@ $base/mp-stats 1s $ap > stats.log &
 stats_pid=$!
 echo -e "\e[37m done\e[0m"
 
+echo -en "  -> Starting fifo\t\t\t"
+FIFONAME=/tmp/myfifo.$$
+rm -f $FIFONAME
+mkfifo $FIFONAME
+echo "" > perf.log
+cat $FIFONAME | tee -a perf.log
+echo -e "\e[37m done\e[0m"
+
 if [[ $direction == "down" ]]; then
   echo -ne "==> Running performance test (remote) against \e[37m${ips[0]}\e[0m"
 else
@@ -170,31 +178,30 @@ echo -e " for \e[37m$testlength/$printinterval\e[0m seconds"
 
 err=1
 int=0
-echo "" > perf.log
 while [[ $err -gt 0 ]]; do
   begin=`date +%s`
   echo -ne "\e[34;2m"
 
   testpid=0
   if [[ $direction == "down" ]]; then
-    ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength -D $printinterval | tee -a perf.log &
+    ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength -D $printinterval > $FIFONAME &
+    err=$?
     testpid=$!
-    err=${PIPESTATUS[0]}
   else
-    netperf -t UDP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength -D $printinterval | tee -a perf.log &
+    netperf -t UDP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength -D $printinterval > $FIFONAME &
+    err=$?
     testpid=$!
-    err=${PIPESTATUS[0]}
   fi
 
   err=0
   while [[ $err -eq 0 && $testlength -gt 0 ]]; do
     if [[ $int -eq 0 ]]; then
-      echo -e "\e[37m==> Sleeping for $printinterval seconds\e[34;2m"
+      echo -e "\e[0m\e[37m==> Sleeping for $printinterval seconds\e[34;2m"
       sleep $printinterval
       err=$?
       int=1
     else
-      echo -e "\e[37m==> Interrupting with ${ips[1]} for $printinterval seconds\e[34;2m"
+      echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $printinterval seconds\e[34;2m"
       if [[ $direction == "down" ]]; then
         ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $printinterval 2>&1 >/dev/null
         err=$?
@@ -210,7 +217,12 @@ while [[ $err -gt 0 ]]; do
     begin=$end
   done
 
-  kill $testpid
+  if [[ $err -gt 0 ]]; then
+    int=0
+    kill $testpid
+  else
+    wait $testpid
+  fi
 
   echo -ne "\e[0m"
 
@@ -241,9 +253,13 @@ kill $stats_pid
 wait $stats_pid 2>/dev/null # http://stackoverflow.com/a/5722850
 echo -e "\e[37m done\e[0m"
 
+echo -en "  -> Ending fifo\t\t\t"
+rm $FIFONAME
+echo -e "\e[37m done\e[0m"
+
 if [[ $netserver_started -gt 0 ]]; then
   for net in $ips; do
-    echo -ne "  -> Stopping netserver on $net...\t"
+    echo -ne "  -> Stopping netserver on $net"
     pkill netserver
     echo -e "\e[37m done\e[0m"
   done
@@ -285,3 +301,5 @@ if [[ $both == 'yes' ]]; then
     $base/mp-int $testname down $ap $floor
   fi
 fi
+
+# vim:textwidth=0:
