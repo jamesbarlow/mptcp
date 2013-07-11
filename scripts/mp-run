@@ -73,6 +73,21 @@ fi
 
 echo -e "==> Noting test context"
 
+echo -en "  -> Stack info...\t\t\t"
+echo "" > stack.log
+uname -a >> stack.log
+echo "tcp_congestion_control" >> stack.log
+cat /proc/sys/net/ipv4/tcp_congestion_control >> stack.log
+echo "tcp_mem" >> stack.log
+cat /proc/sys/net/ipv4/tcp_mem >> stack.log
+echo "tcp_wmem" >> stack.log
+cat /proc/sys/net/ipv4/tcp_wmem >> stack.log
+echo "wmem_default" >> stack.log
+cat /proc/sys/net/core/wmem_default >> stack.log
+echo "wmem_max" >> stack.log
+cat /proc/sys/net/core/wmem_max >> stack.log
+echo -e "\e[37m done\e[0m"
+
 echo -en "  -> IP addresses...\t\t\t"
 ip addr > ips.log
 echo -e "\e[37m done\e[0m"
