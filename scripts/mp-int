@@ -161,14 +161,6 @@ $base/mp-stats 1s $ap > stats.log &
 stats_pid=$!
 echo -e "\e[37m done\e[0m"
 
-echo -en "  -> Starting fifo\t\t\t"
-FIFONAME=/tmp/myfifo.$$
-rm -f $FIFONAME
-mkfifo $FIFONAME
-echo "" > perf.log
-cat $FIFONAME | tee -a perf.log &
-echo -e "\e[37m done\e[0m"
-
 if [[ $direction == "down" ]]; then
   echo -ne "==> Running performance test (remote) against \e[37m${ips[0]}\e[0m"
 else
@@ -184,16 +176,19 @@ while [[ $err -gt 0 ]]; do
 
   testpid=0
   if [[ $direction == "down" ]]; then
-    ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength -D $printinterval > $FIFONAME &
+    ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength >/dev/null &
     err=$?
     testpid=$!
   else
-    netperf -t UDP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength -D $printinterval > $FIFONAME &
+    netperf -t UDP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength >/dev/null &
     err=$?
     testpid=$!
   fi
 
-  err=0
+  if [[ $err -gt 0 ]]; then
+    echo -e "\e[0m\e[31m==> Failed to run main netperf session\e[34;2m"
+  fi
+
   remains=$testlength
   while [[ $err -eq 0 && $remains -gt 0 ]]; do
     intbeg=`date +%s`
@@ -209,13 +204,15 @@ while [[ $err -gt 0 ]]; do
       int=1
     else
       echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $intfor seconds\e[34;2m"
+      trap "err=1" INT
       if [[ $direction == "down" ]]; then
-        ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor 2>&1 >/dev/null
+        ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor >/dev/null
         err=$?
       else
-        netperf -t UDP_STREAM -P 0 -L ${ips[1]} -H $ap -l $intfor 2>&1 >/dev/null
+        netperf -t UDP_STREAM -P 0 -L ${ips[1]} -H $ap -l $intfor >/dev/null
         err=$?
       fi
+      trap - INT
       int=0
     fi
 
@@ -259,10 +256,6 @@ echo -e "\e[37m done\e[0m"
 echo -en "  -> Stopping stats gatherer...\t\t"
 kill $stats_pid
 wait $stats_pid 2>/dev/null # http://stackoverflow.com/a/5722850
-echo -e "\e[37m done\e[0m"
-
-echo -en "  -> Ending fifo\t\t\t"
-rm $FIFONAME
 echo -e "\e[37m done\e[0m"
 
 if [[ $netserver_started -gt 0 ]]; then
