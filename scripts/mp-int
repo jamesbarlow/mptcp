@@ -134,7 +134,7 @@ echo -e "\e[37m done\e[0m"
 echo -e "==> Starting services"
 
 echo -en "  -> Starting tcpdump...\t\t"
-sudo tcpdump -tt -qni any tcp and host $ap 2>/dev/null > tcpdump.pcap &
+sudo tcpdump -tt -qni any udp and host $ap 2>/dev/null > tcpdump.pcap &
 if [[ $? -gt 0 ]]; then
   echo -e "\e[31m fail\e[0m"
   cd ..
@@ -184,11 +184,11 @@ while [[ $err -gt 0 ]]; do
 
   testpid=0
   if [[ $direction == "down" ]]; then
-    ssh msc@$ap netperf -t TCP_STREAM -P 0 -H ${ips[0]} -l $testlength -D $printinterval > $FIFONAME &
+    ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength -D $printinterval > $FIFONAME &
     err=$?
     testpid=$!
   else
-    netperf -t TCP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength -D $printinterval > $FIFONAME &
+    netperf -t UDP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength -D $printinterval > $FIFONAME &
     err=$?
     testpid=$!
   fi
@@ -210,10 +210,10 @@ while [[ $err -gt 0 ]]; do
     else
       echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $intfor seconds\e[34;2m"
       if [[ $direction == "down" ]]; then
-        ssh msc@$ap netperf -t TCP_STREAM -P 0 -H ${ips[1]} -l $intfor 2>&1 >/dev/null
+        ssh msc@$ap netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor 2>&1 >/dev/null
         err=$?
       else
-        netperf -t TCP_STREAM -P 0 -L ${ips[1]} -H $ap -l $intfor 2>&1 >/dev/null
+        netperf -t UDP_STREAM -P 0 -L ${ips[1]} -H $ap -l $intfor 2>&1 >/dev/null
         err=$?
       fi
       int=0
