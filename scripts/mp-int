@@ -203,10 +203,9 @@ while [[ $err -gt 0 ]]; do
     fi
     if [[ $int -eq 0 ]]; then
       echo -e "\e[0m\e[37m==> Sleeping for $intfor seconds\e[34;2m"
-      trap "echo -n" INT
+      trap "err=1" INT
       sleep $intfor
       trap - INT
-      err=$?
       int=1
     else
       echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $intfor seconds\e[34;2m"
