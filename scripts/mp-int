@@ -166,7 +166,7 @@ FIFONAME=/tmp/myfifo.$$
 rm -f $FIFONAME
 mkfifo $FIFONAME
 echo "" > perf.log
-cat $FIFONAME | tee -a perf.log
+cat $FIFONAME | tee -a perf.log &
 echo -e "\e[37m done\e[0m"
 
 if [[ $direction == "down" ]]; then
