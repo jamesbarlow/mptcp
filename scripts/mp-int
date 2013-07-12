@@ -176,7 +176,7 @@ while [[ $err -gt 0 ]]; do
 
   testpid=0
   if [[ $direction == "down" ]]; then
-    ssh msc@$ap nohup netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength >/dev/null &
+    ssh msc@$ap "nohup netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength >/dev/null &"
     err=$?
     testpid=$!
   else
@@ -206,7 +206,7 @@ while [[ $err -gt 0 ]]; do
       echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $intfor seconds\e[34;2m"
       trap "err=1" INT
       if [[ $direction == "down" ]]; then
-        ssh msc@$ap nohup netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor >/dev/null &
+        ssh msc@$ap "nohup netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor >/dev/null &"
         pid=$?
         sleep $intfor
         if [[ $err -gt 0 ]]; then
