@@ -1,6 +1,6 @@
 #!/bin/bash
-testlength=300
-printinterval=60
+testlength=60
+printinterval=15
 
 inittestlength=$testlength
 testname=$1
