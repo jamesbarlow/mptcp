@@ -43,8 +43,9 @@ my $time = 0;
 my $rmod = 0;
 my %ran5 = ();
 my $perc = -1;
+my $start;
+my $end;
 printf "Analyzing: [%s] [00.0%%]\r", '-' x 100;
-open my $tcp, '-|', 'zcat tcpdump.pcap.gz';
 open my $stats, '-|', 'zcat stats.log.gz';
 while (<$stats>) {
   if (/^\;$/) {
@@ -56,43 +57,16 @@ while (<$stats>) {
     $rmod = 0;
     # loop through tcpdumps up to this point
     # calculate distribution and print
-    $last{'in_total'} = 0;
-    $last{'out_total'} = 0;
-    foreach $if (values %ifaces) {
-      $if->{'out'} = 0;
-      $if->{'in'} = 0;
-    }
-
-    my $b;
-    my $e;
-    while (<$tcp>) {
-      /^(\d+\.\d+) (\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+ \> (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\.\d+: (\w+)(, length)? (\d+)$/;
-      next if not defined $2 or $2 ne "IP";
-
-      my $ip = defined $iptoif{$3} ? $3 : $4;
-      next if not defined $iptoif{$ip};
-
-      $b = $1 if not defined $b;
-      $e = $1;
-
-      # TODO: Avoid skipping last record of every interval
-      last if $1 > $time;
-
-      $if = $iptoif{$ip};
-      $ifaces{$if}->{$ip eq $3 ? 'out' : 'in'} += $7;
-    }
 
     foreach $if (keys %ifaces) {
-      $last{'in_total'} += $ifaces{$if}->{'in'};
-      $last{'out_total'} += $ifaces{$if}->{'out'};
       $ifaces{$if}->{'data'} .= "0 0 " if not defined $ran5{$if};
     }
     %ran5 = ();
 
     my $tdiff = 0;
-    $tdiff = $e - $b if defined $b;
+    $tdiff = $end - $start if defined $start;
     foreach $if (values %ifaces) {
-      if (defined $b and $e > $b) {
+      if (defined $start) {
         my $o = $if->{'out'} > 0 ? 100*$if->{'out'}/$last{'out_total'} : 0;
         my $i = $if->{'in'} > 0 ? 100*$if->{'in'}/$last{'in_total'} : 0;
         my $ot = $if->{'out'}/$tdiff;
@@ -102,6 +76,10 @@ while (<$stats>) {
         $if->{'data'} .= "0 0 0 0\n";
       }
     }
+    $start = $end;
+
+    $last{'in_total'} = 0;
+    $last{'out_total'} = 0;
 
     foreach $if (values %ifaces) {
       my $f = $if->{'file'};
@@ -123,6 +101,7 @@ while (<$stats>) {
     # date
     /^(\d+\.\d+)$/;
     $time = $1;
+    $end = $time;
 
     foreach $if (values %ifaces) {
       $if->{'data'} .= sprintf "%d ", $1;
@@ -143,7 +122,24 @@ while (<$stats>) {
   } elsif ($rmod == 2) {
     # /proc/net/dev
     # iface,rx-b,rx-p,rx-err,rx-drop,#,#,#,#,tx-b,tx-p,tx-err,...
-    next;
+    my @d = split /,/;
+    $if = $d[0];
+    next if not defined $ifaces{$if};
+
+    my $in = $d[1];
+    $in = 0 if not defined $last{"in-$if"};
+    $in -= $last{"in-$if"} if defined $last{"in-$if"};
+    $last{"in-$if"} = $d[1];
+
+    my $out = $d[9];
+    $out = 0 if not defined $last{"out-$if"};
+    $out -= $last{"out-$if"} if defined $last{"out-$if"};
+    $last{"out-$if"} = $d[9];
+
+    $last{'in_total'} += $in;
+    $last{'out_total'} += $out;
+    $ifaces{$if}->{'in'} = $in;
+    $ifaces{$if}->{'out'} = $out;
   } elsif ($rmod == 3) {
     # /proc/net/wireless
     # iface,status,link,level,noise,err-nwid,err-crypt,err-frag,err-retry,err-misc,missed,WE

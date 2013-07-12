@@ -54,7 +54,7 @@ for f in `ls *.dat`; do
           '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6),"
     else
       io="'$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \
-          '$f' using (\$1-$begin):(8*\$14/65536000) title '$title throughput' with lines ls ($o+6),"
+          '$f' using (\$1-$begin):(8*\$14/1000000) title '$title throughput' with lines ls ($o+6),"
     fi
   else
     if [[ $int -eq 0 ]]; then
@@ -64,7 +64,7 @@ for f in `ls *.dat`; do
           '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6),"
     else
       io="'$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \
-          '$f' using (\$1-$begin):(8*\$15/65536000) title '$title throughput' with lines ls ($o+6),"
+          '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6),"
     fi
   fi
 
