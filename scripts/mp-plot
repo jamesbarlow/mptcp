@@ -31,12 +31,13 @@ set style line 9 lt 9 lc rgb \"gray\"
 set style line 10 lt 10 lc rgb \"forest-green\"
 set style line 11 lt 11 lc rgb \"black\"
 set style line 12 lt 12 lc rgb \"dark-magenta\"
+set style line 13 lt 13 lc rgb \"dark-gray\"
 
 plot \\"
 
 o="1"
 title=""
-for f in `ls *.dat`; do
+for f in `ls *.dat | grep -v totals`; do
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
   ap=`cat "iwconfig.log" | grep "${f%.dat}" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
@@ -77,11 +78,17 @@ for f in `ls *.dat`; do
   o=`echo "$o+1" | bc`
 done
 
-f=`ls *.dat | head -n1`
+f=`ls *.dat | grep -v "totals" | head -n1`
 s="$s
   '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \
   '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 10, \
   '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \
-  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12"
+  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12,"
+
+if [[ -z `echo $f | grep -- "-down"` ]]; then
+  s="$s 'totals.dat' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 13"
+else
+  s="$s 'totals.dat' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 13"
+fi
 
 echo "$s" | gnuplot -p -

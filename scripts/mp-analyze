@@ -47,6 +47,7 @@ my $start;
 my $end;
 printf "Analyzing: [%s] [00.0%%]\r", '-' x 100;
 open my $stats, '-|', 'zcat stats.log.gz';
+open my $total, '>', 'totals.dat';
 while (<$stats>) {
   if (/^\;$/) {
     $rmod++;
@@ -78,6 +79,7 @@ while (<$stats>) {
     }
     $start = $end;
 
+    printf $total "%d %.1f %.1f\n", $end, $last{'out_total'}, $last{'in_total'};
     $last{'in_total'} = 0;
     $last{'out_total'} = 0;
 
@@ -227,5 +229,6 @@ foreach $if (values %ifaces) {
   my $f = $if->{'file'};
   close $f;
 }
+close $total;
 
 printf "Analyzing: [%s] [DONE!]\n", '#' x 100;
