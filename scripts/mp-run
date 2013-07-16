@@ -3,8 +3,7 @@ testlength=300
 printinterval=60
 
 inittestlength=$testlength
-testname=$1
-direction=$2
+direction=$1
 both="no"
 base=`dirname $0`
 base=`realpath $base`
@@ -13,8 +12,8 @@ if [[ $UID -eq 0 ]]; then
   echo -e "\e[31mThis script should not be run as root\e[0m"
 fi
 
-if [[ -z $1 || -z $2 ]]; then
-  echo "Usage: $0 <name> <down|up> [server] [floor]"
+if [[ -z $1 ]]; then
+  echo "Usage: $0 <down|up|both> [server] [floor]"
   exit 1
 fi
 
@@ -26,24 +25,19 @@ if [[ $direction == 'both' ]]; then
   both="yes"
 fi
 
-echo -e "==> Preparing \e[37m${direction}link\e[0m test \e[37m$testname\e[0m"
-
-mkdir -p "$testname-$direction"
-cd "$testname-$direction"
+echo -e "==> Preparing \e[37m${direction}link\e[0m test\e[0m"
 
 echo -en "  -> Finding primary local IP: "
 ip=`ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1`
 
 if [[ -z $ip ]]; then
   echo -e "\e[1;5;31mnone found!\e[0m"
-  cd ..
-  rm -rf "$testname-$direction"
   exit 1
 else
   echo -e "\e[37m$ip\e[0m"
 fi
 
-if [[ -z $3 ]]; then
+if [[ -z $2 ]]; then
   if [[ ! -z `echo $ip | grep -P "^128\.16\.8"` ]]; then
     echo -e "  -> Running mp-routes"
     echo "-----------------------------------------"
@@ -54,7 +48,7 @@ if [[ -z $3 ]]; then
   fi
 fi
 
-if [[ -z $3 ]]; then
+if [[ -z $2 ]]; then
   echo -en "==> Detecting testing server: "
   ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1`
 
@@ -67,9 +61,40 @@ if [[ -z $3 ]]; then
     echo -e "\e[37m$ap\e[0m"
   fi
 else
-  ap=$3
+  ap=$2
   echo -e "==> Using testing server \e[37m$ap\e[0m"
 fi
+
+twofours=`iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | wc -l`
+fives=`iwconfig 2>/dev/null | grep "Freq" | grep ":5." | wc -l`
+testname="$USER-$ap-"
+
+if [[ $fives -gt 1 ]]; then
+  testname="${testname}5x$fives"
+elif [[ $fives -gt 0 ]]; then
+  testname="${testname}5"
+fi
+
+if [[ $twofours -gt 0 && $fives -gt 0 ]]; then
+  testname="$testname-"
+fi
+
+if [[ $twofours -gt 1 ]]; then
+  testname="${testname}2.4x$twofours"
+elif [[ $twofours -gt 0 ]]; then
+  testname="${testname}2.4"
+fi
+
+echo -e "==> Preparing test folder \e[37m$testname-$direction\e[0m"
+
+if [[ -e "$testname-$direction" ]]; then
+  cnt=`ls | grep "$testname" | grep -- "-$direction" | wc -l`
+  testname="$testname@$cnt"
+  echo -e "\e[33m  -> Old version found, calling this $testname-$direction\e[0m"
+fi
+
+mkdir -p "$testname-$direction"
+cd "$testname-$direction"
 
 echo -e "==> Noting test context"
 
@@ -78,6 +103,8 @@ echo "" > stack.log
 uname -a >> stack.log
 echo "tcp_congestion_control" >> stack.log
 cat /proc/sys/net/ipv4/tcp_congestion_control >> stack.log
+echo "remote tcp_congestion_control" >> stack.log
+ssh $ap cat /proc/sys/net/ipv4/tcp_congestion_control >> stack.log
 echo "tcp_mem" >> stack.log
 cat /proc/sys/net/ipv4/tcp_mem >> stack.log
 echo "tcp_wmem" >> stack.log
@@ -96,13 +123,13 @@ echo -en "  -> Wireless connection details...\t"
 iwconfig 2>/dev/null > iwconfig.log
 echo -e "\e[37m done\e[0m"
 
-if [[ -z $4 ]]; then
+if [[ -z $3 ]]; then
   echo -en "\e[1m  ?? Enter floor:\t\t\t\e[37m  th\e[0m"
   echo -en "\r\e[1m  ?? Enter floor:\t\t\t\e[37m "
   read floor
   echo -en "\e[0m"
 else
-  floor=$4
+  floor=$3
 fi
 
 echo -en "  -> Test report outline...\t\t";
@@ -235,6 +262,6 @@ if [[ $both == 'yes' ]]; then
   else
     cd ..
     echo
-    $base/mp-run $testname down $ap $floor
+    $base/mp-run down $ap $floor
   fi
 fi
