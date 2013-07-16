@@ -81,7 +81,7 @@ fi
 
 if [[ $twofours -gt 1 ]]; then
   testname="${testname}2.4x$twofours"
-  freqs=`iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | sed 's/.*Frequency:\([0-9\.]*\).*/\1/'`
+  freqs=`iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | sed 's/.*Frequency:2\.\([0-9\.]*\).*/\1/'`
   freqs=($freqs)
   if [[ ${freqs[0]} -eq ${freqs[1]} ]]; then
     testname="${testname}-i"
