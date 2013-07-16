@@ -85,7 +85,7 @@ s="$s
   '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \
   '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12,"
 
-if [[ -z `echo $f | grep -- "-down"` ]]; then
+if [[ -z `echo $1 | grep -- "-down"` ]]; then
   s="$s 'totals.dat' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 13"
 else
   s="$s 'totals.dat' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 13"
