@@ -191,7 +191,7 @@ err=1
 echo "" > perf.log
 while [[ $err -gt 0 ]]; do
   begin=`date +%s`
-  echo -ne "\e[34;2m"
+  echo -ne "\e[34m"
 
   if [[ $direction == "down" ]]; then
     ssh msc@$ap netperf -P 0 -H $ip -l $testlength -D $printinterval | tee -a perf.log

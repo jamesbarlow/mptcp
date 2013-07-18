@@ -172,7 +172,7 @@ err=1
 int=0
 while [[ $err -gt 0 ]]; do
   begin=`date +%s`
-  echo -ne "\e[34;2m"
+  echo -ne "\e[34m"
 
   testpid=0
   if [[ $direction == "down" ]]; then
