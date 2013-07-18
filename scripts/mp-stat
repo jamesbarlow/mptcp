@@ -2,6 +2,14 @@
 base=`dirname $0`
 base=`realpath $base`
 
+if [[ $# -eq 0 ]]; then
+  echo "Usage: $0 [FOLDER INTERFACE]... [CI]"
+  echo
+  echo "For each FOLDER/INTERFACE pair, parses FOLDER/INTERFACE.dat"
+  echo " and calculates the CI[=95]% confidence interval"
+  exit 1
+fi
+
 ci=1.96
 hasci=`echo "$#%2" | bc`
 if [[ $hasci -eq 1 ]]; then
@@ -18,8 +26,9 @@ if [[ $hasci -eq 1 ]]; then
   elif [[ $cit == '99' ]]; then
     ci="2.58"
   else
-    echo "Unknown confidence interval given, using 95%"
-    cit="95"
+    echo "Unknown confidence interval '$cit' given; use 90, 95, 98 or 99"
+    echo "Have you remembered to specify an interface for each folder?"
+    exit 2
   fi
 else
   cit="95"
