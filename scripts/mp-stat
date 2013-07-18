@@ -1,0 +1,34 @@
+#!/bin/bash
+cd "$1"
+
+dats=`ls *.dat | wc -l`
+dats=`echo "$dats-1" | bc`
+
+for f in `ls *.dat | sort -r`; do
+  if [[ $dats -eq 1 && $f == 'totals.dat' ]]; then
+    continue
+  fi
+
+  echo "${f%.dat}"
+  if [[ $f == 'totals.dat' ]]; then
+    i=3
+    o=2
+  else
+    i=17
+    o=16
+  fi
+
+  echo "in"
+  cut -d' ' -f$i "$f" > "in.dat"
+  R -q -e "x <- read.csv('in.dat', header = F); summary(x); sd(x[ , 1])" |
+  grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
+  rm "in.dat"
+
+  echo "out"
+  cut -d' ' -f$o "$f" > "out.dat"
+  R -q -e "x <- read.csv('out.dat', header = F); summary(x); sd(x[ , 1])" |
+  grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
+  rm "out.dat"
+
+  echo
+done
