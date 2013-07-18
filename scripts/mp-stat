@@ -2,33 +2,27 @@
 base=`dirname $0`
 base=`realpath $base`
 
-fstcd="$1"
-fstif="$2"
-sndcd="$3"
-sndif="$4"
-cit="95"
 ci=1.96
-
-if [[ ! -z $5 ]]; then
-  cit=$5
-  if [[ $5 == '90' ]]; then
+hasci=`echo "$#%2" | bc`
+if [[ $hasci -eq 1 ]]; then
+  # get last argument
+  # http://stackoverflow.com/questions/1853946/getting-the-last-argument-passed-to-a-shell-script
+  for cit; do true; done
+  # determine z factor
+  if [[ $cit == '90' ]]; then
     ci="1.645"
-  elif [[ $5 == '95' ]]; then
+  elif [[ $cit == '95' ]]; then
     ci="1.96"
-  elif [[ $5 == '98' ]]; then
+  elif [[ $cit == '98' ]]; then
     ci="2.33"
-  elif [[ $5 == '99' ]]; then
+  elif [[ $cit == '99' ]]; then
     ci="2.58"
   else
     echo "Unknown confidence interval given, using 95%"
     cit="95"
   fi
-fi
-
-dats=`ls "$1/$2.dat" "$3/$4.dat" | wc -l`
-if [[ $dats -ne 2 ]]; then
-  echo "Run mp-analyze first"
-  exit 1
+else
+  cit="95"
 fi
 
 runr() {
@@ -40,29 +34,39 @@ runr() {
     f=16
   fi
 
-  of="$1/$2.throughput.dat"
-  cut -d' ' -f$f "$1/$2.dat" > "$of"
-  out=`R -q -e "x <- read.csv('$of', header = F); summary(x); sd(x[ , 1])" | \
-        grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'`
-  rm "$of"
-  echo "$out"
+  cut -d' ' -f$f "$1/$2.dat" | \
+    # http://stackoverflow.com/questions/16493669/how-to-read-input-from-the-terminal-using-dev-stdin-and-read-csv
+    R -q -e "x <- read.csv(file='stdin', header = F); summary(x); sd(x[ , 1])" | \
+    grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
 }
 
-fstr=`runr "$fstcd" "$fstif"`
-fstmn=`echo "$fstr" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
-fstsd=`echo "$fstr" | grep "Stddev" | sed 's/.*: *\([0-9\.]*\).*/\1/'`
-fstno=`cat "$fstcd/$fstif.dat" | wc -l`
-fstcis=`echo "$fstmn - $ci*($fstsd/sqrt($fstno))" | bc`
-fstcie=`echo "$fstmn + $ci*($fstsd/sqrt($fstno))" | bc`
+# http://www.linuxquestions.org/questions/programming-9/processing-command-args-in-bash-367563/
+while true; do
+  # ci can't be parsed
+  if [[ $# -eq 1 ]]; then break; fi
 
-sndr=`runr "$sndcd" "$sndif"`
-sndmn=`echo "$sndr" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
-sndsd=`echo "$sndr" | grep "Stddev" | sed 's/.*: *\([0-9\.]*\).*/\1/'`
-sndno=`cat "$sndcd/$sndif.dat" | wc -l`
-sndcis=`echo "$sndmn - $ci*($sndsd/sqrt($sndno))" | bc`
-sndcie=`echo "$sndmn + $ci*($sndsd/sqrt($sndno))" | bc`
+  if [ $1 ]; then
+    nm="$1"
+    if="$2"
 
-fstcd=`basename $fstcd`
-sndcd=`basename $sndcd`
-echo -e "$cit% CI for $fstif in $fstcd:\t$fstcis - $fstcie"
-echo -e "$cit% CI for $sndif in $sndcd:\t$sndcis - $sndcie"
+    shift
+    shift
+
+    if [[ ! -e "$nm/$if.dat" ]]; then
+      echo "mp-analyze has not been run for $nm"
+      continue
+    fi
+
+    r=`runr "$nm" "$if"`
+    mn=`echo "$r" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
+    sd=`echo "$r" | grep "Stddev" | sed 's/.*: *\([0-9\.]*\).*/\1/'`
+    no=`cat "$nm/$if.dat" | wc -l`
+    cis=`echo "$mn - $ci*($sd/sqrt($no))" | bc`
+    cie=`echo "$mn + $ci*($sd/sqrt($no))" | bc`
+
+    nm=`basename $nm`
+    echo -e "$cit% CI for $if in $nm:\t$cis - $cie"
+  else
+    break; # no more args
+  fi
+done
