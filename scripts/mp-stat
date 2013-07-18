@@ -1,34 +1,68 @@
 #!/bin/bash
-cd "$1"
+base=`dirname $0`
+base=`realpath $base`
 
-dats=`ls *.dat | wc -l`
-dats=`echo "$dats-1" | bc`
+fstcd="$1"
+fstif="$2"
+sndcd="$3"
+sndif="$4"
+cit="95"
+ci=1.96
 
-for f in `ls *.dat | sort -r`; do
-  if [[ $dats -eq 1 && $f == 'totals.dat' ]]; then
-    continue
-  fi
-
-  echo "${f%.dat}"
-  if [[ $f == 'totals.dat' ]]; then
-    i=3
-    o=2
+if [[ ! -z $5 ]]; then
+  cit=$5
+  if [[ $5 == '90' ]]; then
+    ci="1.645"
+  elif [[ $5 == '95' ]]; then
+    ci="1.96"
+  elif [[ $5 == '98' ]]; then
+    ci="2.33"
+  elif [[ $5 == '99' ]]; then
+    ci="2.58"
   else
-    i=17
-    o=16
+    echo "Unknown confidence interval given, using 95%"
+    cit="95"
+  fi
+fi
+
+dats=`ls "$1/$2.dat" "$3/$4.dat" | wc -l`
+if [[ $dats -ne 2 ]]; then
+  echo "Run mp-analyze first"
+  exit 1
+fi
+
+runr() {
+  if [[ $1 == ${1/-up//} ]]; then
+    # down
+    f=17
+  else
+    # up
+    f=16
   fi
 
-  echo "in"
-  cut -d' ' -f$i "$f" > "in.dat"
-  R -q -e "x <- read.csv('in.dat', header = F); summary(x); sd(x[ , 1])" |
-  grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
-  rm "in.dat"
+  of="$1/$2.throughput.dat"
+  cut -d' ' -f$f "$1/$2.dat" > "$of"
+  out=`R -q -e "x <- read.csv('$of', header = F); summary(x); sd(x[ , 1])" | \
+        grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'`
+  rm "$of"
+  echo "$out"
+}
 
-  echo "out"
-  cut -d' ' -f$o "$f" > "out.dat"
-  R -q -e "x <- read.csv('out.dat', header = F); summary(x); sd(x[ , 1])" |
-  grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
-  rm "out.dat"
+fstr=`runr "$fstcd" "$fstif"`
+fstmn=`echo "$fstr" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
+fstsd=`echo "$fstr" | grep "Stddev" | sed 's/.*: *\([0-9\.]*\).*/\1/'`
+fstno=`cat "$fstcd/$fstif.dat" | wc -l`
+fstcis=`echo "$fstmn - $ci*($fstsd/sqrt($fstno))" | bc`
+fstcie=`echo "$fstmn + $ci*($fstsd/sqrt($fstno))" | bc`
 
-  echo
-done
+sndr=`runr "$sndcd" "$sndif"`
+sndmn=`echo "$sndr" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
+sndsd=`echo "$sndr" | grep "Stddev" | sed 's/.*: *\([0-9\.]*\).*/\1/'`
+sndno=`cat "$sndcd/$sndif.dat" | wc -l`
+sndcis=`echo "$sndmn - $ci*($sndsd/sqrt($sndno))" | bc`
+sndcie=`echo "$sndmn + $ci*($sndsd/sqrt($sndno))" | bc`
+
+fstcd=`basename $fstcd`
+sndcd=`basename $sndcd`
+echo -e "$cit% CI for $fstif in $fstcd:\t$fstcis - $fstcie"
+echo -e "$cit% CI for $sndif in $sndcd:\t$sndcis - $sndcie"
