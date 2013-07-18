@@ -62,8 +62,7 @@ while true; do
     shift
 
     if [[ ! -e "$nm/$if.dat" ]]; then
-      echo "mp-analyze has not been run for $nm"
-      continue
+      $base/mp-analyze "$nm" > /dev/null
     fi
 
     r=`runr "$nm" "$if"`
