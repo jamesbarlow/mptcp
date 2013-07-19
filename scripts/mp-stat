@@ -37,10 +37,18 @@ fi
 runr() {
   if [[ $1 == ${1/-up//} ]]; then
     # down
-    f=17
+    if [[ $2 == 'totals' ]]; then
+      f=3
+    else
+      f=17
+    fi
   else
     # up
-    f=16
+    if [[ $2 == 'totals' ]]; then
+      f=2
+    else
+      f=16
+    fi
   fi
 
   cut -d' ' -f$f "$1/$2.dat" | \
