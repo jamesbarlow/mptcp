@@ -57,28 +57,48 @@ runr() {
     grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
 }
 
-echo "Calculating $cit% confidence intervals"
-
+echo "[II] Calculating $cit% confidence interval"
 # http://www.linuxquestions.org/questions/programming-9/processing-command-args-in-bash-367563/
 out=""
+i=0
+lastnm=""
+lastap=""
 while true; do
   # ci can't be parsed
   if [[ $# -eq 1 ]]; then break; fi
 
   if [ $1 ]; then
     nm="$1"
-    if="$2"
+    ap="$2"
+
+    if [[ $nm == $lastnm && $ap == $lastap ]]; then
+      i=`echo $i+1 | bc`
+    else
+      i=1
+    fi
 
     shift
     shift
+
+    if=`cat "$nm/iwconfig.log" 2>&1 | grep "ESSID:\"$ap-wifi\"" | sed 's/^\([^ ]\+\) .*/\1/' | tail -n +$i | head -n 1`
+    if [[ -z $if ]]; then
+      if [[ $i -eq 1 ]]; then
+        echo "[WW] No interface found for ap $ap"
+      else
+        echo "[WW] No interface found for ap $ap#$i"
+      fi
+      continue
+    fi
+
+    freq=`cat "$nm/iwconfig.log" | grep "$if" -A1 | grep "Freq" | sed 's/.*Frequency:\([0-9\.]*\) \(GHz\).*/\1\2/'`
 
     if [[ ! -e "$nm/$if.dat" ]]; then
       $base/mp-analyze "$nm" > /dev/null
     fi
 
-    ran=`cat $nm/test.txt | grep "TEST TIME" | sed 's/^.*: [^ ]* \(.*\) [A-Z]* [0-9]*$/\1/'`
+    ran=`cat "$nm/test.txt" | grep "TEST TIME" | sed 's/^.*: [^ ]* \(.*\) [A-Z]* [0-9]*$/\1/'`
     ran=`echo "$ran" | sed 's/ /-/g'`
-    freq=`cat $nm/iwconfig.log | grep "$if" -A1 | grep "Freq" | sed 's/.*Frequency:\([0-9\.]*\) \(GHz\).*/\1\2/'`
+    freq=`cat "$nm/iwconfig.log" | grep "$if" -A1 | grep "Freq" | sed 's/.*Frequency:\([0-9\.]*\) GHz.*/\1/'`
 
     r=`runr "$nm" "$if"`
     mn=`echo "$r" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
@@ -87,13 +107,16 @@ while true; do
     cis=`echo "$mn - $ci*($sd/sqrt($no))" | bc`
     cie=`echo "$mn + $ci*($sd/sqrt($no))" | bc`
 
-    nm=`basename $nm`
-    out="$out$nm $if $freq $cis $cie $ran\n"
+    lastnm="$nm"
+    lastap="$ap"
+
+    nm=`basename "$nm"`
+    out="$out$nm\t$ran\t$ap@$freq\t$cis\t$cie\n"
   else
     break; # no more args
   fi
 done
 
-echo -e "$out" | column -t
+echo -e "$out" | column -ts '	'
 
 # vim:textwidth=0:
