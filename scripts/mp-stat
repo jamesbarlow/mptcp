@@ -57,7 +57,10 @@ runr() {
     grep -v ">" | grep -v "V1" | sed -e 's/\[1\] / Stddev.:/'
 }
 
+echo "Calculating $cit% confidence intervals"
+
 # http://www.linuxquestions.org/questions/programming-9/processing-command-args-in-bash-367563/
+out=""
 while true; do
   # ci can't be parsed
   if [[ $# -eq 1 ]]; then break; fi
@@ -73,6 +76,10 @@ while true; do
       $base/mp-analyze "$nm" > /dev/null
     fi
 
+    ran=`cat $nm/test.txt | grep "TEST TIME" | sed 's/^.*: [^ ]* \(.*\) [A-Z]* [0-9]*$/\1/'`
+    ran=`echo "$ran" | sed 's/ /-/g'`
+    freq=`cat $nm/iwconfig.log | grep "$if" -A1 | grep "Freq" | sed 's/.*Frequency:\([0-9\.]*\) \(GHz\).*/\1\2/'`
+
     r=`runr "$nm" "$if"`
     mn=`echo "$r" | grep "Mean"   | sed 's/.*: *\([0-9\.]*\).*/\1/'`
     sd=`echo "$r" | grep "Stddev" | sed 's/.*: *\([0-9\.]*\).*/\1/'`
@@ -81,8 +88,12 @@ while true; do
     cie=`echo "$mn + $ci*($sd/sqrt($no))" | bc`
 
     nm=`basename $nm`
-    echo -e "$cit% CI for $if in $nm:\t$cis - $cie"
+    out="$out$nm $if $freq $cis $cie $ran\n"
   else
     break; # no more args
   fi
 done
+
+echo -e "$out" | column -t
+
+# vim:textwidth=0:
