@@ -62,11 +62,10 @@ i=0
 lastnm=""
 lastap=""
 while true; do
-  # ci can't be parsed
   if [[ $# -eq 1 ]]; then break; fi
 
   if [ $1 ]; then
-    nm="${1%/}"
+    nm=`realpath "${1%/}"`
     ap="$2"
 
     if [[ $nm == $lastnm && $ap == $lastap ]]; then
@@ -100,10 +99,10 @@ while true; do
 
     if [[ $i -eq 1 ]]; then
       echo "[II] Calculating CDF for $ap"
-      title="$nm/$ap"
+      title="`basename "$nm"`/$ap"
     else
       echo "[II] Calculating CDF for $ap#$i"
-      title="$nm/$ap#$i"
+      title="`basename "$nm"`/$ap#$i"
     fi
 
     file="$nm/cdf-$ap-${i}.dat"
