@@ -37,9 +37,10 @@ runr() {
 }
 
 s="
-set xlabel 'Throughput'
-set ylabel 'CFF'
+set xlabel 'Throughput (Mbps)'
+set ylabel 'CDF'
 set grid
+set xrange [0:30]
 set yrange [0:100]
 set offset graph 0.02
 set key right bottom
@@ -109,8 +110,8 @@ while true; do
     if [[ ! -e $file ]]; then
       runr "$nm" "$if" > "$file"
     fi
-    s="$s'$file' using 1:(\$2*100) title '$title' with lines ls ($o),"
 
+    s="$s'$file' using (8*\$1/1048576):(\$2*100) title '$title' with lines ls ($o),"
     o=`echo "$o+1" | bc`
 
     lastnm="$nm"
