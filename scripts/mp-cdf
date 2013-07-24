@@ -104,9 +104,13 @@ while true; do
       echo "[II] Calculating CDF for $ap#$i"
       title="$nm/$ap#$i"
     fi
-    runr "$nm" "$if" > "$nm/cdf-$ap-${i}.dat"
 
-    s="$s'$nm/cdf-$ap-${i}.dat' using 1:(\$2*100) title '$title' with lines ls ($o),"
+    file="$nm/cdf-$ap-${i}.dat"
+    if [[ ! -e $file ]]; then
+      runr "$nm" "$if" > "$file"
+    fi
+    s="$s'$file' using 1:(\$2*100) title '$title' with lines ls ($o),"
+
     o=`echo "$o+1" | bc`
 
     lastnm="$nm"
