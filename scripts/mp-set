@@ -1,0 +1,55 @@
+#!/bin/bash
+base=`dirname $0`
+base=`realpath $base`
+cmd=""
+
+if [[ $1 == 'cdf' ]]; then
+  cmd="$base/mp-cdf"
+elif [[ $1 == 'stat' ]]; then
+  cmd="$base/mp-stat"
+elif [[ ! -z $1 ]]; then
+  echo "Unsupported display command given"
+  exit 2
+else
+  echo "Usage: $0 CMND [AP...]"
+  exit 0
+fi
+
+cmdb=`basename $cmd`
+shift
+
+updown="$1"
+shift
+
+if [[ $# -eq 0 ]]; then
+  echo "[II] Discovering available aps"
+  args=`cat ./*/iwconfig.log 2>&1 | grep "ESSID:\"" | grep -- "-wifi\"" | sed 's/^.*ESSID:"\([^"]*\)-wifi".*/\1/' | sort | uniq`
+else
+  args=$*
+fi
+
+for ap in $args; do
+  suffix=""
+  for dir in `ls -d *-single-*-$updown`; do
+    if [[ `grep "\"$ap-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
+      suffix=`echo "$dir" | sed "s/^.*-\\(.*\\)-$updown$/\1/"`
+      continue
+    fi
+  done
+
+  if [[ -z "$suffix" ]]; then
+    echo "[WW] Found no suffix for $ap"
+    continue
+  fi
+
+  run="$cmdb"
+  for dir in `ls -d *[-@]$suffix-$updown`; do
+    run="$run $dir $ap"
+  done
+
+  echo
+  echo "$run"
+  $run
+done
+
+# vim:textwidth=0:
