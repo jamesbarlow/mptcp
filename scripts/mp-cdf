@@ -36,8 +36,7 @@ runr() {
     grep -v ">" | grep -v "knots" | awk '{ print $2 " " $3 }'
 }
 
-s="
-# PLOT
+s="\
 set xlabel 'Throughput (Mbps)'
 set ylabel 'CDF'
 set grid
