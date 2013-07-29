@@ -37,6 +37,7 @@ runr() {
 }
 
 s="
+# PLOT
 set xlabel 'Throughput (Mbps)'
 set ylabel 'CDF'
 set grid
@@ -98,10 +99,8 @@ while true; do
     freq=`cat "$nm/iwconfig.log" | grep "$if" -A1 | grep "Freq" | sed 's/.*Frequency:\([0-9\.]*\) GHz.*/\1/'`
 
     if [[ $i -eq 1 ]]; then
-      echo "[II] Calculating CDF for $ap"
       title="`basename "$nm"`/$ap"
     else
-      echo "[II] Calculating CDF for $ap#$i"
       title="`basename "$nm"`/$ap#$i"
     fi
 
@@ -122,6 +121,7 @@ done
 
 s="${s%,}"
 
-echo "$s" | gnuplot -p -
+echo "$s" | gnuplot -p - > /dev/null 2>&1
+echo "$s"
 
 # vim:textwidth=0:

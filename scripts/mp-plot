@@ -38,6 +38,7 @@ plot \\"
 o="1"
 title=""
 for f in `ls *.dat | grep -v totals`; do
+  f=`realpath "$f"`
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
   ap=`cat "iwconfig.log" | grep "${f%.dat}" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
@@ -79,16 +80,19 @@ for f in `ls *.dat | grep -v totals`; do
 done
 
 f=`ls *.dat | grep -v "totals" | head -n1`
+f=`realpath "$f"`
 s="$s
   '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \
   '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 10, \
   '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \
   '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12,"
 
+f=`realpath totals.dat`
 if [[ -z `echo $1 | grep -- "-down"` ]]; then
-  s="$s 'totals.dat' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 13"
+  s="$s '$f' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 13"
 else
-  s="$s 'totals.dat' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 13"
+  s="$s '$f' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 13"
 fi
 
-echo "$s" | gnuplot -p -
+echo "$s" | gnuplot -p - > /dev/null 2>&1
+echo "$s"
