@@ -109,7 +109,8 @@ while true; do
       runr "$nm" "$if" > "$file"
     fi
 
-    s="$s'$file' using (8*\$1/1048576):(\$2*100) title '$title' with lines ls ($o),"
+    s="$s \\
+    '$file' using (8*\$1/1048576):(\$2*100) title '$title' with lines ls ($o),"
     o=`echo "$o+1" | bc`
 
     lastnm="$nm"

@@ -50,31 +50,31 @@ for f in `ls *.dat | grep -v totals`; do
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
     if [[ $int -eq 0 ]]; then
-      io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \
-          '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \
-          '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \
-          '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6),"
+      io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \\
+          '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \\
+          '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6), "
     else
-      io="'$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \
-          '$f' using (\$1-$begin):(8*\$14/1000000) title '$title throughput' with lines ls ($o+6),"
+      io="'$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$14/1000000) title '$title throughput' with lines ls ($o+6), "
     fi
   else
     if [[ $int -eq 0 ]]; then
-      io="'$f' using (\$1-$begin):(\$10) title '$title recvq' with lines ls ($o+7), \
-          '$f' using (\$1-$begin):(\$13/10) title '$title rtt' with lines ls ($o+4), \
-          '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \
-          '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6),"
+      io="'$f' using (\$1-$begin):(\$10) title '$title recvq' with lines ls ($o+7), \\
+          '$f' using (\$1-$begin):(\$13/10) title '$title rtt' with lines ls ($o+4), \\
+          '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6), "
     else
-      io="'$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \
-          '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6),"
+      io="'$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6), "
     fi
   fi
 
   s="$s
-    '$f' using (\$1-$begin):2 title '$title bitrate' with lines ls ($o), \
-    '$f' using (\$1-$begin):(100+\$3) title '$title signal' with lines ls ($o+1), \
-    '$f' using (\$1-$begin):4 title '$title tx-fail' with lines ls ($o+2), \
-    '$f' using (\$1-$begin):5 title '$title rx-drop' with lines ls ($o+3), \
+    '$f' using (\$1-$begin):2 title '$title bitrate' with lines ls ($o), \\
+    '$f' using (\$1-$begin):(100+\$3) title '$title signal' with lines ls ($o+1), \\
+    '$f' using (\$1-$begin):4 title '$title tx-fail' with lines ls ($o+2), \\
+    '$f' using (\$1-$begin):5 title '$title rx-drop' with lines ls ($o+3), \\
     $io \\"
   o=`echo "$o+1" | bc`
 done
@@ -82,10 +82,11 @@ done
 f=`ls *.dat | grep -v "totals" | head -n1`
 f=`realpath "$f"`
 s="$s
-  '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \
-  '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 10, \
-  '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \
-  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12,"
+  '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \\
+  '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 10, \\
+  '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \\
+  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12, \\
+  "
 
 f=`realpath totals.dat`
 if [[ -z `echo $1 | grep -- "-down"` ]]; then
@@ -96,3 +97,5 @@ fi
 
 echo "$s" | gnuplot -p - > /dev/null 2>&1
 echo "$s"
+
+# vim:textwidth=0:
