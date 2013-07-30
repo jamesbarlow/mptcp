@@ -95,6 +95,7 @@ else
   s="$s '$f' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 13"
 fi
 
+s=`echo "$s" | sed 's|/home/[^/]*/|~/|g'`
 echo "$s" | gnuplot -p - > /dev/null 2>&1
 echo "$s"
 
