@@ -2,25 +2,32 @@
 .PRECIOUS : graphs/%.pdf
 
 report.pdf: report.tex
-#            graphs/my-graph.pdf
-	sed -i 's/includegraphics{/includegraphics{graphs\//' graphs/*.tex
-	sed -i 's/includegraphics{graphs\/graphs\//includegraphics{graphs\//' graphs/*.tex
+	@pdflatex report.tex > /dev/null
+	@# Run twice to resolve references
 	pdflatex report.tex
-	pdflatex report.tex # Run twice to resolve references
 
 %.graph: graphs/%.pdf graphs/%.tex
 	@
 
 graphs/%.pdf: graphs/%.eps
-	ps2pdf -dEPSCrop $< $@
+	@echo "Generating $@ from EPS"
+	@ps2pdf -dEPSCrop $< $@ > /dev/null
 
 graphs/%.tex graphs/%.eps: graphs/%.plot
-	sed -i '/^plot/i \
+	@echo "Destyling and LaTeXifying $<"
+	@cp $< $<.tmp
+	@sed -i '/^plot/i \
 	set terminal epslatex \
-	set output "graphs/$*.tex"' $<
-	gnuplot $<
-	sed -i '/^set terminal/d' $<
-	sed -i '\|^set output "graphs/$*.tex"|d' $<
+	set output "graphs/$*.tex"' $<.tmp
+	@sed -i '/^set style/d' $<.tmp
+	@sed -i '/^set title/d' $<.tmp
+	@sed -i 's/ ls [^,]*//' $<.tmp
+	@gnuplot $<.tmp
+	@rm $<.tmp
+	
+	@# Fix broken handling of multiple dots in filenames
+	@# see http://tex.stackexchange.com/questions/10574/includegraphics-dots-in-filename
+	@sed -i 's/\(\\put(0,0){\\includegraphics{\)\(graphs\/.*\.[^p].*\)}}/\1{\2}.pdf}}/' graphs/$*.tex
 
 clean:
 	rm -f report.{aux,log,out,pdf}
