@@ -1,7 +1,8 @@
 .PHONY : clean %.graph
 .PRECIOUS : graphs/%.pdf
 
-report.pdf: report.tex
+report.pdf: report.tex \
+	mp-int-2.4-i.graph mp-int-2.4-ni.graph
 	@pdflatex report.tex > /dev/null
 	@# Run twice to resolve references
 	pdflatex report.tex

@@ -138,13 +138,20 @@ them as an indicator of which server will be used for tests.
 \subsubsection{Fairness}
 \subsection{MPTCP congestion control}
 \subsection{Carrier Sense and cross-channel interference}
-The cross-channel interference observed in $1$ is quite interesting as the
-throughput and utilization measurements show a completely fair sharing between
-the two networks when both are active. There are also an insignificant number of
-802.11 retransmit failures. This perfect split implies that Carrier Sense is
-being employed here, effectively doing time multiplexing between the interfaces.
-This would be fine if the two networks were on the same channel and should not
-transmit simultaneously, but $1$ was performed with two networks on opposite
+\begin{figure}[h]
+ \centering
+ \input{graphs/mp-int-2.4-ni.tex}
+ \caption{Cross-channel interference}\label{graph:cc-interference}
+\end{figure}
+
+The cross-channel interference observed in Figure~\ref{graph:cc-interference} is
+quite interesting as the throughput and utilization measurements show a
+completely fair sharing between the two networks when both are active. There are
+also nearly no 802.11 retransmit failures. This perfect split implies that
+Carrier Sense is being employed here, effectively doing time multiplexing
+between the interfaces.  This would be fine if the two networks were on the same
+channel and should not transmit simultaneously, but the experiment shown in
+Figure~\ref{graph:cc-interference} was performed with two networks on opposite
 ends of the 2.4 Ghz spectrum (channel 1 and 11), and the two interfaces should
 be able to both transmit at the same time, giving twice the throughput.
 
@@ -152,30 +159,35 @@ Looking at the total throughput, it is clear that some performance gain is
 achieved, but clearly the gain is closer to 50% than the 100% one would expect
 from non-interfering channels.
 
-The results from $2$ are perhaps even more surprising as Carrier Sense should
-enforce a fairly strict time multiplexing with two networks on the same channel,
-meaning the total throughput should remain almost the same whether one or two
-interfaces are active. The experimental results on the other hand show that the
-total throughput decreases to almost 50% when both interfaces are active.
-Clearly Carrier Sense is not performing as it should.
+\begin{figure}[h]
+ \centering
+ \input{graphs/mp-int-2.4-i.tex}
+ \caption{Same-channel interference}\label{graph:sc-interference}
+\end{figure}
 
-  $1$ non-interfering mp-int test
-  $2$ interfering mp-int test
+The results in Figure~\ref{graph:sc-interference} are perhaps even more
+surprising as Carrier Sense should enforce a fairly strict time multiplexing
+with two networks on the same channel, meaning the total throughput should
+remain almost the same whether one or two interfaces are active. The
+experimental results on the other hand show that the total throughput decreases
+to almost 50\% when both interfaces are active. Clearly Carrier Sense is not
+performing as it should.
+
 \subsection{What if pigs could fly?} % Optimal solution
 
 \section{Conclusion}
 
-% Subfig example
-% \begin{figure}[h]
-%  \centering
-%  \subfloat[][dense networks] {
-%    \scalebox{0.55}{\input{graphs/a.tex}}\label{graph:a}
-%  }
-%  \subfloat[][sparse networks] {
-%    \scalebox{0.55}{\input{graphs/b.tex}}\label{graph:b}
-%  }
+%Subfig example
+%\begin{figure}[h]
+% \centering
+% \subfloat[][cross-channel interference] {\
+%   \scalebox{0.55}{\input{graphs/mp-int-2.4-ni.tex}}\label{graph:cc-interference}
+% }
+% \subfloat[][same-channel interference] {\
+%   \scalebox{0.55}{\input{graphs/mp-int-2.4-i.tex}}\label{graph:sc-interference}
+% }
 %
-%  \caption{Caption goes here}\label{graph:a-b}
+% \caption{Interference experiments}\label{graph:interference}
 %\end{figure}
 
 \end{document}
