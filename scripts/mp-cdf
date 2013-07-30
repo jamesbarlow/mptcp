@@ -61,12 +61,20 @@ out=""
 i=0
 lastnm=""
 lastap=""
+lastdir=""
 while true; do
   if [[ $# -eq 1 ]]; then break; fi
 
   if [ $1 ]; then
     nm=`realpath "${1%/}"`
     ap="$2"
+    dir=$(basename $(dirname "$nm"))
+
+    if [[ -z $lastdir ]]; then
+      lastdir="$dir"
+    elif [[ $lastdir != $dir ]]; then
+      lastdir="-"
+    fi
 
     if [[ $nm == $lastnm && $ap == $lastap ]]; then
       i=`echo $i+1 | bc`
@@ -120,6 +128,10 @@ while true; do
 done
 
 s="${s%,}"
+
+if [[ $lastdir != "-" ]]; then
+  s=`echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastdir'|"`
+fi
 
 echo "$s" | gnuplot -p - > /dev/null 2>&1
 echo "$s"
