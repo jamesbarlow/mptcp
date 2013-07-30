@@ -22,7 +22,6 @@ updown="$1"
 shift
 
 if [[ $# -eq 0 ]]; then
-  echo "[II] Discovering available aps"
   args=`cat ./*/iwconfig.log 2>&1 | grep "ESSID:\"" | grep -- "-wifi\"" | sed 's/^.*ESSID:"\([^"]*\)-wifi".*/\1/' | sort | uniq`
 else
   args=$*

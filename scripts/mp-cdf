@@ -92,7 +92,7 @@ while true; do
       else
         echo "[WW] No interface found for ap $ap#$i"
       fi
-      continue
+      exit 1
     fi
 
     freq=`cat "$nm/iwconfig.log" | grep "$if" -A1 | grep "Freq" | sed 's/.*Frequency:\([0-9\.]*\) \(GHz\).*/\1\2/'`
