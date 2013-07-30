@@ -1,14 +1,13 @@
-.PHONY : clean %.graph
-.PRECIOUS : graphs/%.pdf
+GRAPHS := mp-int-2.4-i mp-int-2.4-ni
+GRAPHS_WD := $(addprefix graphs/,$(GRAPHS))
+REAL_GRAPHS := $(addsuffix .pdf,$(GRAPHS_WD)) $(addsuffix .tex,$(GRAPH_SWD))
 
-report.pdf: report.tex \
-	mp-int-2.4-i.graph mp-int-2.4-ni.graph
+.PHONY : clean
+
+report.pdf: report.tex $(REAL_GRAPHS)
 	@pdflatex report.tex > /dev/null
 	@# Run twice to resolve references
 	pdflatex report.tex
-
-%.graph: graphs/%.pdf graphs/%.tex
-	@
 
 graphs/%.pdf: graphs/%.eps
 	@echo "Generating $@ from EPS"
