@@ -1,0 +1,72 @@
+#!/bin/bash
+base=`dirname $0`
+base=`realpath $base`
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: `basename $0` UP|DOWN [SET-FOLDER AP]..."
+  echo
+  echo -n "For each SET-FOLDER/AP pair, merges single, parallel and mptcp"
+  echo -n " readings for the interface connected to AP with that of the"
+  echo -n " corresponding tests in the other SET-FOLDERs"
+  echo "Outputs data into the files {single,parallel,mptcp}-{up,down}.dat"
+  exit 1
+fi
+
+updown="$1"
+shift
+
+for t in single parallel mptcp; do
+  touch $t-$updown.dat
+done
+
+while true; do
+  if [[ $# -lt 2 ]]; then break; fi
+
+  setdir="$1"
+  ap="$2"
+  shift
+  shift
+
+  suffix=""
+  for dir in `ls -d $setdir/*single-*-$updown`; do
+    if [[ `grep "\"$ap-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
+      suffix=`echo "$dir" | sed "s/^.*-\\(.*\\)-$updown$/\1/"`
+      continue
+    fi
+  done
+
+  if [[ -z "$suffix" ]]; then
+    echo "!! Failed to find a suffix for $ap-wifi in set '$setdir'"
+    continue
+  fi
+
+  for t in single parallel mptcp; do
+    if [[ $t == "mptcp" ]]; then
+      dir=`ls -d $setdir/*@$suffix-$updown`
+    else
+      dir=`ls -d $setdir/*$t*-$suffix-$updown`
+    fi
+
+    if [[ -z $dir ]]; then
+      echo "!! Failed to find any $t directories in set '$setdir'"
+      continue;
+    fi
+
+    for d in $dir; do
+      if=`cat "$d/iwconfig.log" 2>&1 | grep "ESSID:\"$ap-wifi\"" | sed 's/^\([^ ]\+\) .*/\1/' | head -n 1`
+      if [[ ! -z $if ]]; then break; fi
+    done
+
+    if [[ -z $if ]]; then
+      echo "!! Failed to find $t directory for $ap-wifi in set '$setdir'"
+      continue;
+    fi
+
+    if [[ ! -e "$d/$if.dat" ]]; then
+      $base/mp-analyze "$d" > /dev/null
+    fi
+
+    echo -e "Merging \e[37m`basename $d`\e[0m from set \e[37m$setdir\e[0m into \e[37m$t.dat\e[0m"
+    cat "$d/$if.dat" >> "$t-$updown.dat"
+  done
+done
