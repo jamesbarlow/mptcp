@@ -1,0 +1,130 @@
+#!/bin/bash
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: `basename $0` [DAT]..."
+  echo
+  echo "For each DAT file, calculates and displays the CDF"
+  exit 1
+fi
+
+runr() {
+  isdown=`echo "$1" | sed '/-down[\.\/]/!d' | wc -l`
+  if [[ $isdown -eq 1 ]]; then
+    # down
+    if [[ $if == 'totals.dat' ]]; then
+      f=3
+    else
+      f=17
+    fi
+  else
+    # up
+    if [[ $if == 'totals.dat' ]]; then
+      f=2
+    else
+      f=16
+    fi
+  fi
+
+  cut -d' ' -f$f "$1" | sort -n | \
+    # http://stackoverflow.com/questions/16493669/how-to-read-input-from-the-terminal-using-dev-stdin-and-read-csv
+  R -q -e "x <- read.csv(file='stdin', header = F); \
+           Fn <- ecdf(x[,1]); \
+           t <- data.frame(knots(Fn), Fn(knots(Fn))); \
+           t" | \
+    grep -v ">" | grep -v "knots" | awk '{ print $2 " " $3 }'
+}
+
+s="\
+set xlabel 'Throughput (Mbps)'
+set ylabel 'CDF'
+set grid
+set xrange [0:30]
+set yrange [0:100]
+set offset graph 0.02
+set key right bottom
+set title 'CDF'
+
+set style line 1 lt 1 lc rgb \"red\"
+set style line 2 lt 2 lc rgb \"royalblue\"
+set style line 3 lt 3 lc rgb \"forest-green\"
+set style line 4 lt 4 lc rgb \"dark-magenta\"
+set style line 5 lt 5 lc rgb \"gray\"
+set style line 6 lt 6 lc rgb \"black\"
+
+plot "
+o="1"
+
+args=()
+lastparpar=""
+lastpar=""
+parshared=1
+parparshared=1
+while [[ $# -gt 0 ]]; do
+  d=$(dirname $(realpath "$1"))
+  par=$(basename "$d")
+  parpar=$(basename $(dirname "$d"))
+
+  if [[ -z $lastpar ]]; then
+    lastpar="$par"
+  elif [[ $lastpar != $par ]]; then
+    parshared=0
+  fi
+
+  if [[ -z $lastparpar ]]; then
+    lastparpar="$parpar"
+  elif [[ $lastparpar != $parpar ]]; then
+    parparshared=0
+  fi
+
+  args+=("$1")
+  shift
+done
+
+out=""
+for f in ${args[@]}; do
+  f=`realpath "$f"`
+  datname=`basename "$f"`
+  datname="${datname%.dat}"
+  dir=$(dirname "$f")
+  dirname=$(basename "$dir")
+
+  uniq=""
+  if [[ $parshared -eq 1 ]]; then
+    if [[ -e "$dir/iwconfig.log" ]]; then
+      uniq=`cat "$dir/iwconfig.log" 2>&1 | grep "$datname" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+    fi
+
+    if [[ -z $uniq ]]; then
+      uniq="$datname"
+    fi
+  elif [[ $parparshared -eq 1 ]]; then
+    # this assumes that you never want to plot two .dats
+    # from the same folder in the same graph
+    uniq="$dirname"
+  else
+    uniq="$dirname-$datf"
+  fi
+
+  file="$dir/cdf-$o-$uniq.dat"
+  if [[ ! -e $file ]]; then
+    runr "$f" > "$file"
+  fi
+
+  s="$s \\
+  '$file' using (8*\$1/1048576):(\$2*100) title '$uniq' with lines ls ($o),"
+  o=`echo "$o+1" | bc`
+done
+
+s="${s%,}"
+s=`echo "$s" | sed 's|/home/[^/]*/|~/|g'`
+
+if [[ $parshared -eq 1 ]]; then
+  s=`echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastpar'|"`
+elif [[ $parparshared -eq 1 ]]; then
+  s=`echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastparpar'|"`
+fi
+
+echo "$s" | gnuplot -p - > /dev/null 2>&1
+echo "$s"
+
+# vim:textwidth=0:
