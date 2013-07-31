@@ -6,7 +6,7 @@ if [[ $# -eq 0 ]]; then
   echo "Usage: $0 [FOLDER INTERFACE]..."
   echo
   echo "For each FOLDER/INTERFACE pair, parses FOLDER/INTERFACE.dat"
-  echo " and calculates+displayed the CDF"
+  echo " and calculates+displays the CDF"
   exit 1
 fi
 
