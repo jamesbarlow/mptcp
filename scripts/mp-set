@@ -5,8 +5,6 @@ cmd=""
 
 if [[ $1 == 'cdf' ]]; then
   cmd="$base/mp-cdf"
-elif [[ $1 == 'stat' ]]; then
-  cmd="$base/mp-stat"
 elif [[ ! -z $1 ]]; then
   echo "Unsupported display command given"
   exit 2
