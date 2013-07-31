@@ -29,7 +29,7 @@ fi
 
 for ap in $args; do
   suffix=""
-  for dir in `ls -d *-single-*-$updown`; do
+  for dir in `ls -d *single-*-$updown`; do
     if [[ `grep "\"$ap-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
       suffix=`echo "$dir" | sed "s/^.*-\\(.*\\)-$updown$/\1/"`
       continue
