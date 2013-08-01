@@ -37,7 +37,7 @@ plot \\"
 
 o="1"
 title=""
-for f in `ls *.dat | grep -v totals`; do
+for f in `ls *.dat | grep -vE "cdf|totals"`; do
   f=`realpath "$f"`
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
