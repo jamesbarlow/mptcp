@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: `basename $0` UP|DOWN [SET]..."
+  echo "For each set, determines which ap has the highest average throughput"
+  exit 1
+fi
+
+bytes() {
+  pd=`ls -d "$1"/*parallel*-$updown | head -n +$2 | tail -n1`
+  if=`cat $pd/iwconfig.log | grep "ESSID:\"" | sed 's/^\([^ ]\+\) .*/\1/' | head -n 1`
+  ps=`zcat "$pd/stats.log.gz" | grep -P "^$if(,[^,]*){16}$"`
+  pbf=`echo "$ps" | head -n1 | cut -d, -f$3`
+  pbl=`echo "$ps" | tail -n1 | cut -d, -f$3`
+  echo "$pbl-$pbf" | bc
+}
+
+updown=$1
+shift
+
+while true; do
+  if [[ $# -eq 0 ]]; then break; fi
+
+  if [[ $updown == "up" ]]; then
+    f=10
+  else
+    f=2
+  fi
+
+  p1=`bytes "$1" 1 $f`
+  p2=`bytes "$1" 2 $f`
+
+  if [[ $p2 -gt $p1 ]]; then
+    pd=`ls -d "$1"/*parallel*-$updown | head -n +2 | tail -n1`
+  else
+    pd=`ls -d "$1"/*parallel*-$updown | head -n +1 | tail -n1`
+  fi
+
+  ap=`cat "$pd/iwconfig.log" | grep "ESSID:\"" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+
+  echo "$1: $ap"
+  shift
+done
