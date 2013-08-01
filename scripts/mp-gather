@@ -1,0 +1,78 @@
+#!/bin/bash
+base=`dirname $0`
+base=`realpath $base`
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: `basename $0` UP|DOWN [SET-SET]..."
+  echo "Merges common sets from each set of sets given"
+  exit 1
+fi
+
+updown=$1
+shift
+
+drs=("because-ls-has-a-bug")
+while true; do
+  if [[ $# -eq 0 ]]; then break; fi
+
+  drs+=("$1")
+  shift
+done
+search=`for d in ${drs[@]}; do echo "$d"; done`
+search=`echo "$search" | sed 's/.*/\\"&\\"/' | paste -sd,`
+search="{$search}"
+
+for t in 5 ni-2.4 i-2.4; do
+  for c in reno coupled; do
+    sets=`bash -c "ls -d $search/$t-$c*" 2>/dev/null`
+    if [[ -z $sets ]]; then
+      continue
+    fi
+
+    for h in high low both; do
+      args=()
+      for s in ${sets[@]}; do
+        if [[ `ls "$s"/*single*/iwconfig.log | wc -l` -eq 0 ]]; then
+          echo "Skipping incomplete test $t-$c with no single iwconfig"
+          continue
+        fi
+
+        high=`mp-high $updown "$s" | sed 's/.*: //'`
+        low=`cat "$s"/*single*/iwconfig.log | grep 'ESSID:"' | grep -v "$high-wifi" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+
+        # Skip tests with more than two aps
+        if [[ `echo -e "$high\n$low" | wc -l` -ne 2 ]]; then
+          echo -e "Skipping broken test $t-$c with too many aps: $high\n$low"
+          continue
+        fi
+
+        rs=`realpath "$s"`
+        args+=("$rs")
+        if [[ $h == "high" ]]; then
+          args+=("$high")
+        elif [[ $h == "low" ]]; then
+          args+=("$low")
+        else
+          args+=("$high")
+          args+=("$rs")
+          args+=("$low")
+        fi
+      done
+
+      if [[ $h == "both" ]]; then
+        h=""
+      else
+        h="-$h"
+      fi
+
+      if [[ ${#args} -eq 0 ]]; then continue; fi
+
+      rm -rf "$t-$c$h"
+      mkdir "$t-$c$h"
+      cd "$t-$c$h"
+      echo "Running mp-merge $updown ${args[@]}"
+      $base/mp-merge $updown ${args[@]}
+      cd ..
+    done
+  done
+done
