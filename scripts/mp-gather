@@ -22,18 +22,24 @@ search=`for d in ${drs[@]}; do echo "$d"; done`
 search=`echo "$search" | sed 's/.*/\\"&\\"/' | paste -sd,`
 search="{$search}"
 
+datadir=`realpath ~/Dropbox/MPTCP/data/`
 for t in 5 ni-2.4 i-2.4; do
   for c in reno coupled; do
-    sets=`bash -c "ls -d $search/$t-$c*" 2>/dev/null`
+    sets=`bash -c "ls -rtd $search/$t-$c*" 2>/dev/null`
     if [[ -z $sets ]]; then
       continue
     fi
 
-    for h in high low both; do
+    for h in both high low; do
+      echo -e "\n\e[1mAggregating into $t-$c-$h\e[0m"
+
       args=()
       for s in ${sets[@]}; do
+        rs=`realpath "$s"`
+        setname=`echo "$rs" | sed "s|^$datadir/*||"`
+
         if [[ `ls "$s"/*single*/iwconfig.log | wc -l` -eq 0 ]]; then
-          echo -e "\e[31mSkipping incomplete test $t-$c with no single iwconfig\e[0m" > /dev/stderr
+          echo -e "\e[31mSkipping incomplete set $setname with no single iwconfig\e[0m" >> /dev/stderr
           continue
         fi
 
@@ -42,11 +48,16 @@ for t in 5 ni-2.4 i-2.4; do
 
         # Skip tests with more than two aps
         if [[ `echo -e "$high\n$low" | wc -l` -ne 2 ]]; then
-          echo -e "\e[31mSkipping broken test $t-$c with too many aps: $(echo $high) $(echo $low)\e[0m" > /dev/stderr
+          echo -e "\e[31mSkipping broken set $setname with too many aps: $(echo $high) $(echo $low)\e[0m" >> /dev/stderr
           continue
         fi
 
-        rs=`realpath "$s"`
+        if [[ $h != "both" ]]; then
+          echo -e " \e[37m${!h}\e[0m from \e[37m$setname\e[0m"
+        else
+          echo -e " \e[37m$setname\e[0m"
+        fi
+
         args+=("$rs")
         if [[ $h == "high" ]]; then
           args+=("$high")
@@ -59,20 +70,21 @@ for t in 5 ni-2.4 i-2.4; do
         fi
       done
 
-      if [[ $h == "both" ]]; then
-        h=""
-      else
-        h="-$h"
-      fi
-
       if [[ ${#args} -eq 0 ]]; then continue; fi
 
-      rm -rf "$t-$c$h"
-      mkdir "$t-$c$h"
-      cd "$t-$c$h"
-      echo -e "\e[33mRunning mp-merge $updown ${args[@]}\e[0m"
-      $base/mp-merge $updown ${args[@]}
+      if [[ $h == "both" ]]; then
+        hx=""
+      else
+        hx="-$h"
+      fi
+
+      rm -rf "$t-$c$hx"
+      mkdir "$t-$c$hx"
+      cd "$t-$c$hx"
+      $base/mp-merge $updown ${args[@]} > /dev/null
       cd ..
     done
   done
 done
+
+# vim:textwidth=0:
