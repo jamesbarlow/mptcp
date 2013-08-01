@@ -1,4 +1,7 @@
 #!/bin/bash
+base=`dirname $0`
+base=`realpath $base`
+source "$base/common.sh"
 
 if [[ $# -eq 0 ]]; then
   echo "Usage: `basename $0` [DAT]..."
@@ -91,7 +94,7 @@ for f in ${args[@]}; do
   uniq=""
   if [[ $parshared -eq 1 ]]; then
     if [[ -e "$dir/iwconfig.log" ]]; then
-      uniq=`cat "$dir/iwconfig.log" 2>&1 | grep "$datname" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+      uniq=`if2ap "$dir" "$datname"`
     fi
 
     if [[ -z $uniq ]]; then

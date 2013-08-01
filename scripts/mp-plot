@@ -1,4 +1,7 @@
 #!/bin/bash
+base=`dirname $0`
+base=`realpath $base`
+source "$base/common.sh"
 
 dir="$1"
 testname=`basename "$dir"`
@@ -42,7 +45,7 @@ for f in `ls *.dat | grep -vE "cdf|totals"`; do
   fbase=`basename "$f"`
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
-  ap=`cat "iwconfig.log" | grep "${fbase%.dat}" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+  ap=`if2ap "." "${fbase%.dat}"`
   if [[ $ap == $title ]]; then
     title="$ap (2)"
   else

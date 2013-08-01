@@ -1,6 +1,7 @@
 #!/bin/bash
 base=`dirname $0`
 base=`realpath $base`
+source "$base/common.sh"
 
 if [[ $# -eq 0 ]]; then
   echo "Usage: `basename $0` UP|DOWN [SET-FOLDER AP]..."
@@ -27,14 +28,7 @@ while true; do
   shift
   shift
 
-  suffix=""
-  for dir in `ls -d "$setdir"/*single-*-$updown 2>/dev/null`; do
-    if [[ `grep "\"$ap-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
-      suffix=`echo "$dir" | sed "s/^.*-\\(.*\\)-$updown$/\1/"`
-      continue
-    fi
-  done
-
+  suffix=`suffix "$setdir" "$updown" "$ap"`
   if [[ -z "$suffix" ]]; then
     echo -e "\e[31mFailed to find a suffix for $ap-wifi in set '$setdir'\e[0m"
     continue
@@ -53,7 +47,7 @@ while true; do
     fi
 
     for d in $dir; do
-      if=`cat "$d/iwconfig.log" 2>&1 | grep "ESSID:\"$ap-wifi\"" | sed 's/^\([^ ]\+\) .*/\1/' | head -n 1`
+      if=`ap21if "$d" "$ap"`
       if [[ ! -z $if ]]; then break; fi
     done
 
