@@ -105,7 +105,7 @@ for f in ${args[@]}; do
     # from the same folder in the same graph
     uniq="$dirname"
   else
-    uniq="$dirname-$datf"
+    uniq="$dirname-$datname"
   fi
 
   file="$dir/cdf-$o-$uniq.dat"
