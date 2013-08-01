@@ -30,7 +30,7 @@ while true; do
 
   suffix=`suffix "$setdir" "$updown" "$ap"`
   if [[ -z "$suffix" ]]; then
-    echo -e "\e[31mFailed to find a suffix for $ap-wifi in set '$setdir'\e[0m"
+    echo -e "\e[31mFailed to find a suffix for $ap-wifi in set '$setdir'\e[0m" > /dev/stderr
     continue
   fi
 
@@ -42,7 +42,7 @@ while true; do
     fi
 
     if [[ -z $dir ]]; then
-      echo -e "\e[31mFailed to find a $t@$suffix directory in set '$setdir'\e[0m"
+      echo -e "\e[31mFailed to find a $t@$suffix directory in set '$setdir'\e[0m" > /dev/stderr
       continue;
     fi
 
@@ -52,7 +52,7 @@ while true; do
     done
 
     if [[ -z $if ]]; then
-      echo -e "\e[31mFailed to find $t directory for $ap-wifi in set '$setdir'\e[0m"
+      echo -e "\e[31mFailed to find $t directory for $ap-wifi in set '$setdir'\e[0m" > /dev/stderr
       continue;
     fi
 

@@ -29,7 +29,6 @@ fi
 for ap in $args; do
   suffix=`suffix "." "$updown" "$ap"`
   if [[ -z "$suffix" ]]; then
-    echo "[WW] Found no suffix for $ap"
     continue
   fi
 
