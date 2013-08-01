@@ -28,7 +28,7 @@ while true; do
   shift
 
   suffix=""
-  for dir in `ls -d $setdir/*single-*-$updown`; do
+  for dir in `ls -d "$setdir"/*single-*-$updown`; do
     if [[ `grep "\"$ap-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
       suffix=`echo "$dir" | sed "s/^.*-\\(.*\\)-$updown$/\1/"`
       continue
@@ -42,9 +42,9 @@ while true; do
 
   for t in single parallel mptcp; do
     if [[ $t == "mptcp" ]]; then
-      dir=`ls -d $setdir/*@$suffix-$updown`
+      dir=`ls -d "$setdir"/*@$suffix-$updown`
     else
-      dir=`ls -d $setdir/*$t*-$suffix-$updown`
+      dir=`ls -d "$setdir"/*$t*-$suffix-$updown`
     fi
 
     if [[ -z $dir ]]; then
