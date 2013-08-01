@@ -39,9 +39,10 @@ o="1"
 title=""
 for f in `ls *.dat | grep -vE "cdf|totals"`; do
   f=`realpath "$f"`
+  fbase=`basename "$f"`
   begin=`head -n1 "$f" | cut -d' ' -f1`
   end=`tail -n1 "$f" | cut -d' ' -f1`
-  ap=`cat "iwconfig.log" | grep "${f%.dat}" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+  ap=`cat "iwconfig.log" | grep "${fbase%.dat}" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
   if [[ $ap == $title ]]; then
     title="$ap (2)"
   else
