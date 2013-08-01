@@ -33,7 +33,7 @@ for t in 5 ni-2.4 i-2.4; do
       args=()
       for s in ${sets[@]}; do
         if [[ `ls "$s"/*single*/iwconfig.log | wc -l` -eq 0 ]]; then
-          echo "Skipping incomplete test $t-$c with no single iwconfig"
+          echo -e "\e[31mSkipping incomplete test $t-$c with no single iwconfig\e[0m"
           continue
         fi
 
@@ -42,7 +42,7 @@ for t in 5 ni-2.4 i-2.4; do
 
         # Skip tests with more than two aps
         if [[ `echo -e "$high\n$low" | wc -l` -ne 2 ]]; then
-          echo -e "Skipping broken test $t-$c with too many aps: $high\n$low"
+          echo -e "\e[31mSkipping broken test $t-$c with too many aps: $(echo $high) $(echo $low)\e[0m"
           continue
         fi
 
@@ -70,7 +70,7 @@ for t in 5 ni-2.4 i-2.4; do
       rm -rf "$t-$c$h"
       mkdir "$t-$c$h"
       cd "$t-$c$h"
-      echo "Running mp-merge $updown ${args[@]}"
+      echo -e "\e[33mRunning mp-merge $updown ${args[@]}\e[0m"
       $base/mp-merge $updown ${args[@]}
       cd ..
     done

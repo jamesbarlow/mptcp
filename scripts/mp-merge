@@ -28,7 +28,7 @@ while true; do
   shift
 
   suffix=""
-  for dir in `ls -d "$setdir"/*single-*-$updown`; do
+  for dir in `ls -d "$setdir"/*single-*-$updown 2>/dev/null`; do
     if [[ `grep "\"$ap-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
       suffix=`echo "$dir" | sed "s/^.*-\\(.*\\)-$updown$/\1/"`
       continue
@@ -36,19 +36,19 @@ while true; do
   done
 
   if [[ -z "$suffix" ]]; then
-    echo "!! Failed to find a suffix for $ap-wifi in set '$setdir'"
+    echo -e "\e[31mFailed to find a suffix for $ap-wifi in set '$setdir'\e[0m"
     continue
   fi
 
   for t in single parallel mptcp; do
     if [[ $t == "mptcp" ]]; then
-      dir=`ls -d "$setdir"/*@$suffix-$updown`
+      dir=`ls -d "$setdir"/*@$suffix-$updown 2>/dev/null`
     else
-      dir=`ls -d "$setdir"/*$t*-$suffix-$updown`
+      dir=`ls -d "$setdir"/*$t*-$suffix-$updown 2>/dev/null`
     fi
 
     if [[ -z $dir ]]; then
-      echo "!! Failed to find any $t directories in set '$setdir'"
+      echo -e "\e[31mFailed to find a $t@$suffix directory in set '$setdir'\e[0m"
       continue;
     fi
 
@@ -58,7 +58,7 @@ while true; do
     done
 
     if [[ -z $if ]]; then
-      echo "!! Failed to find $t directory for $ap-wifi in set '$setdir'"
+      echo -e "\e[31mFailed to find $t directory for $ap-wifi in set '$setdir'\e[0m"
       continue;
     fi
 
