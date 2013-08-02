@@ -1,3 +1,0 @@
-sudo netctl stop-all
-mp-routes
-sudo systemctl start netctl-auto@wlan0.service
