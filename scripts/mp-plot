@@ -83,7 +83,7 @@ for f in `ls *.dat | grep -vE "cdf|totals"`; do
   o=`echo "$o+1" | bc`
 done
 
-f=`ls *.dat | grep -v "totals" | head -n1`
+f=`ls *.dat | grep -vE "cdf|totals" | head -n1`
 f=`realpath "$f"`
 s="$s
   '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \\
