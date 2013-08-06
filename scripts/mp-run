@@ -165,7 +165,7 @@ else
 fi
 
 echo -en "  -> Starting stats gatherer...\t\t"
-$base/mp-stats .2s $ap > stats.log &
+$base/mp-stats .5s $ap > stats.log &
 stats_pid=$!
 echo -e "\e[37m done\e[0m"
 
