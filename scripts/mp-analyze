@@ -106,7 +106,7 @@ while (<$stats>) {
     $end = $time;
 
     foreach $if (values %ifaces) {
-      $if->{'data'} .= sprintf "%d ", $1;
+      $if->{'data'} .= sprintf "%f ", $1;
     }
   } elsif ($rmod == 1) {
     # iwconfig
