@@ -154,17 +154,6 @@ echo -e "\e[37m done\e[0m"
 
 echo -e "==> Starting services"
 
-echo -en "  -> Starting tcpdump...\t\t"
-sudo tcpdump -tt -qni any tcp and host $ap 2>/dev/null > tcpdump.pcap &
-if [[ $? -gt 0 ]]; then
-  echo -e "\e[31m fail\e[0m"
-  cd ..
-  rm -rf "$testname-$direction"
-  exit 1
-else
-  echo -e "\e[37m done\e[0m"
-fi
-
 netserver_started=`pidof netserver`
 if [[ $direction == "down" && -z "$netserver_started" ]]; then
   echo -ne "  -> Starting local netserver...\t"
@@ -223,9 +212,6 @@ done
 sudo echo -n
 
 echo -e "==> Stopping services..."
-echo -en "  -> Stopping tcpdump...\t\t"
-sudo pkill tcpdump
-echo -e "\e[37m done\e[0m"
 
 echo -en "  -> Stopping stats gatherer...\t\t"
 kill $stats_pid
@@ -246,10 +232,6 @@ echo -e "\e[37m done\e[0m"
 
 echo -en "  -> Compressing stats...\t\t"
 gzip -f8 stats.log
-echo -e "\e[37m done\e[0m"
-
-echo -en "  -> Compressing tcpdump...\t\t"
-gzip -f8 tcpdump.pcap
 echo -e "\e[37m done\e[0m"
 
 if [[ $err -gt 0 ]]; then
