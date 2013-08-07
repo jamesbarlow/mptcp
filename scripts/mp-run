@@ -129,6 +129,11 @@ echo -en "  -> Wireless connection details...\t"
 iwconfig 2>/dev/null > iwconfig.log
 echo -e "\e[37m done\e[0m"
 
+is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+echo -en "  -> Wireless environment...\t\t"
+sudo iwlist $is scan > iwlist.log
+echo -e "\e[37m done\e[0m"
+
 if [[ -z $3 ]]; then
   echo -en "\e[1m  ?? Enter floor:\t\t\t\e[37m  th\e[0m"
   echo -en "\r\e[1m  ?? Enter floor:\t\t\t\e[37m "
@@ -147,10 +152,6 @@ TEST LOCATION: ${floor}TH FLOOR MPEB
 TEST DURATION: 1.5 HOURS" > test.txt
 echo -e "\e[37m done\e[0m"
 
-is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
-echo -en "  -> Wireless environment...\t\t"
-sudo iwlist $is scan > iwlist.log
-echo -e "\e[37m done\e[0m"
 
 echo -e "==> Starting services"
 
