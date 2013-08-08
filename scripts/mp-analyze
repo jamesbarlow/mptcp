@@ -79,7 +79,9 @@ while (<$stats>) {
     }
     $start = $end;
 
-    printf $total "%d %.1f %.1f\n", $end, $last{'out_total'}, $last{'in_total'};
+    if ($tdiff > 0) {
+      printf $total "%f %.1f %.1f\n", $end, $last{'out_total'}/$tdiff, $last{'in_total'}/$tdiff;
+    }
     $last{'in_total'} = 0;
     $last{'out_total'} = 0;
 
