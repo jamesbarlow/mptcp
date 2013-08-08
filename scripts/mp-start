@@ -17,3 +17,4 @@ sudo sysctl -w net.mptcp.mptcp_debug=1
 echo "Stopping daemons"
 pkill dropbox
 pkill hasmail
+sudo sysctl stop ntpd
