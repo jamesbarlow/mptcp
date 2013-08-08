@@ -56,7 +56,7 @@ for f in `ls *.dat | grep -vE "cdf|totals"`; do
     if [[ $int -eq 0 ]]; then
       io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \\
           '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \\
-          '$f' using (\$1-$begin):(\$14/5) title '$title cwnd' with lines ls ($o+2), \\
+          '$f' using (\$1-$begin):(\$14/5) title '$title cwnd' with lines ls ($o+5), \\
           '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \\
           '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6), "
     else
