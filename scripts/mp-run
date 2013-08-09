@@ -13,7 +13,7 @@ if [[ $UID -eq 0 ]]; then
 fi
 
 if [[ -z $1 ]]; then
-  echo "Usage: $0 <down|up|both> [server] [floor]"
+  echo "Usage: $0 <down|up|both> [server]"
   exit 1
 fi
 
@@ -136,21 +136,12 @@ echo -en "  -> Wireless environment...\t\t"
 sudo iwlist $is scan > iwlist.log
 echo -e "\e[37m done\e[0m"
 
-if [[ -z $3 ]]; then
-  echo -en "\e[1m  ?? Enter floor:\t\t\t\e[37m  th\e[0m"
-  echo -en "\r\e[1m  ?? Enter floor:\t\t\t\e[37m "
-  read floor
-  echo -en "\e[0m"
-else
-  floor=$3
-fi
-
 echo -en "  -> Test report outline...\t\t";
 echo -n "TEST NAME: $testname
 DONE BY: `whoami`@`hostname`
 
 TEST TIME: `date`
-TEST LOCATION: ${floor}TH FLOOR MPEB
+TEST LOCATION: 8TH FLOOR MPEB
 TEST DURATION: 1.5 HOURS" > test.txt
 echo -e "\e[37m done\e[0m"
 
@@ -260,6 +251,6 @@ if [[ $both == 'yes' ]]; then
   else
     cd ..
     echo
-    $base/mp-run down $ap $floor
+    $base/mp-run down $ap
   fi
 fi
