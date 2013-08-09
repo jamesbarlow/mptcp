@@ -119,6 +119,8 @@ echo "wmem_default" >> stack.log
 cat /proc/sys/net/core/wmem_default >> stack.log
 echo "wmem_max" >> stack.log
 cat /proc/sys/net/core/wmem_max >> stack.log
+echo "/proc/net/netstat fields" >> stack.log
+cat /proc/net/netstat | head -n 1 >> stack.log
 echo -e "\e[37m done\e[0m"
 
 echo -en "  -> IP addresses...\t\t\t"
