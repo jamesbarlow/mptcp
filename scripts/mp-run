@@ -157,7 +157,7 @@ echo -e "\e[37m done\e[0m"
 echo -e "==> Sanitizing environment"
 
 if [[ ! -z `pidof dropbox` ]]; then
-  echo -ne "  -> Stopping dropbox...\t"
+  echo -ne "  -> Stopping dropbox...\t\t"
   pkill dropbox
   echo -e "\e[37m done\e[0m"
 fi
