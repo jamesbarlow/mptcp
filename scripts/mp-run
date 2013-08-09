@@ -2,6 +2,12 @@
 testlength=600
 printinterval=60
 
+prompt=1
+if [[ $1 == '--noprompt' ]]; then
+  prompt=0
+  shift
+fi
+
 inittestlength=$testlength
 direction=$1
 both="no"
@@ -13,7 +19,7 @@ if [[ $UID -eq 0 ]]; then
 fi
 
 if [[ -z $1 ]]; then
-  echo "Usage: $0 <down|up|both> [server]"
+  echo "Usage: $0 [--noprompt] <down|up|both> [server]"
   exit 1
 fi
 
@@ -153,6 +159,18 @@ if [[ ! -z `pidof dropbox` ]]; then
   echo -e "\e[37m done\e[0m"
 fi
 
+if [[ $prompt -eq 1 ]]; then
+  echo -ne "\n\e[37;1;5m==> Press enter to start test...\e[0m"
+  read
+  if [[ $? -gt 0 ]]; then
+    cd ..
+    rm -rf "$testname-$direction"
+    echo
+    exit 1
+  fi
+  echo
+fi
+
 echo -e "==> Starting services"
 
 netserver_started=`pidof netserver`
@@ -251,6 +269,6 @@ if [[ $both == 'yes' ]]; then
   else
     cd ..
     echo
-    $base/mp-run down $ap
+    $base/mp-run --noprompt down $ap
   fi
 fi
