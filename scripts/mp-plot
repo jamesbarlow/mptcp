@@ -54,24 +54,24 @@ for f in `ls *.dat | grep -vE "cdf|totals"`; do
 
   if [[ -z `echo $1 | grep -- "-down"` ]]; then
     if [[ $int -eq 0 ]]; then
-      io="'$f' using (\$1-$begin):(\$11/100000) title '$title sendq' with lines ls ($o+7), \\
-          '$f' using (\$1-$begin):(\$12/10) title '$title rtt' with lines ls ($o+4), \\
-          '$f' using (\$1-$begin):(\$14/5) title '$title cwnd' with lines ls ($o+5), \\
-          '$f' using (\$1-$begin):(80+\$15/5) title '$title utilization' with lines ls ($o+5), \\
-          '$f' using (\$1-$begin):(8*\$17/1000000) title '$title throughput' with lines ls ($o+6), "
+      io="'$f' using (\$1-$begin):(\$9/1024/10) title '$title sendq' with lines ls ($o+7), \\
+          '$f' using (\$1-$begin):(\$10/10) title '$title rtt' with lines ls ($o+4), \\
+          '$f' using (\$1-$begin):(1428*\$12/1024/10) title '$title cwnd' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6), "
     else
-      io="'$f' using (\$1-$begin):(80+\$12/5) title '$title utilization' with lines ls ($o+5), \\
-          '$f' using (\$1-$begin):(8*\$14/1000000) title '$title throughput' with lines ls ($o+6), "
+      io="'$f' using (\$1-$begin):(80+\$10/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$12/1000000) title '$title throughput' with lines ls ($o+6), "
     fi
   else
     if [[ $int -eq 0 ]]; then
-      io="'$f' using (\$1-$begin):(\$10) title '$title recvq' with lines ls ($o+7), \\
-          '$f' using (\$1-$begin):(\$13/10) title '$title rtt' with lines ls ($o+4), \\
-          '$f' using (\$1-$begin):(80+\$16/5) title '$title utilization' with lines ls ($o+5), \\
-          '$f' using (\$1-$begin):(8*\$18/1000000) title '$title throughput' with lines ls ($o+6), "
+      io="'$f' using (\$1-$begin):(\$8) title '$title recvq' with lines ls ($o+7), \\
+          '$f' using (\$1-$begin):(\$11/10) title '$title rtt' with lines ls ($o+4), \\
+          '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$16/1000000) title '$title throughput' with lines ls ($o+6), "
     else
-      io="'$f' using (\$1-$begin):(80+\$13/5) title '$title utilization' with lines ls ($o+5), \\
-          '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6), "
+      io="'$f' using (\$1-$begin):(80+\$11/5) title '$title utilization' with lines ls ($o+5), \\
+          '$f' using (\$1-$begin):(8*\$13/1000000) title '$title throughput' with lines ls ($o+6), "
     fi
   fi
 
@@ -88,16 +88,14 @@ f=`ls *.dat | grep -vE "cdf|totals" | head -n1`
 f=`realpath "$f"`
 s="$s
   '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \\
-  '$f' using (\$1-$begin):7 title 'forward-rt' with lines ls 10, \\
-  '$f' using (\$1-$begin):8 title 'slow-rt' with lines ls 11, \\
-  '$f' using (\$1-$begin):9 title 'timeout' with lines ls 12, \\
+  '$f' using (\$1-$begin):7 title 'timeout' with lines ls 10, \\
   "
 
 f=`realpath totals.dat`
 if [[ -z `echo $1 | grep -- "-down"` ]]; then
-  s="$s '$f' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 13"
+  s="$s '$f' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 11"
 else
-  s="$s '$f' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 13"
+  s="$s '$f' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 11"
 fi
 
 s=`echo "$s" | sed 's|/home/[^/]*/|~/|g'`
