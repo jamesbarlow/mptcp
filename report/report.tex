@@ -121,6 +121,20 @@ them as an indicator of which server will be used for tests.
     slightly more advanced and tries to find all interfaces across tests
     connected to the same channel, and then plot each group of such interfaces
     using mp-cdf.
+  \item[mp-merge]
+    Merges the data from several test sets into a single set. Optionally also
+    does a simple form of normalization in order to make the results more
+    relevant when the merged set of samples are plotted as a single CDF.\@ The
+    normalization is performed by finding the average of the median throughput
+    in each test in the set, and then subtracting that from every throughput
+    measurement. This retains both the shape and width of the CDFs, while
+    ignoring the absolute throughput values which can vary quite a lot from one
+    test to another due to other clients using the network.
+  \item[mp-gather]
+    Simple wrapper around mp-merge that takes folders of test sets as arguments,
+    extracts ap names and calls mp-merge for all related tests. For example, it
+    will find all same-channel, coupled test sets in all its arguments, and
+    merge them, optionally using mp-merge's normalization feature.
 \end{description}
 \subsection{Interrupt tests}
 
