@@ -19,9 +19,7 @@ updown=$1
 shift
 
 drs=("because-ls-has-a-bug")
-while true; do
-  if [[ $# -eq 0 ]]; then break; fi
-
+while [[ $# -gt 0 ]]; do
   drs+=("$1")
   shift
 done
@@ -30,9 +28,9 @@ search=`echo "$search" | sed 's/.*/\\"&\\"/' | paste -sd,`
 search="{$search}"
 
 datadir=`realpath ~/Dropbox/MPTCP/data/`
-for t in 5 ni-2.4 i-2.4; do
+for t in 5 ni i; do
   for c in reno coupled; do
-    sets=`bash -c "ls -rtd $search/$t-$c*" 2>/dev/null`
+    sets=`bash -c "ls -rtd $search/$t-*$c*" 2>/dev/null`
     if [[ -z $sets ]]; then
       continue
     fi
