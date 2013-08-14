@@ -45,13 +45,13 @@ for t in 5 ni-2.4 i-2.4; do
         rs=`realpath "$s"`
         setname=`echo "$rs" | sed "s|^$datadir/*||"`
 
-        if [[ `ls "$s"/*single*/iwconfig.log | wc -l` -eq 0 ]]; then
-          echo -e "\e[31mSkipping incomplete set $setname with no single iwconfig\e[0m" >> /dev/stderr
+        if [[ `ls "$s"/*parallel*/iwconfig.log | wc -l` -eq 0 ]]; then
+          echo -e "\e[31mSkipping incomplete set $setname with no parallel iwconfig\e[0m" >> /dev/stderr
           continue
         fi
 
         high=`mp-high $updown "$s" | sed 's/.*: //'`
-        low=`cat "$s"/*single*/iwconfig.log | grep 'ESSID:"' | grep -v "$high-wifi" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
+        low=`cat "$s"/*parallel*/iwconfig.log | grep 'ESSID:"' | grep -v "$high-wifi" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
 
         # Skip tests with more than two aps
         if [[ `echo -e "$high\n$low" | wc -l` -ne 2 ]]; then

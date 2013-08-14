@@ -41,7 +41,7 @@ function bpsf() {
 function suffix() {
   # dir up|down ap
   suffix=""
-  for dir in `ls -d "$1"/*single-*-$2`; do
+  for dir in `ls -d "$1"/*parallel-*-$2`; do
     if [[ `grep "\"$3-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
       echo "$dir" | sed "s/^.*-\\(.*\\)-$2$/\1/"
       return

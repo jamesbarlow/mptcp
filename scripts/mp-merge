@@ -47,13 +47,18 @@ while true; do
   drs=()
   for t in single parallel mptcp; do
     if [[ $t == "mptcp" ]]; then
-      dir=`ls -d "$setdir"/*@$suffix-$updown 2>/dev/null`
+      dir=`ls -d "$setdir"/*mptcp*@$suffix-$updown 2>/dev/null`
+      if [[ -z $dir ]]; then
+        dir=`ls -d "$setdir"/*mptcp*-$updown 2>/dev/null`
+      fi
     else
       dir=`ls -d "$setdir"/*$t*-$suffix-$updown 2>/dev/null`
     fi
 
     if [[ -z $dir ]]; then
-      echo -e "\e[33mFailed to find $t@$suffix in set '$setname'\e[0m" >> /dev/stderr
+      if [[ $t != "single" ]]; then
+        echo -e "\e[33mFailed to find $t@$suffix in set '$setname'\e[0m" >> /dev/stderr
+      fi
       continue;
     fi
 
