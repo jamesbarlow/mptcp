@@ -3,9 +3,16 @@ base=`dirname $0`
 base=`realpath $base`
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: `basename $0` UP|DOWN [SET-SET]..."
+  echo "Usage: `basename $0` [-n] UP|DOWN [SET-SET]..."
   echo "Merges common sets from each set of sets given"
+  echo "-n can be given to normalize results"
   exit 1
+fi
+
+normalize=""
+if [[ $1 == "-n" ]]; then
+  normalize="-n"
+  shift
 fi
 
 updown=$1
@@ -81,7 +88,7 @@ for t in 5 ni-2.4 i-2.4; do
       rm -rf "$t-$c$hx"
       mkdir "$t-$c$hx"
       cd "$t-$c$hx"
-      $base/mp-merge $updown ${args[@]} > /dev/null
+      $base/mp-merge $normalize $updown ${args[@]} > /dev/null
       cd ..
     done
   done
