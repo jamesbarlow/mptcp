@@ -38,6 +38,8 @@ while true; do
   shift
   shift
 
+  echo -e "==> Merging set \e[37m$setname\e[0m"
+
   suffix=`suffix "$setdir" "$updown" "$ap"`
   if [[ -z "$suffix" ]]; then
     echo -e "\e[31mFailed to find a suffix for $ap-wifi in set '$setname'\e[0m" >> /dev/stderr

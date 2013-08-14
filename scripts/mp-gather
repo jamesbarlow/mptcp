@@ -52,8 +52,8 @@ for t in 5 ni i; do
         low=`cat "$s"/*parallel*/iwconfig.log | grep 'ESSID:"' | grep -v "$high-wifi" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'`
 
         # Skip tests with more than two aps
-        if [[ `echo -e "$high\n$low" | wc -l` -ne 2 ]]; then
-          echo -e "\e[31mSkipping broken set $setname with too many aps: $(echo $high) $(echo $low)\e[0m" >> /dev/stderr
+        if [[ `echo -e "$high\n$low" | grep -vP '^$' | wc -l` -ne 2 ]]; then
+          echo -e "\e[31mSkipping broken set $setname with <> 2 aps: $(echo $high) $(echo $low)\e[0m" >> /dev/stderr
           continue
         fi
 
