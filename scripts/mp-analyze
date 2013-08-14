@@ -60,7 +60,7 @@ while (<$stats>) {
     # calculate distribution and print
 
     foreach $if (keys %ifaces) {
-      $ifaces{$if}->{'data'} .= "0 0 " if not defined $ran5{$if};
+      $ifaces{$if}->{'data'} .= "0 0 0 0 0 " if not defined $ran5{$if};
     }
     %ran5 = ();
 
