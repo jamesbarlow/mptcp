@@ -18,6 +18,26 @@ function aps() {
   cat "$1/iwconfig.log" | grep "ESSID:\"" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'
 }
 
+function bpsf() {
+  # bpsf filename
+  isdown=`echo "$1" | sed '/-down[\.\/]/!d' | wc -l`
+  if [[ $isdown -eq 1 ]]; then
+    # down
+    if [[ `basename "$1"` == 'totals.dat' ]]; then
+      echo 3
+    else
+      echo 16
+    fi
+  else
+    # up
+    if [[ `basename "$1"` == 'totals.dat' ]]; then
+      echo 2
+    else
+      echo 15
+    fi
+  fi
+}
+
 function suffix() {
   # dir up|down ap
   suffix=""

@@ -11,22 +11,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 runr() {
-  isdown=`echo "$1" | sed '/-down[\.\/]/!d' | wc -l`
-  if [[ $isdown -eq 1 ]]; then
-    # down
-    if [[ `basename "$1"` == 'totals.dat' ]]; then
-      f=3
-    else
-      f=16
-    fi
-  else
-    # up
-    if [[ `basename "$1"` == 'totals.dat' ]]; then
-      f=2
-    else
-      f=15
-    fi
-  fi
+  f=`bpsf "$1"`
 
   cut -d' ' -f$f "$1" | sort -n | \
     # http://stackoverflow.com/questions/16493669/how-to-read-input-from-the-terminal-using-dev-stdin-and-read-csv
@@ -101,11 +86,12 @@ for f in ${args[@]}; do
       uniq="$datname"
     fi
   elif [[ $parparshared -eq 1 ]]; then
-    # this assumes that you never want to plot two .dats
-    # from the same folder in the same graph
-    uniq="$dirname"
-  else
-    uniq="$dirname-$datname"
+    if [[ -e "$dir/iwconfig.log" ]]; then
+      uniq=`if2ap "$dir" "$datname"`
+      uniq="$dirname-$uniq"
+    else
+      uniq="$dirname-$datname"
+    fi
   fi
 
   file="$dir/cdf-$o-$uniq.dat"
