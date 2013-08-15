@@ -22,7 +22,7 @@ set style line 12 lt 12 lc rgb "dark-magenta"
 set style line 13 lt 13 lc rgb "dark-gray"
 
 plot \
-    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u4.dat' using ($1-1373630787):(80+$12/5) title 'stable utilization' with lines ls (2+5), \
-    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u4.dat' using ($1-1373630787):(8*$14/1000000) title 'stable throughput' with lines ls (2+6),  \
-    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u1.dat' using ($1-1373630787):(80+$12/5) title 'interrupt utilization' with lines ls (1+5), \
-    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u1.dat' using ($1-1373630787):(8*$14/1000000) title 'interrupt throughput' with lines ls (1+6)
+    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u4.dat' using ($1-1373630787):(80+$13/5) title 'stable utilization' with lines ls (2+5), \
+    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u4.dat' using ($1-1373630787):(8*$15/1000000) title 'stable throughput' with lines ls (2+6),  \
+    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u1.dat' using ($1-1373630787):(80+$13/5) title 'interrupt utilization' with lines ls (1+5), \
+    '~/Dropbox/MPTCP/data/interrupts/2.4-2.4-i-i-up/wlp0s20u1.dat' using ($1-1373630787):(8*$15/1000000) title 'interrupt throughput' with lines ls (1+6)
