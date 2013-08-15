@@ -23,6 +23,27 @@
 \clearpage
 
 \section{Introduction}
+With the extension of Multipath TCP to regular TCP it is possible to have
+multiple simultaneous connections on one device. On modern mobile devices that
+usually have more than one network interface(wifi, 3G) this can gaurantee extra
+reliablity making the connections more robust to loss. With the promise of
+greater throughput and reliability, it is immediately easy to see usage
+scenarios that involve  multiple wifi cards on a laptop in order to benifit from
+MPTCP.
+
+Interference is a bane of any wireless network and wifi is no exception to this.
+Multiple devices with single wifi card often interfer with each other and rely
+on 802.11 carrier-sense to ensure fair access to the wireless medium. Hence it
+is only natural that multiple wifi cards on a device would lead to some degree
+of interference.
+
+The goal of this report is to investigate the degree of interference(if any)
+between multiple wifi interfaces on the same device, how this interference
+influences throughput and fairness to other devices on the network, and how this
+influences the multipath TCP protocol. The remaining part of this report would
+present a brief background on TCP, Wifi, and Multipath TCP, the methodology of
+the experiments conducted, results and evaluation of these experiments and the
+conclusions reached.
 
 \section{Background}
 \subsection{WiFi}
@@ -32,6 +53,13 @@
 
 \section{Methodology}
 \subsection{Equipment}
+The tools used to create the test environment includes four 2.4GHz Wifi USB
+dongles, a 5GHz Wifi USB dongle, three wireless basestations; two operating on
+the 2.4GHz channel and one dual-band on 2.4GHz and  5GHz channel, two server
+machines and two laptop PCs. At the time of this experiment, both the servers
+and personal computers were running the most current version of the Linux MPTCP
+enabled kernel gotten from \href{http://multipath-tcp.org/}{multipath-tcp.org}
+
 \subsection{Experiment setups}
 For most tested configurations, be it non-interfering 2.4 Ghz and 5 Ghz networks
 or interfering 2.4 Ghz networks on the same channel, one of two tests setups
@@ -146,6 +174,23 @@ them as an indicator of which server will be used for tests.
     merge them, optionally using mp-merge's normalization feature.
 \end{description}
 \subsection{Interrupt tests}
+For the interrupt tests, each wireless interface is connected to a separate
+basestation just like in the other setups, the only difference here is that one
+of the interfaces alternates between being in idle and active mode while the
+other interface is always active. The alternating interface is idle or active
+for fixed time slots in the duration of the experiment.
+
+The idea behind alternating the active periods for one of the interfaces is
+simple; ideally if there is no interference between these interfaces then there
+would not be a loss in throughput for the always-active interface when the
+alternating interface is active. Given the nature of wireless signals this is a
+rather utopic idea, hence a more desirable result would be one that shows
+minimal drop in throughput. Minimal in this scenario means that each interface
+should achieve at least 90\% of its throughput in a single interface setup.
+However, the graph of figure FIG shows that ther is some considerable drop in  % TODO: insert correct figure reference
+throughput when the alternating interface is switched-on thereby indicating the
+presence on non-minimal cross-interface interference between the wireless
+interfaces.
 
 \section{Results and Evaluation}
 Note that many of the graphs shown in this section are drawn using our
@@ -157,6 +202,40 @@ total throughput is sent through each interface and is displayed so that 80 is
 \subsection{Cross-band interference} % 5 vs 2.4
 \subsection{Cross-channel interference}
 \subsection{Same-channel interference}
+\subsection{Downlink experiments}
+The setup for this test is the same as explained in the setup 3 of "Testing
+Setups". Here the goal of the experiment is to analyse MPTCP's behaviour with
+regards to interference, throughput and fairness to other TCP flows on the
+downlink. For this experiment 2 AP's are used; one on 5GHz frequency band and
+the other on 2.4GHz. To ensure that the AP's have the same amount of load, each
+parallel machine connects to one AP while the MPTCP machine connects to both AP
+using one of its interface for each; thereby making it seem as if each AP is
+connected to 2 clients. This also applies to the two servers to which the TCP
+connections would be made. Netperf is used to create downlink traffic between
+the servers and client; this lasts for two minutes time slots. This is ran
+multiple times and the aggregate result can be seen in figure FIG.             % TODO: correct fig (maybe graphs from 14-08-2013).
+
+The coupled congestion control algorithm is used by all machines in this test.
+For the parallel machines this is has no consequence since they only have one
+TCP flow each so in essence it acts like the normal TCP congestion algorithm.
+However for the MPTCP flows, coupled congestion control limits the aggregate
+throughput to be as good as the throughput of the best link on that path. In
+order words, the sum of the throughput should be the same as that of the single
+5GHz channel. We do actually see this phenomenon from the graphs where the sum
+of the MPTCP throughputs is about the same as that of the best parallel link
+save for some slight variation which can be attributed to the wireless
+environment in which these experiments where carried out.
+
+From the graph we see MPTCP also tries to achieve a form of load balancing by
+moving data off the congested path in this case the 2.5GHz link onto the 5GHz
+link.
+
+It should be noted that this also shows that MPTCP running the coupled
+congestion control algorithm ensures fairness on the downlink. It does this with
+the aid of loss feedback from the channel; so as packets build up in the AP, the
+queue fills up leading to packet drops and then loss. This indicates to the
+MPTCP sender to slow down the rate.
+
 \subsection{Parallel vs. MPTCP performance}
 \subsubsection{Fairness}
 \subsection{MPTCP congestion control}
