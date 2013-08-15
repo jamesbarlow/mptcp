@@ -4,13 +4,13 @@ REAL_GRAPHS := $(addsuffix .pdf,$(GRAPHS_WD)) $(addsuffix .tex,$(GRAPH_SWD))
 
 .PHONY : clean show
 
-show: report.pdf
-	xdg-open report.pdf
-
 report.pdf: report.tex $(REAL_GRAPHS)
 	@pdflatex -halt-on-error report.tex
 	@# Run twice to resolve references
 	pdflatex -halt-on-error report.tex > /dev/null
+
+show: report.pdf
+	xdg-open report.pdf
 
 graphs/%.pdf: graphs/%.eps
 	@echo "Generating $@ from EPS"
