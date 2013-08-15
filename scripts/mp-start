@@ -15,6 +15,7 @@ echo "Enable mptcp kernel debug"
 sudo sysctl -w net.mptcp.mptcp_debug=1
 
 echo "Stopping daemons"
-pkill dropbox
 pkill hasmail
+pkill getmail
+pkill rescuetime
 sudo systemctl stop ntpd
