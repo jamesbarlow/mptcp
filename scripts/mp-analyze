@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use File::stat;
 
 die "Usage: $0 <testdir>\n" unless @ARGV > 0;
 $| = 1;
@@ -9,6 +10,14 @@ my $int = 300;
 chdir $ARGV[0] or die "Test directory could not be accessed: $!";
 
 die "Test directory missing stats.log.gz, exiting...\n" if not -e 'stats.log.gz';
+
+if (-e "totals.dat") {
+  my $thisstat = stat($0);
+  my $thatstat = stat("totals.dat");
+  # If the file was generated after mp-analyze was last modified,
+  # there's no need to rerun mp-analyze
+  exit 0 if $thatstat->mtime gt $thisstat->mtime;
+}
 
 my %ifaces = ();
 open my $iwc, '<', 'iwconfig.log';

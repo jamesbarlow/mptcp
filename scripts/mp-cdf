@@ -18,9 +18,7 @@ for arg; do
     dir="$arg"
   else
     if=`ap21if "$dir" "$arg"`
-    if [[ ! -e "$dir/$if.dat" ]]; then
-      "$base/mp-analyze" "$dir" > /dev/null
-    fi
+    "$base/mp-analyze" "$dir" > /dev/null
     args+=("$dir/$if.dat")
     dir=""
   fi

@@ -26,9 +26,7 @@ shift
 
 if [[ $isseq -eq 0 ]]; then
   for d in ./*-$updown; do
-    if [[ ! -e "$d"/totals.dat ]]; then
-      "$base"/mp-analyze "$d"
-    fi
+    "$base"/mp-analyze "$d"
   done
 
   "$cmd" ./*-$updown/w*.dat

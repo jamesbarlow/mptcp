@@ -7,10 +7,7 @@ my $me = dirname $0;
 open(my $f, '<', $ARGV[0]);
 while (<$f>) {
   foreach my $m (/'~\/(.*?)'/) {
-    my $f = "${ENV{'HOME'}}/$1";
-    next if -e $f;
-    my $dir = dirname $f;
-    print "Regenerating $dir\n";
+    my $dir = dirname "${ENV{'HOME'}}/$1";
     `"$me/mp-analyze" "$dir"`;
   }
 }
