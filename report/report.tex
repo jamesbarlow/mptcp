@@ -388,21 +388,30 @@ and 3 different machines would run in simultaneous using both reno and coupled.
 % looking at the CDFs for these aggregated tests
 
 \subsubsection{Upstream and Downstream}
-% TODO: Correct figure refernces here
+
+\begin{figure}[h]
+ \centering
+ \subfloat[][downlink] {\
+   \scalebox{0.55}{\input{graphs/down-fair.tex}}\label{graph:down-fair}
+ }
+ \subfloat[][uplink] {\
+   \scalebox{0.55}{\input{graphs/up-fair.tex}}\label{graph:up-fair}
+ }
+
+ \caption{Traffic distribution on downlink vs.\ uplink}\label{graph:interference}
+\end{figure}
+
 In the start both upstream and downstream experiments were run, but after
 several rounds it became clear that the downstream experiments were very similar
 and regular showing a fair distribution (throughput and utilization) between
-both networks and a fairly constant RTT as can be seen in
-\texttt{2013-07-18/ni-2.4-pete-down} and
-\texttt{2013-07-18/ci-fry-2.4x2-ni-down} (which did not prove the same for
-upstream \texttt{2013-07-18/ni-2.4-pete-up},
-\texttt{2013-07-18/ci-fry-2.4x2-ni-up}). In spite of that it was decided at the
-time that upstream only experiments were to be run more extensively. It was
-later discovered that due to the sender not seeing loss, the cwnd would grow
-aggressively and the tests behave in such an unfair way (as will be explained
-later in the report). When the setup was changed to run the simultaneous
-experiments more rounds of downstream experiments were run to support our
-findings.
+both networks as can be seen in figure~\ref{graph:down-fair} (which did not
+prove the same for upstream show in figure~\ref{graph:up-fair}). In spite of
+that it was decided at the time that upstream only experiments were to be run
+more extensively. It was later discovered that due to the sender not seeing
+loss, the cwnd would grow aggressively and the tests behave in such an unfair
+way (as will be explained later in the report). When the setup was changed to
+run the simultaneous experiments more rounds of downstream experiments were run
+to support our findings.
 
 \subsubsection{5 \& 2.4 interference}
 % TODO: Correct figure refernces here

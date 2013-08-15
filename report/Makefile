@@ -1,4 +1,4 @@
-GRAPHS := mp-int-2.4-i mp-int-2.4-ni
+GRAPHS := mp-int-2.4-i mp-int-2.4-ni down-fair up-fair
 GRAPHS_WD := $(addprefix graphs/,$(GRAPHS))
 REAL_GRAPHS := $(addsuffix .pdf,$(GRAPHS_WD)) $(addsuffix .tex,$(GRAPH_SWD))
 
