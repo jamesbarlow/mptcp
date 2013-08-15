@@ -575,7 +575,7 @@ plotted as 10s of kilobytes, and thus we plot $c(x)$ as
 \begin{align*}
   c(x) = cw_x \text{\ (B)}
        = \frac{cw_x}{1024} \text{\ (kB)}
-       = \frac{cw_x}{10 \times 1024} \text{\ (10 kB)}
+       = \frac{cw_x}{10 \cdot 1024} \text{\ (10 kB)}
 \end{align*}
 
 now, consider the throughput $t'(cw)$ allowed by a congestion window of size
@@ -583,17 +583,17 @@ $cw$ over a link with RTT $\approx 100ms$:
 
 \begin{align*}
   t'(cw) &= \frac{cw}{0.100}                       &&\text{(Bps)} \\
-         &= \frac{cw}{0.100 \times 10 \times 1024}
+         &= \frac{cw}{0.100 \cdot 10 \cdot 1024}
           = \frac{cw}{1024}                        &&\text{(MBps)} \\
-         &= \frac{cw}{8 \times 1024}               &&\text{(Mbps)}
+         &= \frac{cw}{8 \cdot 1024}                &&\text{(Mbps)}
 \end{align*}
 
 Since the congestion window is not allowed to grow to the bandwidth delay
 product as explained above, we expect the real throughput $t(x)$ to be
 approximately limited by $t'(cw_x)$. It is pretty clear from the above that
-$t'(cw) = 0.8 \times c(x)$, and so in this particular setup, we would expect to
+$t'(cw) = 0.8 c(x)$, and so in this particular setup, we would expect to
 see the throughput follow the congestion window closely at these particular
-scales because $t(x) \approx 0.8 \times c(x)$.
+scales because $t(x) \approx 0.8 c(x)$.
 
 \subsection{What if pigs could fly?} % Optimal solution
 
