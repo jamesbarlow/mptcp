@@ -4,8 +4,15 @@ base=`realpath $base`
 source "$base/common.sh"
 cmd=""
 
+updown=$(updown ".")
+isseq=$(isseq ".")
+
 if [[ $1 == 'cdf' ]]; then
-  cmd="$base/mp-cdf"
+  if [[ $isseq -eq 1 ]]; then
+    cmd="$base/mp-cdf"
+  else
+    cmd="$base/mp-cdf-raw"
+  fi
 elif [[ ! -z $1 ]]; then
   echo "Unsupported display command given"
   exit 2
@@ -17,11 +24,15 @@ fi
 cmdb="$(basename "$cmd")"
 shift
 
-isup=(./*-up)
-if [[ -e "${isup[0]}" ]]; then
-  updown="up"
-else
-  updown="down"
+if [[ $isseq -eq 0 ]]; then
+  for d in ./*-$updown; do
+    if [[ ! -e "$d"/totals.dat ]]; then
+      "$base"/mp-analyze "$d"
+    fi
+  done
+
+  "$cmd" ./*-$updown/w*.dat
+  exit
 fi
 
 if [[ $# -eq 0 ]]; then
@@ -37,15 +48,22 @@ for ap in "${args[@]}"; do
     continue
   fi
 
-  drs=()
+  cargs=()
   for dir in *[-@]$suffix-$updown; do
-    drs+=("$dir")
-    drs+=("$ap")
+    if [[ $cmdb == "mp-cdf-raw" ]]; then
+      ifs="$(ap2if "$dir" "$ap")"
+      ifs=($ifs)
+      for i in "${ifs[@]}"; do
+        cargs+=("$dir/$i.dat")
+      done
+    else
+      cargs+=("$dir")
+      cargs+=("$ap")
+    fi
   done
 
-  echo
-  echo "$cmdb" "$run"
-  "$cmdb" "${drs[@]}"
+  echo "$cmdb ${cargs[@]}"
+  "$cmd" "${cargs[@]}"
 done
 
 # vim:textwidth=0:
