@@ -34,8 +34,9 @@
 \subsection{Equipment}
 \subsection{Experiment setups}
 For most tested configurations, be it non-interfering 2.4 Ghz and 5 Ghz networks
-or interfering 2.4 Ghz networks on the same channel, a fixed set of experiments
-were run. The set consisted of the five tests outlined below:
+or interfering 2.4 Ghz networks on the same channel, one of two tests setups
+were used. The first setup was running the five tests outlined below
+sequentially:
 
 \begin{enumerate}
   \item Network \#1 on machine \#1 only
@@ -55,6 +56,14 @@ split it into two tests early on in order to be able to more directly compare
 the utilization and performance of a network using MPTCP to its single and
 parallel counterparts. Most of the comparisons done in this paper show
 comparisons between test \#1, \#3 and \#4 or \#2, \#3 and \#5.
+
+The other common test setup was using three machines at the same time so that
+one machine was connected to network \#1, one machine to network \#2, and one
+machine to both networks. All machines were running the MPTCP kernel. This setup
+allowed us to more directly compare the performance of MPTCP to that of a two
+simultaneous non-MPTCP clients. It also let us evaluate the fairness of MPTCP
+when other clients are also using the network.
+
 \subsection{Scripts}
 In order to automate several oft-performed tasks such as running tests and
 analyzing data, several scripts were developed and used throughout the writing
