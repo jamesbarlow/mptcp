@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Prevent autoconnection"
-if=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+if=$(iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1)
 sudo systemctl stop "netctl-auto@${if}.service"
 
 echo "Stopping current connection"

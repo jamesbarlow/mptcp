@@ -1,10 +1,10 @@
 #!/bin/bash
-base=`dirname $0`
-base=`realpath $base`
+base="$(dirname "$0")"
+base="$(realpath "$base")"
 source "$base/common.sh"
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: `basename $0` [DAT]..."
+  echo "Usage: $(basename "$0") [DAT]..."
   echo
   echo "For each DAT file, calculates and displays the CDF"
   exit 1
@@ -47,47 +47,46 @@ lastparpar=""
 lastpar=""
 parshared=1
 parparshared=1
-while [[ $# -gt 0 ]]; do
-  d=$(dirname $(realpath "$1"))
-  par=$(basename "$d")
-  parpar=$(basename $(dirname "$d"))
+for arg; do
+  d="$(dirname "$(realpath "$arg")")"
+  par="$(basename "$d")"
+  parpar="$(basename "$(dirname "$d")")"
 
-  if [[ -z $lastpar ]]; then
+  if [[ -z "$lastpar" ]]; then
     lastpar="$par"
-  elif [[ $lastpar != $par ]]; then
+  elif [[ $lastpar != "$par" ]]; then
     parshared=0
   fi
 
-  if [[ -z $lastparpar ]]; then
+  if [[ -z "$lastparpar" ]]; then
     lastparpar="$parpar"
-  elif [[ $lastparpar != $parpar ]]; then
+  elif [[ $lastparpar != "$parpar" ]]; then
     parparshared=0
   fi
 
-  args+=("$1")
-  shift
+  args+=("$arg")
 done
 
 out=""
-for f in ${args[@]}; do
-  f=`realpath "$f"`
-  datname=`basename "$f"`
+for f in "${args[@]}"; do
+  f="$(realpath "$f")"
+  datname="$(basename "$f")"
   datname="${datname%.dat}"
-  dir=$(dirname "$f")
-  dirname=$(basename "$dir")
+  dir="$(dirname "$f")"
+  dirname="$(basename "$dir")"
 
   uniq=""
-  if [[ $parshared -eq 1 ]]; then
+  if ((parshared)); then
     if [[ -e "$dir/iwconfig.log" ]]; then
-      uniq=`if2ap "$dir" "$datname"`
+      uniq="$(if2ap "$dir" "$datname")"
     fi
 
-    if [[ -z $uniq ]]; then
+    if [[ -z "$uniq" ]]; then
       uniq="$datname"
     fi
-  elif [[ $parparshared -eq 1 ]]; then
+  elif ((parparshared)); then
     if [[ -e "$dir/iwconfig.log" ]]; then
-      uniq=`if2ap "$dir" "$datname"`
+      uniq="$(if2ap "$dir" "$datname")"
       uniq="$dirname-$uniq"
     else
       uniq="$dirname-$datname"
@@ -95,22 +94,22 @@ for f in ${args[@]}; do
   fi
 
   file="$dir/cdf-$o-$uniq.dat"
-  if [[ ! -e $file ]]; then
+  if [[ ! -e "$file" ]]; then
     runr "$f" > "$file"
   fi
 
   s="$s \\
   '$file' using (8*\$1/1048576):(\$2*100) title '$uniq' with lines ls ($o),"
-  o=`echo "$o+1" | bc`
+  ((o++))
 done
 
 s="${s%,}"
-s=`echo "$s" | sed 's|/home/[^/]*/|~/|g'`
+s="$(echo "$s" | sed 's|/home/[^/]*/|~/|g')"
 
-if [[ $parshared -eq 1 ]]; then
-  s=`echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastpar'|"`
-elif [[ $parparshared -eq 1 ]]; then
-  s=`echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastparpar'|"`
+if ((parshared)); then
+  s="$(echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastpar'|")"
+elif ((parparshared)); then
+  s="$(echo "$s" | sed "s|set title '\\(.*\\)'|set title '\\1 $lastparpar'|")"
 fi
 
 echo "$s" | gnuplot -p - > /dev/null 2>&1

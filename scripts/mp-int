@@ -3,27 +3,27 @@ testlength=60
 printinterval=15
 
 inittestlength=$testlength
-testname=$1
-direction=$2
+testname="$1"
+direction="$2"
 both="no"
-base=`dirname $0`
-base=`realpath $base`
+base="$(dirname "$0")"
+base="$(realpath "$base")"
 
-if [[ $UID -eq 0 ]]; then
+if (( UID == 0 )); then
   echo -e "\e[31mThis script should not be run as root\e[0m"
   exit 1
 fi
 
-ips=`ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/'`
-if [[ `echo "$ips" | wc -l` -ne 2 ]]; then
+ips="$(ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/')"
+if [[ $(echo "$ips" | wc -l) -ne 2 ]]; then
   echo -e "\e[31mThis script only works with two ips\e[0m"
   exit 1
 fi
 
 ips=($ips)
 
-if [[ -z $1 || -z $2 ]]; then
-  echo "Usage: $0 <name> <down|up> [server] [floor]"
+if [[ -z "$1" || -z "$2" ]]; then
+  echo "Usage: $(basename "$0") <name> <down|up> [server] [floor]"
   exit 1
 fi
 
@@ -44,9 +44,9 @@ echo "  -> Disabling MPTCP: "
 sudo sysctl -w net.mptcp.mptcp_enabled=0
 
 echo -en "  -> Finding primary local IP: "
-ip=`ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1`
+ip="$(ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1)"
 
-if [[ -z $ip ]]; then
+if [[ -z "$ip" ]]; then
   echo -e "\e[1;5;31mnone found!\e[0m"
   cd ..
   rm -rf "$testname-$direction"
@@ -55,22 +55,22 @@ else
   echo -e "\e[37m$ip\e[0m"
 fi
 
-if [[ -z $3 ]]; then
-  if [[ ! -z `echo $ip | grep -P "^128\.16\.8"` ]]; then
+if [[ -z "$3" ]]; then
+  if [[ ! -z $(echo "$ip" | grep -P "^128\.16\.8") ]]; then
     echo -e "  -> Running mp-routes"
     echo "-----------------------------------------"
-    $base/mp-routes
+    "$base/mp-routes"
     echo "-----------------------------------------"
   else
     echo -e "\e[37m  -> Not running mp-routes outside 128.16.80.0/22\e[0m"
   fi
 fi
 
-if [[ -z $3 ]]; then
+if [[ -z "$3" ]]; then
   echo -en "==> Detecting testing server: "
-  ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1`
+  ap="$(iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1)"
 
-  if [[ -z $ap ]]; then
+  if [[ -z "$ap" ]]; then
     echo -e "\e[1;31mundetectable\e[0m"
     echo -ne "\e[1m  ?? Use testing server \e[37m"
     read ap
@@ -79,7 +79,7 @@ if [[ -z $3 ]]; then
     echo -e "\e[37m$ap\e[0m"
   fi
 else
-  ap=$3
+  ap="$3"
   echo -e "==> Using testing server \e[37m$ap\e[0m"
 fi
 
@@ -108,13 +108,13 @@ echo -en "  -> Wireless connection details...\t"
 iwconfig 2>/dev/null > iwconfig.log
 echo -e "\e[37m done\e[0m"
 
-if [[ -z $4 ]]; then
+if [[ -z "$4" ]]; then
   echo -en "\e[1m  ?? Enter floor:\t\t\t\e[37m  th\e[0m"
   echo -en "\r\e[1m  ?? Enter floor:\t\t\t\e[37m "
   read floor
   echo -en "\e[0m"
 else
-  floor=$4
+  floor="$4"
 fi
 
 echo -en "  -> Test report outline...\t\t";
@@ -126,15 +126,15 @@ TEST LOCATION: ${floor}TH FLOOR MPEB
 TEST DURATION: 1.5 HOURS" > test.txt
 echo -e "\e[37m done\e[0m"
 
-is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+is="$(iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1)"
 echo -en "  -> Wireless environment...\t\t"
-sudo iwlist $is scan > iwlist.log
+sudo iwlist "$is" scan > iwlist.log
 echo -e "\e[37m done\e[0m"
 
 echo -e "==> Starting services"
 
 echo -en "  -> Starting tcpdump...\t\t"
-sudo tcpdump -tt -qni any udp and host $ap 2>/dev/null > tcpdump.pcap &
+sudo tcpdump -tt -qni any udp and host "$ap" 2>/dev/null > tcpdump.pcap &
 if [[ $? -gt 0 ]]; then
   echo -e "\e[31m fail\e[0m"
   cd ..
@@ -144,11 +144,11 @@ else
   echo -e "\e[37m done\e[0m"
 fi
 
-netserver_started=`pidof netserver`
+netserver_started="$(pgrep netserver)"
 if [[ $direction == "down" && -z "$netserver_started" ]]; then
-  for net in ${ips[0]} ${ips[1]}; do
+  for net in "${ips[@]}"; do
     echo -ne "  -> Starting netserver on \e[37m$net\e[0m"
-    netserver -L $net > /dev/null 2> /dev/null
+    netserver -L "$net" > /dev/null 2> /dev/null
     echo -e "\e[37m done\e[0m"
   done
   netserver_started=1
@@ -157,7 +157,7 @@ else
 fi
 
 echo -en "  -> Starting stats gatherer...\t\t"
-$base/mp-stats 1s $ap > stats.log &
+"$base/mp-stats" 1s "$ap" > stats.log &
 stats_pid=$!
 echo -e "\e[37m done\e[0m"
 
@@ -170,33 +170,33 @@ echo -e " for \e[37m$testlength/$printinterval\e[0m seconds"
 
 err=1
 int=0
-while [[ $err -gt 0 ]]; do
-  begin=`date +%s`
+while ((err)); do
+  begin=$(date +%s)
   echo -ne "\e[34m"
 
   testpid=0
   if [[ $direction == "down" ]]; then
-    ssh msc@$ap "nohup netperf -t UDP_STREAM -P 0 -H ${ips[0]} -l $testlength >/dev/null &"
+    ssh "msc@$ap" "nohup netperf -t UDP_STREAM -P 0 -H "${ips[0]}" -l $testlength >/dev/null &"
     err=$?
     testpid=$!
   else
-    netperf -t UDP_STREAM -P 0 -L ${ips[0]} -H $ap -l $testlength >/dev/null &
+    netperf -t UDP_STREAM -P 0 -L "${ips[0]}" -H "$ap" -l $testlength >/dev/null &
     err=$?
     testpid=$!
   fi
 
-  if [[ $err -gt 0 ]]; then
+  if ((err)); then
     echo -e "\e[0m\e[31m==> Failed to run main netperf session\e[34;2m"
   fi
 
   remains=$testlength
   while [[ $err -eq 0 && $remains -gt 0 ]]; do
-    intbeg=`date +%s`
+    intbeg=$(date +%s)
     intfor=$printinterval
-    if [[ $testlength -lt $intfor ]]; then
+    if (( testlength < intfor )); then
       intfor=$testlength
     fi
-    if [[ $int -eq 0 ]]; then
+    if ((int == 0)); then
       echo -e "\e[0m\e[37m==> Sleeping for $intfor seconds\e[34;2m"
       trap "err=1" INT
       sleep $intfor
@@ -206,7 +206,7 @@ while [[ $err -gt 0 ]]; do
       echo -e "\e[0m\e[37m==> Interrupting with ${ips[1]} for $intfor seconds\e[34;2m"
       trap "err=1" INT
       if [[ $direction == "down" ]]; then
-        ssh msc@$ap "nohup netperf -t UDP_STREAM -P 0 -H ${ips[1]} -l $intfor >/dev/null &"
+        ssh "msc@$ap" "nohup netperf -t UDP_STREAM -P 0 -H "${ips[1]}" -l "$intfor" >/dev/null &"
         pid=$?
         sleep $intfor
         if [[ $err -gt 0 ]]; then
@@ -214,18 +214,18 @@ while [[ $err -gt 0 ]]; do
         fi
         wait $pid 2>/dev/null
       else
-        netperf -t UDP_STREAM -P 0 -L ${ips[1]} -H $ap -l $intfor >/dev/null
+        netperf -t UDP_STREAM -P 0 -L "${ips[1]}" -H "$ap" -l $intfor >/dev/null
         err=$?
       fi
       trap - INT
       int=0
     fi
 
-    end=`date +%s`
-    remains=`echo "$remains-($end-$intbeg)" | bc`
+    end=$(date +%s)
+    remains=$(echo "$remains-($end-$intbeg)" | bc)
   done
 
-  if [[ $err -gt 0 ]]; then
+  if ((err)); then
     int=0
     kill $testpid
   fi
@@ -233,9 +233,9 @@ while [[ $err -gt 0 ]]; do
 
   echo -ne "\e[0m"
 
-  end=`date +%s`
-  testlength=`echo "$testlength-($end-$begin)" | bc`
-  if [[ $err -gt 0 ]]; then
+  end=$(date +%s)
+  testlength=$(echo "$testlength-($end-$begin)" | bc)
+  if ((err)); then
     echo -e "\e[1;31mTest interrupted with ${testlength}s left"
     echo -ne "Press enter to continue or Ctrl+D to end test\e[0m"
     read
@@ -245,7 +245,7 @@ while [[ $err -gt 0 ]]; do
       break
     fi
 
-    ssh $ap 'pkill netperf; pkill netperf'
+    ssh "$ap" 'pkill netperf; pkill netperf'
     echo -e "==> Running test for another \e[37m$testlength\e[0m seconds"
   fi
 done
@@ -263,8 +263,8 @@ kill $stats_pid
 wait $stats_pid 2>/dev/null # http://stackoverflow.com/a/5722850
 echo -e "\e[37m done\e[0m"
 
-if [[ $netserver_started -gt 0 ]]; then
-  for net in $ips; do
+if ((netserver_started)); then
+  for net in "${ips[@]}"; do
     echo -ne "  -> Stopping netserver on $net"
     pkill netserver
     echo -e "\e[37m done\e[0m"
@@ -288,8 +288,8 @@ echo -e "\e[37m done\e[0m"
 echo "==> Enabling MPTCP: "
 sudo sysctl -w net.mptcp.mptcp_enabled=1
 
-if [[ $err -gt 0 ]]; then
-  if [[ $testlength -eq $inittestlength ]]; then
+if ((err)); then
+  if ((testlength == inittestlength)); then
     echo -e "\e[31m==> Test failed to run =(\e[0m"
   else
     echo -e "\e[33m==> Test only partially completed =/\e[0m"
@@ -299,12 +299,12 @@ else
 fi
 
 if [[ $both == 'yes' ]]; then
-  if [[ $err -gt 0 ]]; then
+  if ((err)); then
     echo -e "\e[33m==> Not running downlink test after premature exit\e[0m"
   else
     cd ..
     echo
-    $base/mp-int $testname down $ap $floor
+    "$base/mp-int" "$testname" down "$ap" "$floor"
   fi
 fi
 

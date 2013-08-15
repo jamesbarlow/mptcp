@@ -1,17 +1,17 @@
 #!/bin/bash
-base=`dirname $0`
-base=`realpath $base`
+base="$(dirname "$0")"
+base="$(realpath "$base")"
 source "$base/common.sh"
 
 dir="$1"
-testname=`basename "$dir"`
+testname="$(basename "$dir")"
 cd "$1"
 
-int=`cat test.txt | grep interrupt | wc -l`
+int=$(cat test.txt | grep interrupt | wc -l)
 
-begin=`head -n1 *.dat | tail -n1 | cut -d' ' -f1`
-end=`tail -n1 *.dat | tail -n1 | cut -d' ' -f1`
-dur=`echo "$end-$begin" | bc`
+begin=$(head -n1 *.dat | tail -n1 | cut -d' ' -f1)
+end=$(tail -n1 *.dat | tail -n1 | cut -d' ' -f1)
+dur=$(echo "$end-$begin" | bc)
 
 s="
 set xlabel 'seconds'
@@ -40,20 +40,22 @@ plot \\"
 
 o="1"
 title=""
-for f in `ls *.dat | grep -vE "cdf|totals"`; do
-  f=`realpath "$f"`
-  fbase=`basename "$f"`
-  begin=`head -n1 "$f" | cut -d' ' -f1`
-  end=`tail -n1 "$f" | cut -d' ' -f1`
-  ap=`if2ap "." "${fbase%.dat}"`
-  if [[ $ap == $title ]]; then
+for f in *.dat; do
+  [[ $f =~ cdf|totals ]] && continue
+
+  f="$(realpath "$f")"
+  fbase="$(basename "$f")"
+  begin=$(head -n1 "$f" | cut -d' ' -f1)
+  end=$(tail -n1 "$f" | cut -d' ' -f1)
+  ap="$(if2ap "." "${fbase%.dat}")"
+  if [[ $ap == "$title" ]]; then
     title="$ap (2)"
   else
     title="$ap"
   fi
 
-  if [[ -z `echo $1 | grep -- "-down"` ]]; then
-    if [[ $int -eq 0 ]]; then
+  if [[ -z $(echo "$1" | grep -- "-down") ]]; then
+    if ((int == 0)); then
       io="'$f' using (\$1-$begin):(\$9/1024/10) title '$title sendq' with lines ls ($o+7), \\
           '$f' using (\$1-$begin):(\$10/10) title '$title rtt' with lines ls ($o+4), \\
           '$f' using (\$1-$begin):(1428*\$12/1024/10) title '$title cwnd' with lines ls ($o+5), \\
@@ -64,7 +66,7 @@ for f in `ls *.dat | grep -vE "cdf|totals"`; do
           '$f' using (\$1-$begin):(8*\$15/1000000) title '$title throughput' with lines ls ($o+6), "
     fi
   else
-    if [[ $int -eq 0 ]]; then
+    if ((int == 0)); then
       io="'$f' using (\$1-$begin):(\$8) title '$title recvq' with lines ls ($o+7), \\
           '$f' using (\$1-$begin):(\$11/10) title '$title rtt' with lines ls ($o+4), \\
           '$f' using (\$1-$begin):(80+\$14/5) title '$title utilization' with lines ls ($o+5), \\
@@ -81,24 +83,23 @@ for f in `ls *.dat | grep -vE "cdf|totals"`; do
     '$f' using (\$1-$begin):4 title '$title tx-fail' with lines ls ($o+2), \\
     '$f' using (\$1-$begin):5 title '$title rx-drop' with lines ls ($o+3), \\
     $io \\"
-  o=`echo "$o+1" | bc`
+  ((o+=1))
 done
 
-f=`ls *.dat | grep -vE "cdf|totals" | head -n1`
-f=`realpath "$f"`
+f="$(realpath "$(ls *.dat | grep -vE "cdf|totals" | head -n1)")"
 s="$s
   '$f' using (\$1-$begin):6 title 'fast-rt' with lines ls 9, \\
   '$f' using (\$1-$begin):7 title 'timeout' with lines ls 10, \\
   "
 
-f=`realpath totals.dat`
-if [[ -z `echo $1 | grep -- "-down"` ]]; then
+f="$(realpath totals.dat)"
+if [[ -z "$(echo "$1" | grep -- "-down")" ]]; then
   s="$s '$f' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 11"
 else
   s="$s '$f' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 11"
 fi
 
-s=`echo "$s" | sed 's|/home/[^/]*/|~/|g'`
+s="$(echo "$s" | sed 's|/home/[^/]*/|~/|g')"
 echo "$s" | gnuplot -p - > /dev/null 2>&1
 echo "$s"
 

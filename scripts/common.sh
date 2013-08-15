@@ -20,17 +20,17 @@ function aps() {
 
 function bpsf() {
   # bpsf filename
-  isdown=`echo "$1" | sed '/-down[\.\/]/!d' | wc -l`
-  if [[ $isdown -eq 1 ]]; then
+  isdown=$(echo "$1" | sed '/-down[\.\/]/!d' | wc -l)
+  if (( isdown == 1 )); then
     # down
-    if [[ `basename "$1"` == 'totals.dat' ]]; then
+    if [[ $(basename "$1") == 'totals.dat' ]]; then
       echo 3
     else
       echo 16
     fi
   else
     # up
-    if [[ `basename "$1"` == 'totals.dat' ]]; then
+    if [[ $(basename "$1") == 'totals.dat' ]]; then
       echo 2
     else
       echo 15
@@ -41,8 +41,8 @@ function bpsf() {
 function suffix() {
   # dir up|down ap
   suffix=""
-  for dir in `ls -d "$1"/*parallel-*-$2`; do
-    if [[ `grep "\"$3-wifi\"" "$dir/iwconfig.log" | wc -l` -eq 1 ]]; then
+  for dir in "$1"/*parallel-*-$2; do
+    if [[ $(grep "\"$3-wifi\"" "$dir/iwconfig.log" | wc -l) -eq 1 ]]; then
       echo "$dir" | sed "s/^.*-\\(.*\\)-$2$/\1/"
       return
     fi

@@ -1,7 +1,9 @@
 #!/bin/bash
-W=`curl --silent amiusingmptcp.com | grep big | sed 's/^.*\(green\|red\).*$/\1/'`
-if [[ $W == 'green' ]]; then
+W="$(curl --silent amiusingmptcp.com | grep big)"
+if [[ $W =~ green ]]; then
   echo "MPTCP enabled"
-else
+elif [[ $W =~ red ]]; then
   echo "MPTCP not enabled"
+else
+  echo "I couldn't tell you even if I wanted to"
 fi

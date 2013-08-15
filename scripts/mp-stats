@@ -5,10 +5,10 @@ if [[ ! -z $1 ]]; then
 fi
 
 filter=""
-if [[ ! -z $2 ]]; then
-  filter=$2
-  if [[ -z `echo $2 | grep -P "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"` ]]; then
-    filter=`ping -c 1 $filter | grep PING | sed 's/^[^(]*(//' | sed 's/).*//'`
+if [[ ! -z "$2" ]]; then
+  filter="$2"
+  if [[ -z "$(echo "$2" | grep -P "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")" ]]; then
+    filter="$(ping -c 1 "$filter" | grep PING | sed 's/^[^(]*(//' | sed 's/).*//')"
   fi
 fi
 
@@ -30,10 +30,10 @@ while /bin/true; do
   echo ";"
   grep "TcpExt:" /proc/net/netstat | grep -v "Syn" | sed 's/^TcpExt: //'
   echo ";"
-  if [[ -z $2 ]]; then
+  if [[ -z "$2" ]]; then
     ss -inot | grep -v "State"
   else
-    ss -inot | grep -v "State" | grep -A1 $filter | sed '/^--$/d'
+    ss -inot | grep -v "State" | grep -A1 "$filter" | sed '/^--$/d'
   fi
   echo "."
   sleep $interval

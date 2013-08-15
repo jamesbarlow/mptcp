@@ -9,17 +9,17 @@ if [[ $1 == '--noprompt' ]]; then
 fi
 
 inittestlength=$testlength
-direction=$1
+direction="$1"
 both="no"
-base=`dirname $0`
-base=`realpath $base`
+base="$(dirname "$0")"
+base="$(realpath "$base")"
 
-if [[ $UID -eq 0 ]]; then
+if ((UID == 0)); then
   echo -e "\e[31mThis script should not be run as root\e[0m"
 fi
 
-if [[ -z $1 ]]; then
-  echo "Usage: $0 [--noprompt] <down|up|both> [server]"
+if [[ -z "$1" ]]; then
+  echo "Usage: $(basename "$0") [--noprompt] <down|up|both> [server]"
   exit 1
 fi
 
@@ -34,31 +34,31 @@ fi
 echo -e "==> Preparing \e[37m${direction}link\e[0m test\e[0m"
 
 echo -en "  -> Finding primary local IP: "
-ip=`ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1`
+ip="$(ip addr | grep "inet " | grep -v " 127." | sed 's/^[^0-9]*\([0-9\.]\+\).*$/\1/' | head -n1)"
 
-if [[ -z $ip ]]; then
+if [[ -z "$ip" ]]; then
   echo -e "\e[1;5;31mnone found!\e[0m"
   exit 1
 else
   echo -e "\e[37m$ip\e[0m"
 fi
 
-if [[ -z $2 ]]; then
-  if [[ ! -z `echo $ip | grep -P "^128\.16\.8"` ]]; then
+if [[ -z "$2" ]]; then
+  if [[ ! -z "$(echo "$ip" | grep -P "^128\.16\.8")" ]]; then
     echo -e "  -> Running mp-routes"
     echo "-----------------------------------------"
-    $base/mp-routes
+    "$base/mp-routes"
     echo "-----------------------------------------"
   else
     echo -e "\e[37m  -> Not running mp-routes outside 128.16.80.0/22\e[0m"
   fi
 fi
 
-if [[ -z $2 ]]; then
+if [[ -z "$2" ]]; then
   echo -en "==> Detecting testing server: "
-  ap=`iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1`
+  ap="$(iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/' | head -n1)"
 
-  if [[ -z $ap ]]; then
+  if [[ -z "$ap" ]]; then
     echo -e "\e[1;31mundetectable\e[0m"
     echo -ne "\e[1m  ?? Use testing server \e[37m"
     read ap
@@ -67,17 +67,17 @@ if [[ -z $2 ]]; then
     echo -e "\e[37m$ap\e[0m"
   fi
 else
-  ap=$2
+  ap="$2"
   echo -e "==> Using testing server \e[37m$ap\e[0m"
 fi
 
-twofours=`iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | wc -l`
-fives=`iwconfig 2>/dev/null | grep "Freq" | grep ":5." | wc -l`
+twofours=$(iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | wc -l)
+fives=$(iwconfig 2>/dev/null | grep "Freq" | grep ":5." | wc -l)
 testname="$USER-$ap-"
 
-if [[ $fives -gt 1 ]]; then
+if ((fives > 1)); then
   testname="${testname}5x$fives"
-elif [[ $fives -gt 0 ]]; then
+elif ((fives == 1)); then
   testname="${testname}5"
 fi
 
@@ -85,23 +85,22 @@ if [[ $twofours -gt 0 && $fives -gt 0 ]]; then
   testname="$testname-"
 fi
 
-if [[ $twofours -gt 1 ]]; then
+if ((twofours > 1)); then
   testname="${testname}2.4x$twofours"
-  freqs=`iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | sed 's/.*Frequency:2\.\([0-9\.]*\).*/\1/'`
-  freqs=($freqs)
-  if [[ ${freqs[0]} -eq ${freqs[1]} ]]; then
+  freqs=$(iwconfig 2>/dev/null | grep "Freq" | grep ":2.4" | sed 's/.*Frequency:2\.\([0-9\.]*\).*/\1/' | uniq -d | wc -l)
+  if ((freqs == 1)); then
     testname="${testname}-i"
   else
     testname="${testname}-ni"
   fi
-elif [[ $twofours -gt 0 ]]; then
+elif ((twofours == 1)); then
   testname="${testname}2.4"
 fi
 
 echo -e "==> Preparing test folder \e[37m$testname-$direction\e[0m"
 
 if [[ -e "$testname-$direction" ]]; then
-  cnt=`ls | grep "$testname" | grep -- "-$direction" | wc -l`
+  cnt=$(ls | grep "$testname" | grep -- "-$direction" | wc -l)
   testname="$testname@$cnt"
   echo -e "\e[33m  -> Old version found, calling this $testname-$direction\e[0m"
 fi
@@ -116,7 +115,7 @@ uname -a > stack.log
 echo "tcp_congestion_control" >> stack.log
 cat /proc/sys/net/ipv4/tcp_congestion_control >> stack.log
 echo "remote tcp_congestion_control" >> stack.log
-ssh $ap cat /proc/sys/net/ipv4/tcp_congestion_control >> stack.log
+ssh "$ap" cat /proc/sys/net/ipv4/tcp_congestion_control >> stack.log
 echo "tcp_mem" >> stack.log
 cat /proc/sys/net/ipv4/tcp_mem >> stack.log
 echo "tcp_wmem" >> stack.log
@@ -137,9 +136,9 @@ echo -en "  -> Wireless connection details...\t"
 iwconfig 2>/dev/null > iwconfig.log
 echo -e "\e[37m done\e[0m"
 
-is=`iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1`
+is="$(iwconfig 2>&1 | grep ESSID | grep -v off | sed 's/^\([^ ]\+\) .*/\1/' | sort | head -n1)"
 echo -en "  -> Wireless environment...\t\t"
-sudo iwlist $is scan > iwlist.log
+sudo iwlist "$is" scan > iwlist.log
 echo -e "\e[37m done\e[0m"
 
 echo -en "  -> Test report outline...\t\t";
@@ -153,13 +152,13 @@ echo -e "\e[37m done\e[0m"
 
 echo -e "==> Sanitizing environment"
 
-if [[ ! -z `pidof dropbox` ]]; then
+if [[ ! -z "$(pgrep dropbox)" ]]; then
   echo -ne "  -> Stopping dropbox...\t\t"
   pkill dropbox
   echo -e "\e[37m done\e[0m"
 fi
 
-if [[ $prompt -eq 1 ]]; then
+if ((prompt)); then
   echo -ne "\n\e[37;1;5m==> Press enter to start test...\e[0m"
   read
   if [[ $? -gt 0 ]]; then
@@ -173,7 +172,7 @@ fi
 
 echo -e "==> Starting services"
 
-netserver_started=`pidof netserver`
+netserver_started="$(pgrep netserver)"
 if [[ $direction == "down" && -z "$netserver_started" ]]; then
   echo -ne "  -> Starting local netserver...\t"
   netserver > /dev/null 2> /dev/null
@@ -184,7 +183,7 @@ else
 fi
 
 echo -en "  -> Starting stats gatherer...\t\t"
-$base/mp-stats .5s $ap > stats.log &
+"$base/mp-stats" .5s "$ap" > stats.log &
 stats_pid=$!
 echo -e "\e[37m done\e[0m"
 
@@ -197,23 +196,23 @@ echo -e " for \e[37m$testlength/$printinterval\e[0m seconds"
 
 err=1
 echo "" > perf.log
-while [[ $err -gt 0 ]]; do
-  begin=`date +%s`
+while ((err)); do
+  begin=$(date +%s)
   echo -ne "\e[34m"
 
   if [[ $direction == "down" ]]; then
-    ssh msc@$ap netperf -P 0 -H $ip -l $testlength -D $printinterval | tee -a perf.log
+    ssh "msc@$ap" netperf -P 0 -H "$ip" -l $testlength -D $printinterval | tee -a perf.log
     err=${PIPESTATUS[0]}
   else
-    netperf -P 0 -H $ap -l $testlength -D $printinterval | tee -a perf.log
+    netperf -P 0 -H "$ap" -l $testlength -D $printinterval | tee -a perf.log
     err=${PIPESTATUS[0]}
   fi
 
   echo -ne "\e[0m"
 
-  if [[ $err -gt 0 ]]; then
-    end=`date +%s`
-    testlength=`echo "$testlength-($end-$begin)" | bc`
+  if ((err)); then
+    end=$(date +%s)
+    testlength=$(echo "$testlength-($end-$begin)" | bc)
     echo -e "\e[1;31mTest interrupted with ${testlength}s left"
     echo -ne "Press enter to continue or Ctrl+D to end test\e[0m"
     read
@@ -237,7 +236,7 @@ kill $stats_pid
 wait $stats_pid 2>/dev/null # http://stackoverflow.com/a/5722850
 echo -e "\e[37m done\e[0m"
 
-if [[ $netserver_started -gt 0 ]]; then
+if ((netserver_started)); then
   echo -en "  -> Stopping local netserver...\t"
   pkill netserver
   echo -e "\e[37m done\e[0m"
@@ -253,8 +252,8 @@ echo -en "  -> Compressing stats...\t\t"
 gzip -f8 stats.log
 echo -e "\e[37m done\e[0m"
 
-if [[ $err -gt 0 ]]; then
-  if [[ $testlength -eq $inittestlength ]]; then
+if ((err)); then
+  if ((testlength == inittestlength)); then
     echo -e "\e[31m==> Test failed to run =(\e[0m"
   else
     echo -e "\e[33m==> Test only partially completed =/\e[0m"
@@ -264,11 +263,13 @@ else
 fi
 
 if [[ $both == 'yes' ]]; then
-  if [[ $err -gt 0 ]]; then
+  if ((err)); then
     echo -e "\e[33m==> Not running downlink test after premature exit\e[0m"
   else
     cd ..
     echo
-    $base/mp-run --noprompt down $ap
+    "$base/mp-run" --noprompt down "$ap"
   fi
 fi
+
+# vim:textwidth=0:

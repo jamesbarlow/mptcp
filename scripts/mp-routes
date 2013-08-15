@@ -1,6 +1,7 @@
 #!/bin/bash
-ts=`sudo ip rule | grep -P "lookup \d" | sed 's/^.*lookup //'`
-if [[ ! -z "$ts" ]]; then
+ts="$(sudo ip rule | grep -P "lookup \d" | sed 's/^.*lookup //')"
+ts=($ts)
+if [[ ${#ts[@]} -gt 0 ]]; then
   echo -e "\e[1m:: Cleaning rule tables\e[0m"
   for t in $ts; do
     echo "==> Purging table $t"

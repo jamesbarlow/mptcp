@@ -1,10 +1,10 @@
 #!/bin/bash
-base=`dirname $0`
-base=`realpath $base`
+base="$(dirname "$0")"
+base="$(realpath "$base")"
 source "$base/common.sh"
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: `basename $0` [-n] UP|DOWN [SET-FOLDER AP]..."
+  echo "Usage: $(basename "$0") [-n] UP|DOWN [SET-FOLDER AP]..."
   echo
   echo -n "For each SET-FOLDER/AP pair, merges single, parallel and mptcp"
   echo -n " readings for the interface connected to AP with that of the"
@@ -25,22 +25,22 @@ updown="$1"
 shift
 
 for t in single parallel mptcp; do
-  touch $t-$updown.dat
+  touch "$t-$updown.dat"
 done
 
-datadir=`realpath ~/Dropbox/MPTCP/data/`
+datadir="$HOME/Dropbox/MPTCP/data/"
 while true; do
   if [[ $# -lt 2 ]]; then break; fi
 
   setdir="$1"
-  setname=`echo "$setdir" | sed "s|^$datadir/*||"`
+  setname="$(echo "$setdir" | sed "s|^$datadir/*||")"
   ap="$2"
   shift
   shift
 
   echo -e "==> Merging set \e[37m$setname\e[0m"
 
-  suffix=`suffix "$setdir" "$updown" "$ap"`
+  suffix="$(suffix "$setdir" "$updown" "$ap")"
   if [[ -z "$suffix" ]]; then
     echo -e "\e[31mFailed to find a suffix for $ap-wifi in set '$setname'\e[0m" >> /dev/stderr
     continue
@@ -49,66 +49,68 @@ while true; do
   drs=()
   for t in single parallel mptcp; do
     if [[ $t == "mptcp" ]]; then
-      dir=`ls -d "$setdir"/*mptcp*@$suffix-$updown 2>/dev/null`
-      if [[ -z $dir ]]; then
-        dir=`ls -d "$setdir"/*mptcp*-$updown 2>/dev/null`
+      dir=("$setdir"/*mptcp*@$suffix-$updown)
+      if [[ ! -e "${dir[0]}" ]]; then
+        dir=("$setdir"/*mptcp*-$updown)
       fi
     else
-      dir=`ls -d "$setdir"/*$t*-$suffix-$updown 2>/dev/null`
+      dir=("$setdir"/*$t*-$suffix-$updown)
     fi
 
-    if [[ -z $dir ]]; then
+    if [[ ! -e "${dir[0]}" ]]; then
       if [[ $t != "single" ]]; then
-        echo -e "\e[33mFailed to find $t@$suffix in set '$setname'\e[0m" >> /dev/stderr
+        echo -e "\e[33mFailed to find $t@$suffix in set '$setname': $dir\e[0m" >> /dev/stderr
       fi
       continue;
     fi
+    dir="${dir[0]}"
 
-    if=`ap21if "$dir" "$ap"`
-    if [[ -z $if ]]; then
-      echo -e "\e[31mFailed to find $t directory for $ap-wifi in set '$setname'\e[0m" >> /dev/stderr
+    if="$(ap21if "$dir" "$ap")"
+    if [[ -z "$if" ]]; then
+      echo -e "\e[31mFailed to find $t directory for $ap-wifi in set '$setname': $dir\e[0m" >> /dev/stderr
       continue;
     fi
 
     if [[ ! -e "$dir/$if.dat" ]]; then
-      $base/mp-analyze "$dir" > /dev/null
+      "$base/mp-analyze" "$dir" > /dev/null
     fi
 
     echo -e "  -> Merging \e[37m$if\e[0m from \e[37m`basename $dir`\e[0m into \e[37m$t.dat\e[0m"
     drs+=("$dir/$if.dat" "$t-$updown.dat")
   done
 
-  if [[ $normalize -eq 1 ]]; then
+  if ((normalize)); then
     echo -en "  -> Calculating normalizing offset for set: "
 
     meds=()
-    for dir in `ls -d "$setdir"/*-$updown`; do
-      for iface in `ls "$dir"/*.dat | grep -vE "total|cdf"`; do
-        f=`bpsf "$iface"`
-        lines=`cat "$iface" | wc -l | sed 's/$/\/2/' | bc`
-        med=`cut -d' ' -f$f "$iface" | sort | head -n $lines | tail -n 1`
-        meds+=($med)
-      done
+    for iface in "$setdir"/*-$updown/*.dat; do
+      [[ $iface =~ total|cdf ]] && continue
+
+      f=$(bpsf "$iface")
+      lines=$(cat "$iface" | wc -l | sed 's/$/\/2/' | bc)
+      med=$(cut -d' ' -f$f "$iface" | sort | head -n $lines | tail -n 1)
+      meds+=($med)
     done
 
-    avgmed=`(for m in ${meds[@]}; do echo $m; done) | paste -sd+`
+    avgmed=`(for m in "${meds[@]}"; do echo $m; done) | paste -sd+`
     avgmed=`echo -e "scale=1\n($avgmed)/${#meds[@]}" | bc`
     echo -e "\e[37m$avgmed\e[0m"
+
+    echo "  -> Merging normalized data"
   fi
 
-  echo "  -> Merging normalized data"
   i=0
   while [[ $i -lt ${#drs[@]} ]]; do
-    file=${drs[$i]}
-    out=${drs[$i+1]}
-    if [ $normalize -eq 1 ]; then
-      f=`bpsf "$file"`
+    file="${drs[$i]}"
+    out="${drs[$i+1]}"
+    if ((normalize)); then
+      f=$(bpsf "$file")
       cut -d' ' -f$f "$file" | sed "s/\$/-$avgmed/" | sed '1 i\
         scale=1' | bc >> "$out"
     else
-      cat "$d/$if.dat" >> "$out"
+      cat "$file" >> "$out"
     fi
-    i+=2
+    ((i+=2))
   done
 done
 

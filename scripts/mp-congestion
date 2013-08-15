@@ -4,10 +4,10 @@ cc="$1"
 shift
 
 if [[ $# -eq 0 ]]; then
-  aps=`iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/'`
+  aps="$(iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/')"
   aps=($aps)
 else
-  aps=($*)
+  aps=$@
 fi
 
 echo -en "==> Setting local congestion control: "
@@ -17,25 +17,25 @@ if [[ $cc == 'coupled' ]]; then
   sudo sysctl -w "net.ipv4.tcp_allowed_congestion_control=coupled cubic reno" 2>/dev/null > /dev/null
 fi
 
-sudo sysctl -w net.ipv4.tcp_congestion_control=$cc 2>/dev/null >/dev/null
+sudo sysctl -w "net.ipv4.tcp_congestion_control=$cc" 2>/dev/null >/dev/null
 
-if [[ `cat /proc/sys/net/ipv4/tcp_congestion_control` == $cc ]]; then
+if [[ $(cat /proc/sys/net/ipv4/tcp_congestion_control) == "$cc" ]]; then
   echo -e "\e[37mdone\e[0m"
 else
   echo -e "\e[31mfail\e[0m"
 fi
 
-for ap in ${aps[@]}; do
+for ap in "${aps[@]}"; do
   echo -en "==> Setting congestion control for $ap: "
 
   if [[ $cc == 'coupled' ]]; then
-    ssh $ap "sudo modprobe mptcp_coupled" 2>/dev/null >/dev/null
-    ssh $ap 'sudo sysctl -w "net.ipv4.tcp_allowed_congestion_control=coupled cubic reno"' 2>/dev/null >/dev/null
+    ssh "$ap" "sudo modprobe mptcp_coupled" 2>/dev/null >/dev/null
+    ssh "$ap" 'sudo sysctl -w "net.ipv4.tcp_allowed_congestion_control=coupled cubic reno"' 2>/dev/null >/dev/null
   fi
 
-  ssh $ap "sudo sysctl -w net.ipv4.tcp_congestion_control=$cc" 2>/dev/null >/dev/null
+  ssh "$ap" "sudo sysctl -w net.ipv4.tcp_congestion_control=$cc" 2>/dev/null >/dev/null
 
-  if [[ `ssh $ap 'cat /proc/sys/net/ipv4/tcp_congestion_control'` == $cc ]]; then
+  if [[ $(ssh "$ap" 'cat /proc/sys/net/ipv4/tcp_congestion_control') == "$cc" ]]; then
     echo -e "\e[37mdone\e[0m"
   else
     echo -e "\e[31mfail\e[0m"

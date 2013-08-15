@@ -1,10 +1,10 @@
 #!/bin/bash
-base=`dirname $0`
-base=`realpath $base`
+base="$(dirname "$0")"
+base="$(realpath "$base")"
 source "$base/common.sh"
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: `basename $0` [FOLDER AP]..."
+  echo "Usage: $(basename "$0") [FOLDER AP]..."
   echo
   echo "For each FOLDER/AP pair, finds the corresponding INTERFACE, "
   echo " parses FOLDER/INTERFACE.dat and calculates+displays the CDF"
@@ -13,23 +13,19 @@ fi
 
 dir=""
 args=()
-while true; do
-  if [[ $# -eq 0 ]]; then break; fi
-
-  if [[ -z $dir ]]; then
-    dir="$1"
+for arg; do
+  if [[ -z "$dir" ]]; then
+    dir="$arg"
   else
-    if=`ap21if "$dir" "$1"`
+    if=`ap21if "$dir" "$arg"`
     if [[ ! -e "$dir/$if.dat" ]]; then
-      $base/mp-analyze "$dir" > /dev/null
+      "$base/mp-analyze" "$dir" > /dev/null
     fi
     args+=("$dir/$if.dat")
     dir=""
   fi
-
-  shift
 done
 
-$base/mp-cdf-raw ${args[@]}
+"$base/mp-cdf-raw" "${args[@]}"
 
 # vim:textwidth=0:
