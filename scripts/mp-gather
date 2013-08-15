@@ -36,6 +36,11 @@ for t in 5 ni i; do
         rs="$(realpath "$s")"
         setname="$(echo "$rs" | sed "s|^$datadir/*||")"
 
+        if [[ $s =~ [0-9]+\+[0-9]+ ]]; then
+            echo -e "\e[33mSkipping RTT variance set $setname\e[0m" >> /dev/stderr
+            continue
+        fi
+
         fs=("$s"/*parallel*-$updown/iwconfig.log)
         if [[ ! -e "${fs[0]}" ]]; then
           fs=("$s"/*parallel*/iwconfig.log)
