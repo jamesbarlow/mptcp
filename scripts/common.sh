@@ -49,5 +49,48 @@ suffix() {
   done
 }
 
+updown() {
+  # set-dir
+  isup=("$1"/*-up)
+  if [[ -e "${isup[0]}" ]]; then
+    echo up
+  else
+    echo down
+  fi
+}
+
+isseq() {
+  # set-dir
+  # Detect if this is a simultaneous or sequential test set
+
+  # Either the directory name tells us
+  [[ $(realpath "$1") =~ simultaneous ]] && { echo 0; exit; }
+
+  tests=$(ls -d "$1"/*-{up,down} 2>/dev/null | wc -l)
+
+  # or the number of tests tells us
+  ((tests != 3)) && { echo 1; exit; }
+
+  # or the test start times tell us
+  starts=0
+  for t in "$1"/*-{up,down}; do
+    [[ -e "$t" ]] || continue
+    s=$(zcat "$t"/stats.log.gz | head -n 1 | cut -d'.' -f1)
+    ((starts += s))
+  done
+  ((starts = starts/3))
+
+  for t in "$1"/*-{up,down}; do
+    [[ -e "$t" ]] || continue
+    s=$(zcat "$t"/stats.log.gz | head -n 1 | cut -d'.' -f1)
+    ((s-=starts))
+    s="${s#-}" # absolute value
+
+    # tests started more than 15 seconds apart, must be sequential
+    ((s > 15)) && { echo 1; exit; }
+  done
+
+  echo 0
+}
 
 # vim:textwidth=0 syntax=sh:
