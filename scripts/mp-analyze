@@ -21,6 +21,30 @@ while (<$iwc>) {
 }
 close $iwc;
 
+my %tcpexts = ();
+my @exts;
+my $uname = "";
+open my $stack, '<', 'stack.log';
+while (<$stack>) {
+  $uname = $_ if /GNU\/Linux/;
+  next unless /^TcpExt:/;
+  @exts = split / /;
+  shift @exts;
+}
+close $stack;
+
+if (not @exts) {
+  if (0) {
+    # guesstimate based on src/net/ipv4/proc.c
+  } elsif ($uname =~ /\b3\.10\./) {
+    @exts=("SyncookiesSent", "SyncookiesRecv", "SyncookiesFailed", "EmbryonicRsts", "PruneCalled", "RcvPruned", "OfoPruned", "OutOfWindowIcmps", "LockDroppedIcmps", "ArpFilter", "TW", "TWRecycled", "TWKilled", "PAWSPassive", "PAWSActive", "PAWSEstab", "DelayedACKs", "DelayedACKLocked", "DelayedACKLost", "ListenOverflows", "ListenDrops", "TCPPrequeued", "TCPDirectCopyFromBacklog", "TCPDirectCopyFromPrequeue", "TCPPrequeueDropped", "TCPHPHits", "TCPHPHitsToUser", "TCPPureAcks", "TCPHPAcks", "TCPRenoRecovery", "TCPSackRecovery", "TCPSACKReneging", "TCPFACKReorder", "TCPSACKReorder", "TCPRenoReorder", "TCPTSReorder", "TCPFullUndo", "TCPPartialUndo", "TCPDSACKUndo", "TCPLossUndo", "TCPLostRetransmit", "TCPRenoFailures", "TCPSackFailures", "TCPLossFailures", "TCPFastRetrans", "TCPForwardRetrans", "TCPSlowStartRetrans", "TCPTimeouts", "TCPLossProbes", "TCPLossProbeRecovery", "TCPRenoRecoveryFail", "TCPSackRecoveryFail", "TCPSchedulerFailed", "TCPRcvCollapsed", "TCPDSACKOldSent", "TCPDSACKOfoSent", "TCPDSACKRecv", "TCPDSACKOfoRecv", "TCPAbortOnData", "TCPAbortOnClose", "TCPAbortOnMemory", "TCPAbortOnTimeout", "TCPAbortOnLinger", "TCPAbortFailed", "TCPMemoryPressures", "TCPSACKDiscard", "TCPDSACKIgnoredOld", "TCPDSACKIgnoredNoUndo", "TCPSpuriousRTOs", "TCPMD5NotFound", "TCPMD5Unexpected", "TCPSackShifted", "TCPSackMerged", "TCPSackShiftFallback", "TCPBacklogDrop", "TCPMinTTLDrop", "TCPDeferAcceptDrop", "IPReversePathFilter", "TCPTimeWaitOverflow", "TCPReqQFullDoCookies", "TCPReqQFullDrop", "TCPRetransFail", "TCPRcvCoalesce", "TCPOFOQueue", "TCPOFODrop", "TCPOFOMerge", "TCPChallengeACK", "TCPSYNChallenge", "TCPFastOpenActive", "TCPFastOpenPassive", "TCPFastOpenPassiveFail", "TCPFastOpenListenOverflow", "TCPFastOpenCookieReqd", "TCPSpuriousRtxHostQueues");
+  } elsif ($uname =~ /\b3\.5/) {
+    @exts=("SyncookiesSent", "SyncookiesRecv", "SyncookiesFailed", "EmbryonicRsts", "PruneCalled", "RcvPruned", "OfoPruned", "OutOfWindowIcmps", "LockDroppedIcmps", "ArpFilter", "TW", "TWRecycled", "TWKilled", "PAWSPassive", "PAWSActive", "PAWSEstab", "DelayedACKs", "DelayedACKLocked", "DelayedACKLost", "ListenOverflows", "ListenDrops", "TCPPrequeued", "TCPDirectCopyFromBacklog", "TCPDirectCopyFromPrequeue", "TCPPrequeueDropped", "TCPHPHits", "TCPHPHitsToUser", "TCPPureAcks", "TCPHPAcks", "TCPRenoRecovery", "TCPSackRecovery", "TCPSACKReneging", "TCPFACKReorder", "TCPSACKReorder", "TCPRenoReorder", "TCPTSReorder", "TCPFullUndo", "TCPPartialUndo", "TCPDSACKUndo", "TCPLossUndo", "TCPLostRetransmit", "TCPRenoFailures", "TCPSackFailures", "TCPLossFailures", "TCPFastRetrans", "TCPForwardRetrans", "TCPSlowStartRetrans", "TCPTimeouts", "TCPRenoRecoveryFail", "TCPSackRecoveryFail", "TCPSchedulerFailed", "TCPRcvCollapsed", "TCPDSACKOldSent", "TCPDSACKOfoSent", "TCPDSACKRecv", "TCPDSACKOfoRecv", "TCPAbortOnSyn", "TCPAbortOnData", "TCPAbortOnClose", "TCPAbortOnMemory", "TCPAbortOnTimeout", "TCPAbortOnLinger", "TCPAbortFailed", "TCPMemoryPressures", "TCPSACKDiscard", "TCPDSACKIgnoredOld", "TCPDSACKIgnoredNoUndo", "TCPSpuriousRTOs", "TCPMD5NotFound", "TCPMD5Unexpected", "TCPSackShifted", "TCPSackMerged", "TCPSackShiftFallback", "TCPBacklogDrop", "TCPMinTTLDrop", "TCPDeferAcceptDrop", "IPReversePathFilter", "TCPTimeWaitOverflow", "TCPReqQFullDoCookies", "TCPReqQFullDrop", "TCPRetransFail", "TCPRcvCoalesce");
+  }
+}
+my $i = 0;
+%tcpexts = map { $_ => $i++ } @exts;
+
 my %iptoif = ();
 open my $ips, '<', 'ips.log';
 my $if;
@@ -170,8 +194,8 @@ while (<$stats>) {
     # /proc/net/netstat
     my @d = split / /;
 
-    my $fast_rt = $d[45];
-    my $timeout = $d[48];
+    my $fast_rt = $d[$tcpexts{'TCPFastRetrans'}];
+    my $timeout = $d[$tcpexts{'TCPTimeouts'}];
 
     $fast_rt = 0 if not defined $last{'fast-rt'};
     $timeout = 0 if not defined $last{'timeout'};
@@ -179,8 +203,8 @@ while (<$stats>) {
     $fast_rt -= $last{'fast-rt'} if defined $last{'fast-rt'};
     $timeout -= $last{'timeout'} if defined $last{'timeout'};
 
-    $last{'fast-rt'} = $d[45];
-    $last{'timeout'} = $d[48];
+    $last{'fast-rt'} = $d[$tcpexts{'TCPFastRetrans'}];
+    $last{'timeout'} = $d[$tcpexts{'TCPTimeouts'}];
 
     foreach $if (values %ifaces) {
       $if->{'data'} .= sprintf "%d %d ", $fast_rt, $timeout;
