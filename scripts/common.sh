@@ -1,24 +1,24 @@
-function ap2if() {
+ap2if() {
   # dir ap
   cat "$1/iwconfig.log" 2>&1 | grep "ESSID:\"$2-wifi\"" | sed 's/^\([^ ]\+\) .*/\1/'
 }
 
-function ap21if() {
+ap21if() {
   # dir ap
   ap2if "$1" "$2" | head -n1
 }
 
-function if2ap() {
+if2ap() {
   # dir if
   cat "$1/iwconfig.log" | grep -E "^$2" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'
 }
 
-function aps() {
+aps() {
   # dir
   cat "$1/iwconfig.log" | grep "ESSID:\"" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//'
 }
 
-function bpsf() {
+bpsf() {
   # bpsf filename
   isdown=$(echo "$1" | sed '/-down[\.\/]/!d' | wc -l)
   if (( isdown == 1 )); then
@@ -38,7 +38,7 @@ function bpsf() {
   fi
 }
 
-function suffix() {
+suffix() {
   # dir up|down ap
   suffix=""
   for dir in "$1"/*parallel-*-$2; do
