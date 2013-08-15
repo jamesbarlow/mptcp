@@ -48,6 +48,11 @@ lastpar=""
 parshared=1
 parparshared=1
 for arg; do
+  if [[ ! -e "$arg" ]]; then
+    echo -e "\e[31m$arg: No such data file\e[0m" >> /dev/stderr
+    continue
+  fi
+
   d="$(dirname "$(realpath "$arg")")"
   par="$(basename "$d")"
   parpar="$(basename "$(dirname "$d")")"
@@ -66,6 +71,11 @@ for arg; do
 
   args+=("$arg")
 done
+
+if [[ ${#args[@]} -eq 0 ]]; then
+  echo -e "\e[31mNo data files to plot, giving up...\e[0m" >> /dev/stderr
+  exit 1
+fi
 
 out=""
 for f in "${args[@]}"; do

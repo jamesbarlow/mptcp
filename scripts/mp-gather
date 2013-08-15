@@ -40,7 +40,7 @@ for t in 5 ni i; do
         if [[ ! -e "${fs[0]}" ]]; then
           fs=("$s"/*parallel*/iwconfig.log)
           if [[ ! -e "${fs[0]}" ]]; then
-            echo -e "\e[31mSkipping incomplete set $setname with no parallel iwconfig\e[0m" >> /dev/stderr
+            echo -e "\e[31mRejecting incomplete set $setname with no parallel iwconfig\e[0m" >> /dev/stderr
           else
             echo -e "\e[33mSkipping set $setname (wrong direction)\e[0m" >> /dev/stderr
           fi
