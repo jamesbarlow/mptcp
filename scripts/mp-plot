@@ -63,7 +63,7 @@ for f in *.dat; do
     title="$ap"
   fi
 
-  if [[ -z $(echo "$1" | grep -- "-down") ]]; then
+  if [[ -z $(echo "$f" | grep -- "-down") ]]; then
     if ((int == 0)); then
       io="'$f' using (\$1-$begin):(\$9/1024/10) title '$title sendq' with lines ls ($o+7), \\
           '$f' using (\$1-$begin):(\$10/10) title '$title rtt' with lines ls ($o+4), \\
@@ -102,7 +102,7 @@ s="$s
   "
 
 f="$(realpath totals.dat)"
-if [[ -z "$(echo "$1" | grep -- "-down")" ]]; then
+if [[ -z "$(echo "$f" | grep -- "-down")" ]]; then
   s="$s '$f' using (\$1-$begin):(8*\$2/1000000) title 'total out' with lines ls 11"
 else
   s="$s '$f' using (\$1-$begin):(8*\$3/1000000) title 'total in' with lines ls 11"
