@@ -2,12 +2,15 @@ GRAPHS := mp-int-2.4-i mp-int-2.4-ni
 GRAPHS_WD := $(addprefix graphs/,$(GRAPHS))
 REAL_GRAPHS := $(addsuffix .pdf,$(GRAPHS_WD)) $(addsuffix .tex,$(GRAPH_SWD))
 
-.PHONY : clean
+.PHONY : clean show
+
+show: report.pdf
+	xdg-open report.pdf
 
 report.pdf: report.tex $(REAL_GRAPHS)
-	@pdflatex report.tex > /dev/null
+	@pdflatex -halt-on-error report.tex
 	@# Run twice to resolve references
-	pdflatex report.tex
+	pdflatex -halt-on-error report.tex > /dev/null
 
 graphs/%.pdf: graphs/%.eps
 	@echo "Generating $@ from EPS"
