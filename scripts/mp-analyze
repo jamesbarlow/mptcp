@@ -8,6 +8,8 @@ $| = 1;
 my $int = 300;
 chdir $ARGV[0] or die "Test directory could not be accessed: $!";
 
+die "Test directory missing stats.log.gz, exiting...\n" if not -e 'stats.log.gz';
+
 my %ifaces = ();
 open my $iwc, '<', 'iwconfig.log';
 while (<$iwc>) {

@@ -114,13 +114,11 @@ them as an indicator of which server will be used for tests.
     corresponding interface in each test and graph them using gnuplot. The
     script uses the statistical programming language R to generate the CDF (or
     technically, the ECDF).
-  \item[mp-show and mp-set]
-    These two scripts are shortcuts to avoid having to type repeated folder/AP
-    names or execute additional commands before running a script.\ mp-show
-    simply calls mp-analyze and then mp-plot for a given folder.\ mp-set is
-    slightly more advanced and tries to find all interfaces across tests
-    connected to the same channel, and then plot each group of such interfaces
-    using mp-cdf.
+  \item[mp-set]
+    This script is a shortcut to avoid having to type repeated folder/AP
+    names to plot certain data sets. It tries to find all interfaces across
+    tests connected to the same channel, and then plot each group of such
+    interfaces using mp-cdf.
   \item[mp-merge]
     Merges the data from several test sets into a single set. Optionally also
     does a simple form of normalization in order to make the results more

@@ -7,6 +7,17 @@ dir="$1"
 testname="$(basename "$dir")"
 cd "$1"
 
+[[ -e test.txt ]] || { echo "Given test directory is not valid"; exit 1; }
+tests=(*.dat)
+
+if [[ ! -e "${tests[0]}"  ]]; then
+  "$base/mp-analyze" .
+  if [[ $? -gt 0 ]]; then
+    echo "Failed to analyze data - invalid test?"
+    exit 1
+  fi
+fi
+
 int=$(cat test.txt | grep interrupt | wc -l)
 
 begin=$(head -n1 *.dat | tail -n1 | cut -d' ' -f1)
