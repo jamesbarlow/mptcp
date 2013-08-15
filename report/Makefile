@@ -14,19 +14,19 @@ report.pdf: report.tex $(REAL_GRAPHS)
 
 graphs/%.pdf: graphs/%.eps
 	@echo "Generating $@ from EPS"
-	@ps2pdf -dEPSCrop $< $@ > /dev/null
+	@ps2pdf -dEPSCrop "$<" "$@" > /dev/null
 
 graphs/%.tex graphs/%.eps: graphs/%.plot
 	@echo "Destyling and LaTeXifying $<"
-	@cp $< $<.tmp
+	@cp "$<" "$<.tmp"
 	@sed -i '/^plot/i \
 	set terminal epslatex \
-	set output "graphs/$*.tex"' $<.tmp
-	@sed -i '/^set style/d' $<.tmp
-	@sed -i '/^set title/d' $<.tmp
-	@sed -i 's/ ls [^,]*//' $<.tmp
-	@gnuplot $<.tmp
-	@rm $<.tmp
+	set output "graphs/$*.tex"' "$<.tmp"
+	@sed -i '/^set style/d' "$<.tmp"
+	@sed -i '/^set title/d' "$<.tmp"
+	@sed -i 's/ ls [^,]*//' "$<.tmp"
+	@gnuplot "$<.tmp"
+	@rm "$<.tmp"
 	
 	@# Fix broken handling of multiple dots in filenames
 	@# see http://tex.stackexchange.com/questions/10574/includegraphics-dots-in-filename
