@@ -17,6 +17,8 @@ graphs/%.pdf: graphs/%.eps
 	@ps2pdf -dEPSCrop "$<" "$@" > /dev/null
 
 graphs/%.tex graphs/%.eps: graphs/%.plot
+	@echo "Ensuring all data sources have been analyzed"
+	../scripts/mp-graph-analyze-dependencies "$<"
 	@echo "Destyling and LaTeXifying $<"
 	@cp "$<" "$<.tmp"
 	@sed -i '/^plot/i \
