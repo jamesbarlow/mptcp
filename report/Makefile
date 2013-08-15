@@ -32,7 +32,7 @@ graphs/%.tex graphs/%.eps: graphs/%.plot
 	
 	@# Fix broken handling of multiple dots in filenames
 	@# see http://tex.stackexchange.com/questions/10574/includegraphics-dots-in-filename
-	@sed -i 's/\(\\put(0,0){\\includegraphics{\)\(graphs\/.*\.[^p].*\)}}/\1{\2}.pdf}}/' graphs/$*.tex
+	@sed -i 's/\(\\put(0,0){\\includegraphics{\)\(graphs\/.*\.[^p].*\)}}/\1{\2}.pdf}}/' "graphs/$*.tex"
 
 clean:
 	rm -f report.{aux,log,out,pdf}
