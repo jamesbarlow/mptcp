@@ -1,61 +1,52 @@
-One of the advantages of using MPTCP is the fact that multiple interfaces can be
-used which makes the network faster, more reliable and less prone to congestion
-(at least in theory; as multiple subflows are used to split the load). However
-before we jump straight into MPTCP there are a few questions about using
-multiple interfaces worth asking:
+Before evaluating the performance of Multipath TCP on wireless links, it is
+worth exploring whether the nature of wireless permits multiplexing across
+multiple wireless links simultaneously. In particular, we want to determine:
 
 \begin{enumerate}
-  \item Does it make sense to use 2 interfaces at the same time? (when compared
-    to a single interface)
-  \item Is there ever a penalty to using them?
-  \item Is there any performance gain?
+  \item are there any perfomance penalties to broadcasting on two interfaces at
+    the same time?
+  \item is there a performance win to be had when broadcasting on two
+    interfaces at the same time?
+  \item to what degree is the downlink performance effected by multiple clients
+    using different networks simultaneously?
 \end{enumerate}
 
-To answer these questions several experiments where ran using different setups
-(as can be seen in the setup section). Most of the results obtained in both
-interfering and non-interfering experiments between 5-2.4 and 2.4-2.4 show that
-the 2 interfaces always have better throughput than the single interface; this
-can be seen more clearly in the CDF graphs (parallel vs single graphs - look for
-appropriate graphs!!!).
+To answer these questions, we ran several experiments using the different
+setups outlined in section TEST-SETUPS, varying the channel frequencies of the % TODO: fix section reference
+two networks. One network was generally kept on channel 1 in the 2.4 GHz band,
+whilst the other was switched between channel 1 for same-channel tests, channel
+5 or 11 for cross-channel tests and a channel in the 5 GHz band. We will state
+what network combinations were being used for all results below.
 
-% Maybe display a few graphs showing this examples of 5-2.4 and 2.4-2.4 both i
-% and ni
+\subsubsection{Interference between 2.4 GHz channels}
 
-The results obtained from these graphs also answer the second and third
-questions. It is clear that these results show that there is no penalty to
-having multiple interfaces (unless these interfere with each other and the
-combined throughput is worse, which is not the case) because carrier sense will
-make sure that the total throughput is not increased even if both interfaces are
-on the same channel; the performance gain is quite significant as shown in the
-results, the combined throughput for the 2 interfaces is much better than the
-single. (should also mention that this would work assuming the congestion
-control mechanism gives you a fair share of capacity (?))
+Before getting into TCP, we performed some tests using netperf's UDP\_STREAM
+benchmark. This simply generates UDP packets in a busy loop, meaning we are
+effectively saturating the link. Figure~\ref{graph:cc-interference} shows such a
+test with two interfaces on a single host being connected to wireless networks
+on different channels. The test was run as outlined in TEST-SETUPS.            % TODO: fix section reference
 
-Based on this it is safe to say that using multiple interfaces is advantageous
-which also implies that MPTCP is in fact a good idea, bringing us to the next
-section.
-
-\subsubsection{Carrier Sense and cross-channel interference}
 \begin{figure}[h]
  \centering
  \input{graphs/mp-int-2.4-ni.tex}
- \caption{Cross-channel interference}\label{graph:cc-interference}
+ \caption{Cross-channel interference (channels 1 and 11)}\label{graph:cc-interference}
 \end{figure}
 
-The cross-channel interference observed in Figure~\ref{graph:cc-interference} is
-quite interesting as the throughput and utilization measurements show a
-completely fair sharing between the two networks when both are active. There are
-also nearly no 802.11 retransmit failures. This perfect split implies that
-Carrier Sense is being employed here, effectively doing time multiplexing
-between the interfaces.  This would be fine if the two networks were on the same
-channel and should not transmit simultaneously, but the experiment shown in
-Figure~\ref{graph:cc-interference} was performed with two networks on opposite
-ends of the 2.4 Ghz spectrum (channel 1 and 11), and the two interfaces should
-be able to both transmit at the same time, giving twice the throughput.
+The interference pattern observed in Figure~\ref{graph:cc-interference} is quite
+interesting as the throughput and utilization measurements show a completely
+fair sharing between the two networks when both are active. There wireless cards
+also report nearly no 802.11 retransmit failures. This perfect split implies
+that carrier sense is being employed here, effectively doing time multiplexing
+between the interfaces. This would be expected if the two networks were on the
+same channel and should not transmit simultaneously, but this experiment was
+performed with two networks on opposite ends of the 2.4 GHz spectrum, and the two
+interfaces should be able to both transmit at the same time, giving twice the
+throughput.
 
-Looking at the total throughput, it is clear that some performance gain is
-achieved, but clearly the gain is closer to 50\% than the 100\% one would expect
-from non-interfering channels.
+Looking at the sum throughput, it is clear that some performance gain is
+achieved, but clearly the aggregate throughput is closer to 150\% of that of a
+single interface than the 200\% one would expect from completely independent
+channels.
 
 \begin{figure}[h]
  \centering
@@ -63,10 +54,61 @@ from non-interfering channels.
  \caption{Same-channel interference}\label{graph:sc-interference}
 \end{figure}
 
-The results in Figure~\ref{graph:sc-interference} are perhaps even more
-surprising as Carrier Sense should enforce a fairly strict time multiplexing
-with two networks on the same channel, meaning the total throughput should
-remain almost the same whether one or two interfaces are active. The
-experimental results on the other hand show that the total throughput decreases
-to almost 50\% when both interfaces are active. Clearly Carrier Sense is not
-performing as it should.
+Figure~\ref{graph:sc-interference} is the same test, but performed when the two
+networks are on the same channel in the 2.4 GHz band. The results here are
+perhaps even more surprising as carrier sense should enforce a fairly strict
+time multiplexing with two networks on the same channel, meaning the total
+throughput should remain almost the same whether one or two interfaces are
+active. The results of our experiments on the other hand show that the
+\textbf{total} throughput decreases to almost 60\% of that of a single link when
+both interfaces are active.
+
+In both the cases above, it seems as if carrier sense is not doing quite what it
+is supposed to. For two networks on different subbands, one would expect carrier
+sense to very rarely block transmissions on the other channel, but clearly this
+is not the case. For networks on the same subband, carrier sense is expected to
+effectively time multiplex fairly between clients, but in our experiments we are
+seeing a much higher amount of link layer transmit failures, suggesting that
+carrier sense if often failing to prevent collisions.
+
+This leads us to believe that attempting to use two wireless networks at the
+same time may in fact lead to a performance penalty compared to using only a
+single interface if those two networks are on the same channel. If they are on
+different channels, a performance win seems likely, although a lower one than
+might be expected.
+
+% TODO: 2.4 down test?
+
+\subsubsection{Interference between bands}
+\begin{figure}[h]
+ \centering
+ \input{graphs/interference-5-2.4-up.tex}
+ \caption{Cross-band interference}\label{graph:cb-interference-up}
+\end{figure}
+
+Most of the experiments we performed with one network on the 5 GHz band and the
+other on 2.4 GHz showed little interference between them as exptected.
+Figure~\ref{graph:cb-interference-up} shows the CDF of the throughputs for an
+uplink test with three of the test described in section TEST SECTION, namely   % TODO: fix section reference
+the parallel test and the two single tests. We see that the throughputs are
+almost identical in the parallel case and in the single case, implying that the
+two bands are indeed independent. That the throughput in the 2.4 GHz parallel
+test seems to be marginally lower than for single case is simply a result of the
+tests not being run at the same time. Other tests using the same setup show the
+2.4 GHz parallel throughput to be higher than that of the single.
+
+\begin{figure}[h]
+ \centering
+ \input{graphs/interference-5-2.4-down.tex}
+ \caption{Cross-band interference}\label{graph:cb-interference-down}
+\end{figure}
+
+Figure~\ref{graph:cb-interference-down} shows a similar test to the above, but
+run on the downlink. Again we see the same interference pattern (or rather lack
+thereof) with the throughput on one interface being unrelated to whether the
+other band is being used or not. This plot also shows a case where the 2.4 GHz
+parallel is in fact performing better than its single counterpart. As mentioned
+above, we put this down to the background traffic on the network changing
+between the times of the two tests.
+
+% TODO: Why is the CDF slope steeper for the up than the down test?
