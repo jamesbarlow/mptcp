@@ -2,27 +2,21 @@
 base=`dirname $0`
 base=`realpath $base`
 source "$base/common.sh"
-cmd=""
 
 updown=$(updown ".")
 isseq=$(isseq ".")
 
-if [[ $1 == 'cdf' ]]; then
-  if [[ $isseq -eq 1 ]]; then
-    cmd="$base/mp-cdf"
-  else
-    cmd="$base/mp-cdf-raw"
-  fi
-elif [[ ! -z $1 ]]; then
-  echo "Unsupported display command given"
-  exit 2
+if [[ $isseq -eq 1 ]]; then
+  cmd="$base/mp-cdf"
 else
-  echo "Usage: $0 CMND [AP...]"
+  cmd="$base/mp-cdf-raw"
+fi
+cmdb="$(basename "$cmd")"
+
+if [[ $1 == "-h" ]]; then
+  echo "Usage: $0 [AP...]"
   exit 0
 fi
-
-cmdb="$(basename "$cmd")"
-shift
 
 if [[ $isseq -eq 0 ]]; then
   for d in ./*-$updown; do
