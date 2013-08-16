@@ -1,0 +1,21 @@
+With the extension of Multipath TCP to regular TCP it is possible to have
+multiple simultaneous connections on one device. On modern mobile devices that
+usually have more than one network interface(wifi, 3G) this can gaurantee extra
+reliablity making the connections more robust to loss. With the promise of
+greater throughput and reliability, it is immediately easy to see usage
+scenarios that involve  multiple wifi cards on a laptop in order to benifit from
+MPTCP.
+
+Interference is a bane of any wireless network and wifi is no exception to this.
+Multiple devices with single wifi card often interfer with each other and rely
+on 802.11 carrier-sense to ensure fair access to the wireless medium. Hence it
+is only natural that multiple wifi cards on a device would lead to some degree
+of interference.
+
+The goal of this report is to investigate the degree of interference(if any)
+between multiple wifi interfaces on the same device, how this interference
+influences throughput and fairness to other devices on the network, and how this
+influences the multipath TCP protocol. The remaining part of this report would
+present a brief background on TCP, Wifi, and Multipath TCP, the methodology of
+the experiments conducted, results and evaluation of these experiments and the
+conclusions reached.

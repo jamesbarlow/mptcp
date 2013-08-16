@@ -1,0 +1,72 @@
+One of the advantages of using MPTCP is the fact that multiple interfaces can be
+used which makes the network faster, more reliable and less prone to congestion
+(at least in theory; as multiple subflows are used to split the load). However
+before we jump straight into MPTCP there are a few questions about using
+multiple interfaces worth asking:
+
+\begin{enumerate}
+  \item Does it make sense to use 2 interfaces at the same time? (when compared
+    to a single interface)
+  \item Is there ever a penalty to using them?
+  \item Is there any performance gain?
+\end{enumerate}
+
+To answer these questions several experiments where ran using different setups
+(as can be seen in the setup section). Most of the results obtained in both
+interfering and non-interfering experiments between 5-2.4 and 2.4-2.4 show that
+the 2 interfaces always have better throughput than the single interface; this
+can be seen more clearly in the CDF graphs (parallel vs single graphs - look for
+appropriate graphs!!!).
+
+% Maybe display a few graphs showing this examples of 5-2.4 and 2.4-2.4 both i
+% and ni
+
+The results obtained from these graphs also answer the second and third
+questions. It is clear that these results show that there is no penalty to
+having multiple interfaces (unless these interfere with each other and the
+combined throughput is worse, which is not the case) because carrier sense will
+make sure that the total throughput is not increased even if both interfaces are
+on the same channel; the performance gain is quite significant as shown in the
+results, the combined throughput for the 2 interfaces is much better than the
+single. (should also mention that this would work assuming the congestion
+control mechanism gives you a fair share of capacity (?))
+
+Based on this it is safe to say that using multiple interfaces is advantageous
+which also implies that MPTCP is in fact a good idea, bringing us to the next
+section.
+
+\subsubsection{Carrier Sense and cross-channel interference}
+\begin{figure}[h]
+ \centering
+ \input{graphs/mp-int-2.4-ni.tex}
+ \caption{Cross-channel interference}\label{graph:cc-interference}
+\end{figure}
+
+The cross-channel interference observed in Figure~\ref{graph:cc-interference} is
+quite interesting as the throughput and utilization measurements show a
+completely fair sharing between the two networks when both are active. There are
+also nearly no 802.11 retransmit failures. This perfect split implies that
+Carrier Sense is being employed here, effectively doing time multiplexing
+between the interfaces.  This would be fine if the two networks were on the same
+channel and should not transmit simultaneously, but the experiment shown in
+Figure~\ref{graph:cc-interference} was performed with two networks on opposite
+ends of the 2.4 Ghz spectrum (channel 1 and 11), and the two interfaces should
+be able to both transmit at the same time, giving twice the throughput.
+
+Looking at the total throughput, it is clear that some performance gain is
+achieved, but clearly the gain is closer to 50\% than the 100\% one would expect
+from non-interfering channels.
+
+\begin{figure}[h]
+ \centering
+ \input{graphs/mp-int-2.4-i.tex}
+ \caption{Same-channel interference}\label{graph:sc-interference}
+\end{figure}
+
+The results in Figure~\ref{graph:sc-interference} are perhaps even more
+surprising as Carrier Sense should enforce a fairly strict time multiplexing
+with two networks on the same channel, meaning the total throughput should
+remain almost the same whether one or two interfaces are active. The
+experimental results on the other hand show that the total throughput decreases
+to almost 50\% when both interfaces are active. Clearly Carrier Sense is not
+performing as it should.

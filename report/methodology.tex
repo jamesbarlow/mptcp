@@ -1,0 +1,150 @@
+\subsection{Equipment and software}
+The tools used to create the test environment includes four 2.4GHz Wifi USB
+dongles, a 5GHz Wifi USB dongle, three wireless basestations; two operating on
+the 2.4GHz channel and one dual-band on 2.4GHz and  5GHz channel, two server
+machines and two laptop PCs. At the time of this experiment, both the servers
+and personal computers were running the most current version of the Linux MPTCP
+enabled kernel gotten from \href{http://multipath-tcp.org/}{multipath-tcp.org}
+
+\subsection{Experiment setups}
+\subsubsection{Sequential TCP tests}
+For most tested configurations, be it non-interfering 2.4 Ghz and 5 Ghz networks
+or interfering 2.4 Ghz networks on the same channel, one of two tests setups
+were used. The first setup was running the five tests outlined below
+sequentially:
+
+\begin{enumerate}
+  \item Network \#1 on machine \#1 only
+  \item Network \#2 on machine \#2 only
+  \item Network \#1 on machine \#1 and network \#2 on machine \#2 in parallel
+  \item Network \#1 and \#2 on machine \#1
+  \item Network \#1 and \#2 on machine \#2
+\end{enumerate}
+
+The two first tests were primarily used as baselines for the other tests to see
+how well each network performed on its own without interference from the other
+network. The parallel test was added to aid in measuring cross-interface
+interference without MPTCP.\@ This was necessary in order to measure how well
+MultiPath TCP utilized the two networks compared to two entirely separate,
+vanilla TCP clients. Originally we only ran one of the two final tests, but we
+split it into two tests early on in order to be able to more directly compare
+the utilization and performance of a network using MPTCP to its single and
+parallel counterparts. Most of the comparisons done in this paper show
+comparisons between test \#1, \#3 and \#4 or \#2, \#3 and \#5.
+
+\subsubsection{Simultaneous TCP tests}
+The other common test setup was using three machines at the same time so that
+one machine was connected to network \#1, one machine to network \#2, and one
+machine to both networks. All machines were running the MPTCP kernel. This setup
+allowed us to more directly compare the performance of MPTCP to that of a two
+simultaneous non-MPTCP clients. It also let us evaluate the fairness of MPTCP
+when other clients are also using the network.
+
+\subsubsection{UDP interrupt tests}
+For the interrupt tests, each wireless interface is connected to a separate
+basestation just like in the other setups, the only difference here is that one
+of the interfaces alternates between being in idle and active mode while the
+other interface is always active. The alternating interface is idle or active
+for fixed time slots in the duration of the experiment.
+
+The idea behind alternating the active periods for one of the interfaces is
+simple; ideally if there is no interference between these interfaces then there
+would not be a loss in throughput for the always-active interface when the
+alternating interface is active. Given the nature of wireless signals this is a
+rather utopic idea, hence a more desirable result would be one that shows
+minimal drop in throughput. Minimal in this scenario means that each interface
+should achieve at least 90\% of its throughput in a single interface setup.
+However, the graph of figure FIG shows that ther is some considerable drop in  % TODO: insert correct figure reference
+throughput when the alternating interface is switched-on thereby indicating the
+presence on non-minimal cross-interface interference between the wireless
+interfaces.
+
+\subsection{Metrics}
+Note that many of the graphs shown in this section are drawn using our
+\texttt{mp-plot} script, which will scale values to keep them in the range
+$[0,100]$. A couple of points about this scaling that are worth pointing out:
+throughput is measured in Mbps; utilization is a measure of what percentage of
+total throughput is sent through each interface and is displayed so that 80 is
+0\% and 100 is 100\%.
+
+\subsection{Scripts}
+In order to automate several oft-performed tasks such as running tests and
+analyzing data, several scripts were developed and used throughout the writing
+of this paper. The most interesting ones are outlined below.
+
+Note that many of these scripts perform magic based on what wireless networks
+the host machine is connected to. For this paper, two servers were used: fry and
+zoidberg. Four wireless networks were set up, named bender-wifi, fry-wifi,
+leela-wifi and zoidberg-wifi. Every test involved at least one of fry-wifi and
+zoidberg-wifi, and the scripts below use the presence of a connection to one of
+them as an indicator of which server will be used for tests.
+
+\begin{description}
+  \item[mp-start and mp-congestion]
+    These two scripts enable MPTCP on the current machine, as well as set the
+    appropriate congestion control algorithm on both the local machine and any
+    remote machines it might be connected to.\ mp-start also stops any other
+    wireless connections as well as some common network-intensive applications
+    such as Dropbox. This prevents other traffic interfering with any running
+    tests.
+  \item[mp-routes]
+    Examines the ip addresses of any active network interfaces and sets up
+    routing tables according to
+    \href{http://multipath-tcp.org/pmwiki.php/Users/ConfigureRouting}{http://multipath-tcp.org/\-pmwiki.php/\-Users/\-ConfigureRouting}.
+  \item[mp-run]
+    The primary testing script for MPTCP experiments. First, logs information
+    about test location, connected networks, nearby wireless networks, tcp
+    configuration parameters, kernel version, etc. Then it starts various
+    logging daemons such as mp-stats and tcpdump to record state information
+    during the experiments. It then runs netperf for a configurable period of
+    time before it stops all logging daemons and compresses any large logs.
+
+    Also supports doing downlink tests by spawning a local netperf server and
+    running the netperf client on one of the server machines.
+  \item[mp-stats]
+    Collects the majority of statistics during a test. By default it samples
+    data once every second. It logs stats from the wireless interfaces (signal
+    strength, bitrate, retransmit failures), IP (bytes and packets sent) and TCP
+    (queue sizes, rtt estimates, retransmits)
+  \item[mp-int]
+    Works much the same as mp-run, but instead of running TCP sessions with
+    netperf on all connected interfaces, it runs a UDP\_STREAM test continuously
+    on one interface and periodically on the other connected interace. This test
+    is performed mainly to test the amount of interference between interfaces
+    without the overhead of tcp.
+  \item[mp-analyze]
+    Given a test directory created by mp-run or mp-int, mp-analyze will extract
+    information from various log files and output a simple space-separated file
+    for each interface (and a total) with values for everything from throughput
+    to bitrate to rtt. This information is then used by mp-plot or mp-cdf to
+    display graphs or other statistical information about the data.
+  \item[mp-plot]
+    Given a test folder, will simply graph every statistic generated by
+    mp-analyze for every interface the given test was run with. It also performs
+    scaling to keep all values in a 0-100 range. Throughput is for example
+    scaled to be shown in Mbps rather than Bps.
+  \item[mp-cdf]
+    Given tuples of test folders and APs, will calculate the CDF for each
+    corresponding interface in each test and graph them using gnuplot. The
+    script uses the statistical programming language R to generate the CDF (or
+    technically, the ECDF).
+  \item[mp-set]
+    This script is a shortcut to avoid having to type repeated folder/AP
+    names to plot certain data sets. It tries to find all interfaces across
+    tests connected to the same channel, and then plot each group of such
+    interfaces using mp-cdf.
+  \item[mp-merge]
+    Merges the data from several test sets into a single set. Optionally also
+    does a simple form of normalization in order to make the results more
+    relevant when the merged set of samples are plotted as a single CDF.\@ The
+    normalization is performed by finding the average of the median throughput
+    in each test in the set, and then subtracting that from every throughput
+    measurement. This retains both the shape and width of the CDFs, while
+    ignoring the absolute throughput values which can vary quite a lot from one
+    test to another due to other clients using the network.
+  \item[mp-gather]
+    Simple wrapper around mp-merge that takes folders of test sets as arguments,
+    extracts ap names and calls mp-merge for all related tests. For example, it
+    will find all same-channel, coupled test sets in all its arguments, and
+    merge them, optionally using mp-merge's normalization feature.
+\end{description}

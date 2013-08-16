@@ -1,0 +1,125 @@
+\subsection{WiFi}
+The 802.11 standards are a set of physical layer and MAC specifications for
+implementing WiFi networks.  802.11 networks commonly operate on frequencies in
+the 2.4 GHz and 5 GHz banks, which are divided into a number of overlapping
+channels. For example, the 802.11b channels in the 2.4 GHz band are 22 MHz wide
+and spaced 5 MHz apart, beginning with 2.412 GHz.
+
+\subsection{Interference}
+In order to overcome interference with other stations transmitting on the same
+channel, or a nearby channel, 802.11 implements Carrier Sense and random
+back-off. Before transmitting, a station will sense the medium to determine if
+another station is currently transmitting a data frame. If the medium is busy,
+the station will defer for a random period of time and retry. This behaviour is
+also used when multiple stations begin transmitting at the same time, and
+collide. The 802.11MAC layer implements packet acknowledgements separately from
+TCP, which are sent after each data frame is successfully received. A station
+will generally retry transmitting a fixed number of times without receiving
+acknowledgment before dropping a packet.
+
+\subsection{TCP}
+The Transmission Control Protocol (TCP) is one of the core internet protocols
+and provides reliable, in-order delivery of data between two systems using a
+single network path in each direction. TCP is a packet-based protocol, and uses
+positive acknowledgement of packets to signal successful delivery.
+
+Routers and other devices in a network must assign some buffer space for
+incoming packets. There is a risk that the available buffer at the bottleneck
+may be filled if data is sent at a faster rate than the device is able to
+forward or process it. This can result in packets being dropped, and potentially
+congestion collapse of the network. This is one of the main problems which TCP
+must overcome, and the protocol implements flow control and congestion control
+mechanisms to share bottlenecks fairly and avoid overload.
+
+Flow control is used to avoid sending data at a faster rate than the receiving
+host is able to process it. This is implemented using a sliding window
+representing the amount of buffer space the receiver is able to commit to a
+flow, and is advertised by the receiver using a field in each packet
+acknowledgement sent. The sender may only keep one window of data in flight at
+any given time, and so avoids overloading the receive buffer.
+
+Congestion control is another rate-limiting mechanism which is used to avoid
+overloading devices in the middle of the network path. Ideally, each TCP flow
+will gain an equal share of the capacity available at the bottleneck link. A TCP
+flow must also sense congestion, where the queues at the bottleneck are
+overloaded, and back off its send rate accordingly.
+
+The canonical congestion control algorithm is TCP New Reno. This algorithm
+maintains a congestion window, similar to the receivers flow control window,
+which specifies the number of packets which may be in flight concurrently. The
+sender must respect both the flow control and congestion windows in determining
+an appropriate send rate.
+
+TCP New Reno flows begin in a slow start phase. An initial small congestion
+window is chosen, and this is increased by one maximum segment size (MSS) for
+each packet acknowledgment received. This has the effect of increasing the
+congestion window size exponentially per round-trip time. The slow start phase
+ends when a packet acknowledgement is not received, presumably due to congestion
+along the network path.
+
+After the initial slow start, the congestion window is halved and TCP New Reno
+enters an additive-increase phase. The congestion window is increased by one MSS
+per round-trip time, which allows it to expand into any additional capacity
+which becomes available as other flows complete.
+
+TCP New Reno implements two mechanisms for backing off when congestion is
+detected. After a missed packet acknowledgement, the algorithm returns the
+congestion window to its small initial size and continues in slow start.
+Additionally, a fast recovery mechanism is used when temporary congestion
+occurs. If three duplicate acknowledgements are received indicating a missed
+packet, the congestion window is halved and additive-increase continues.
+
+The repeated behaviour of probing for available capacity and then reducing the
+window size when congestion occurs produces a distinctive saw-tooth of the
+congestion window size.
+
+\subsection{MultiPath TCP}
+Devices with multiple network interfaces are common. Many consumer smart phones
+have both Wi-Fi and 3G interfaces, and data centres networks are often deployed
+in topologies such as FatTree, where equipment racks are connected through
+multiple paths. Data centres themselves are often multihomed to improve
+reliability, meaning that they have several points of access to the wider
+internet. Multipath TCP (MPTCP) is an extension to TCP currently being
+standardised by the IETF, which aims to improve redundancy and throughput by
+taking advantage of multiple paths for a single TCP flow. In order to achieve
+this, MPTCP adds additional subflows to a TCP connection such that the network
+interfaces of each host are connected in a fully-connected mesh.
+
+MPTCP has introduced Coupled congestion control, which aims to behave fairly
+when links are shared by other TCP or MPTCP flows. More specifically, a single
+MPTCP flow should not gain more throughput than a competing TCP flow simply
+because it has multiple subflows. However, the Coupled algorithm also aims to
+utilise the available links fully when they would otherwise be idle.
+
+The Coupled algorithm maintains a separate congestion window for each subflow
+and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
+additive increase across all subflows to ensure fairness.
+
+For each packet acknowledgment received on subflow i, the congestion window is
+increased by
+
+\begin{align*}
+  cwnd_i &= cwnd_i +
+    \min\left(\frac{\alpha}{cwnd_\text{total}}, \frac{1}{cwnd_i}\right) \\
+  \intertext{where}
+  \alpha &=
+    \frac{cwnd_\text{total} \cdot \max_i\left(\frac{cwnd_i}{rtt_i^2}\right)}
+         {(\sum_i \frac{cwnd_i}{rtt_i})^2}
+\end{align*}
+
+Alpha is a parameter which controls how aggressive the MPTCP flow should be in
+increasing its total send rate. Alpha is chosen such that the aggregate
+throughput across all subflows is equal to the throughput a TCP New Reno flow
+would gain on the best of the paths available. This ensures fairness with
+competing TCP flows, where there may be a shared bottleneck at some point in the
+network path. Additionally, the algorithm forces the congestion window of more
+congested links to increase at a slower rate than less congested links. This has
+the effect of shifting traffic  onto less congested paths, which helps to
+balance traffic in a network.
+
+If the available links are idle, however, the Coupled algorithm will allow each
+subflow to use the full capacity available to it. For example, with two idle
+links, the aggregate throughput of an MPTCP flow will be the capacity of both
+links combined.
+
+\subsection{Motivation}

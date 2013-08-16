@@ -4,7 +4,9 @@ REAL_GRAPHS := $(addsuffix .pdf,$(GRAPHS_WD)) $(addsuffix .tex,$(GRAPH_SWD))
 
 .PHONY : clean show
 
-report.pdf: report.tex $(REAL_GRAPHS)
+report.pdf: report.tex $(REAL_GRAPHS) \
+	introduction.tex background.tex methodology.tex \
+	results-fairness.tex results-mptcp.tex results-interference.tex  results-oddities.tex
 	@pdflatex -halt-on-error report.tex
 	@# Run twice to resolve references
 	pdflatex -halt-on-error report.tex > /dev/null
