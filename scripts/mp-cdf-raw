@@ -3,10 +3,17 @@ base="$(dirname "$0")"
 base="$(realpath "$base")"
 source "$base/common.sh"
 
+display=1
+if [[ $1 == "-g" ]]; then
+  display=0
+  shift
+fi
+
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $(basename "$0") [DAT]..."
-  echo
+  echo "Usage: $(basename "$0") [-g] [DAT]..."
   echo "For each DAT file, calculates and displays the CDF"
+  echo -n "The -g flag will force $(basename "$0") only generate the CDF files,"
+  echo    " but not display the resulting CDF"
   exit 1
 fi
 
@@ -111,6 +118,8 @@ for f in "${args[@]}"; do
   '$file' using (8*\$1/1048576):(\$2*100) title '$uniq' with lines ls ($o),"
   ((o++))
 done
+
+((display)) || exit 0
 
 s="${s%,}"
 s="$(echo "$s" | sed 's|/home/[^/]*/|~/|g')"
