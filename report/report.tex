@@ -170,8 +170,10 @@ subflow to use the full capacity available to it. For example, with two idle
 links, the aggregate throughput of an MPTCP flow will be the capacity of both
 links combined.
 
+\subsection{Motivation}
+
 \section{Methodology}
-\subsection{Equipment}
+\subsection{Equipment and software}
 The tools used to create the test environment includes four 2.4GHz Wifi USB
 dongles, a 5GHz Wifi USB dongle, three wireless basestations; two operating on
 the 2.4GHz channel and one dual-band on 2.4GHz and  5GHz channel, two server
@@ -180,6 +182,7 @@ and personal computers were running the most current version of the Linux MPTCP
 enabled kernel gotten from \href{http://multipath-tcp.org/}{multipath-tcp.org}
 
 \subsection{Experiment setups}
+\subsubsection{Sequential TCP tests}
 For most tested configurations, be it non-interfering 2.4 Ghz and 5 Ghz networks
 or interfering 2.4 Ghz networks on the same channel, one of two tests setups
 were used. The first setup was running the five tests outlined below
@@ -204,12 +207,40 @@ the utilization and performance of a network using MPTCP to its single and
 parallel counterparts. Most of the comparisons done in this paper show
 comparisons between test \#1, \#3 and \#4 or \#2, \#3 and \#5.
 
+\subsubsection{Simultaneous TCP tests}
 The other common test setup was using three machines at the same time so that
 one machine was connected to network \#1, one machine to network \#2, and one
 machine to both networks. All machines were running the MPTCP kernel. This setup
 allowed us to more directly compare the performance of MPTCP to that of a two
 simultaneous non-MPTCP clients. It also let us evaluate the fairness of MPTCP
 when other clients are also using the network.
+
+\subsubsection{UDP interrupt tests}
+For the interrupt tests, each wireless interface is connected to a separate
+basestation just like in the other setups, the only difference here is that one
+of the interfaces alternates between being in idle and active mode while the
+other interface is always active. The alternating interface is idle or active
+for fixed time slots in the duration of the experiment.
+
+The idea behind alternating the active periods for one of the interfaces is
+simple; ideally if there is no interference between these interfaces then there
+would not be a loss in throughput for the always-active interface when the
+alternating interface is active. Given the nature of wireless signals this is a
+rather utopic idea, hence a more desirable result would be one that shows
+minimal drop in throughput. Minimal in this scenario means that each interface
+should achieve at least 90\% of its throughput in a single interface setup.
+However, the graph of figure FIG shows that ther is some considerable drop in  % TODO: insert correct figure reference
+throughput when the alternating interface is switched-on thereby indicating the
+presence on non-minimal cross-interface interference between the wireless
+interfaces.
+
+\subsection{Metrics}
+Note that many of the graphs shown in this section are drawn using our
+\texttt{mp-plot} script, which will scale values to keep them in the range
+$[0,100]$. A couple of points about this scaling that are worth pointing out:
+throughput is measured in Mbps; utilization is a measure of what percentage of
+total throughput is sent through each interface and is displayed so that 80 is
+0\% and 100 is 100\%.
 
 \subsection{Scripts}
 In order to automate several oft-performed tasks such as running tests and
@@ -292,34 +323,9 @@ them as an indicator of which server will be used for tests.
     will find all same-channel, coupled test sets in all its arguments, and
     merge them, optionally using mp-merge's normalization feature.
 \end{description}
-\subsection{Interrupt tests}
-For the interrupt tests, each wireless interface is connected to a separate
-basestation just like in the other setups, the only difference here is that one
-of the interfaces alternates between being in idle and active mode while the
-other interface is always active. The alternating interface is idle or active
-for fixed time slots in the duration of the experiment.
-
-The idea behind alternating the active periods for one of the interfaces is
-simple; ideally if there is no interference between these interfaces then there
-would not be a loss in throughput for the always-active interface when the
-alternating interface is active. Given the nature of wireless signals this is a
-rather utopic idea, hence a more desirable result would be one that shows
-minimal drop in throughput. Minimal in this scenario means that each interface
-should achieve at least 90\% of its throughput in a single interface setup.
-However, the graph of figure FIG shows that ther is some considerable drop in  % TODO: insert correct figure reference
-throughput when the alternating interface is switched-on thereby indicating the
-presence on non-minimal cross-interface interference between the wireless
-interfaces.
 
 \section{Results and Evaluation}
-Note that many of the graphs shown in this section are drawn using our
-\texttt{mp-plot} script, which will scale values to keep them in the range
-$[0,100]$. A couple of points about this scaling that are worth pointing out:
-throughput is measured in Mbps; utilization is a measure of what percentage of
-total throughput is sent through each interface and is displayed so that 80 is
-0\% and 100 is 100\%.
-
-\subsection{Using multiple interfaces}
+\subsection{Simultaneous use of wireless interfaces}
 One of the advantages of using MPTCP is the fact that multiple interfaces can be
 used which makes the network faster, more reliable and less prone to congestion
 (at least in theory; as multiple subflows are used to split the load). However
@@ -357,7 +363,43 @@ Based on this it is safe to say that using multiple interfaces is advantageous
 which also implies that MPTCP is in fact a good idea, bringing us to the next
 section.
 
-\subsection{Multiple interfaces and MPTCP}
+\subsubsection{Carrier Sense and cross-channel interference}
+\begin{figure}[h]
+ \centering
+ \input{graphs/mp-int-2.4-ni.tex}
+ \caption{Cross-channel interference}\label{graph:cc-interference}
+\end{figure}
+
+The cross-channel interference observed in Figure~\ref{graph:cc-interference} is
+quite interesting as the throughput and utilization measurements show a
+completely fair sharing between the two networks when both are active. There are
+also nearly no 802.11 retransmit failures. This perfect split implies that
+Carrier Sense is being employed here, effectively doing time multiplexing
+between the interfaces.  This would be fine if the two networks were on the same
+channel and should not transmit simultaneously, but the experiment shown in
+Figure~\ref{graph:cc-interference} was performed with two networks on opposite
+ends of the 2.4 Ghz spectrum (channel 1 and 11), and the two interfaces should
+be able to both transmit at the same time, giving twice the throughput.
+
+Looking at the total throughput, it is clear that some performance gain is
+achieved, but clearly the gain is closer to 50\% than the 100\% one would expect
+from non-interfering channels.
+
+\begin{figure}[h]
+ \centering
+ \input{graphs/mp-int-2.4-i.tex}
+ \caption{Same-channel interference}\label{graph:sc-interference}
+\end{figure}
+
+The results in Figure~\ref{graph:sc-interference} are perhaps even more
+surprising as Carrier Sense should enforce a fairly strict time multiplexing
+with two networks on the same channel, meaning the total throughput should
+remain almost the same whether one or two interfaces are active. The
+experimental results on the other hand show that the total throughput decreases
+to almost 50\% when both interfaces are active. Clearly Carrier Sense is not
+performing as it should.
+
+\subsection{Wireless interference and Multipath TCP}
 
 In the previous section it was shown that multiple interfaces are better than a
 single one, but what exactly does MPTCP do with multiple interfaces? The
@@ -506,31 +548,8 @@ The same CDF but running reno behaves as expected with most of the lines on top
 of each other (a fair distribution) except one of the MPTCP lines which is doing
 slighlty worse than the rest.
 
-\subsection{Fairness}
-As previously mentioned most of the final experiments were run simultaneously
-between 3 PCs (2 running parallel and 1 MPTCP) and the results of these were
-quite interesting. Most of the graphs showed MPTCP performing as well as
-parallel (choose appropriate graphs) but they also showed that MPTCP was not
-being fair as it was using up more than its fair amount of share at the cost of
-other clients, in other words it violated rule number 2 of the coupled
-congestion control (do not harm). After seeing similar results for several tests
-it was noted that the congestion window was growing quite aggressively which led
-to much debate and investigation. Afterwards it was found that the reason the
-cwnd was growing so aggressively was that the sender was not seeing any loss
-(hence the agressive growth). This was caused by the local queue at the sender,
-as it was later found, the IP queue is very large (128KB) so it keeps receiving
-packets and keeps the queue full at all times, never overflowing and never
-causing loss; even when packets are sent to the socket buffer the ip queue
-simply takes more packets to replace those it sent. This is not ideal for MPTCP,
-the queue is always full and sending, the cwnd keeps growing and the alpha
-variable cannot cap the growth because it sees no loss, so in conclusion MPTCP
-does not work correctly (the cwnd size is not correct).
-
-Different solutions to this problem have been considered, the most relevant ones
-being: reducing the number of retries, TSQ, calculating the RTT variance every
-ack (instead of every RTT) and Master socket/MPTCP socket)
-
-\subsection{Downlink experiments}
+\subsection{Multipath TCP fairness}
+\subsubsection{Downlink fairness}
 The setup for this test is the same as explained in the setup 3 of "Testing
 Setups". Here the goal of the experiment is to analyse MPTCP's behaviour with
 regards to interference, throughput and fairness to other TCP flows on the
@@ -564,44 +583,29 @@ the aid of loss feedback from the channel; so as packets build up in the AP, the
 queue fills up leading to packet drops and then loss. This indicates to the
 MPTCP sender to slow down the rate.
 
-\subsection{Parallel vs. MPTCP performance}
-\subsubsection{Fairness}
-\subsection{MPTCP congestion control}
-\subsection{Carrier Sense and cross-channel interference}
-\begin{figure}[h]
- \centering
- \input{graphs/mp-int-2.4-ni.tex}
- \caption{Cross-channel interference}\label{graph:cc-interference}
-\end{figure}
+\subsubsection{Uplink fairness}
+As previously mentioned most of the final experiments were run simultaneously
+between 3 PCs (2 running parallel and 1 MPTCP) and the results of these were
+quite interesting. Most of the graphs showed MPTCP performing as well as
+parallel (choose appropriate graphs) but they also showed that MPTCP was not
+being fair as it was using up more than its fair amount of share at the cost of
+other clients, in other words it violated rule number 2 of the coupled
+congestion control (do not harm). After seeing similar results for several tests
+it was noted that the congestion window was growing quite aggressively which led
+to much debate and investigation. Afterwards it was found that the reason the
+cwnd was growing so aggressively was that the sender was not seeing any loss
+(hence the agressive growth). This was caused by the local queue at the sender,
+as it was later found, the IP queue is very large (128KB) so it keeps receiving
+packets and keeps the queue full at all times, never overflowing and never
+causing loss; even when packets are sent to the socket buffer the ip queue
+simply takes more packets to replace those it sent. This is not ideal for MPTCP,
+the queue is always full and sending, the cwnd keeps growing and the alpha
+variable cannot cap the growth because it sees no loss, so in conclusion MPTCP
+does not work correctly (the cwnd size is not correct).
 
-The cross-channel interference observed in Figure~\ref{graph:cc-interference} is
-quite interesting as the throughput and utilization measurements show a
-completely fair sharing between the two networks when both are active. There are
-also nearly no 802.11 retransmit failures. This perfect split implies that
-Carrier Sense is being employed here, effectively doing time multiplexing
-between the interfaces.  This would be fine if the two networks were on the same
-channel and should not transmit simultaneously, but the experiment shown in
-Figure~\ref{graph:cc-interference} was performed with two networks on opposite
-ends of the 2.4 Ghz spectrum (channel 1 and 11), and the two interfaces should
-be able to both transmit at the same time, giving twice the throughput.
-
-Looking at the total throughput, it is clear that some performance gain is
-achieved, but clearly the gain is closer to 50\% than the 100\% one would expect
-from non-interfering channels.
-
-\begin{figure}[h]
- \centering
- \input{graphs/mp-int-2.4-i.tex}
- \caption{Same-channel interference}\label{graph:sc-interference}
-\end{figure}
-
-The results in Figure~\ref{graph:sc-interference} are perhaps even more
-surprising as Carrier Sense should enforce a fairly strict time multiplexing
-with two networks on the same channel, meaning the total throughput should
-remain almost the same whether one or two interfaces are active. The
-experimental results on the other hand show that the total throughput decreases
-to almost 50\% when both interfaces are active. Clearly Carrier Sense is not
-performing as it should.
+Different solutions to this problem have been considered, the most relevant ones
+being: reducing the number of retries, TSQ, calculating the RTT variance every
+ack (instead of every RTT) and Master socket/MPTCP socket)
 
 \subsection{Observations on data oddities}
 Throughout our experiments, we have come across several rather odd results,
