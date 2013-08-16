@@ -14,8 +14,30 @@ fi
 cmdb="$(basename "$cmd")"
 
 if [[ $1 == "-h" ]]; then
-  echo "Usage: $0 [AP...]"
+  echo "Usage: $(basename "$0") [--single] [--parallel] [--mptcp] [--one] [AP...]"
+  echo -n "The --single, --parallel and --mptcp flags will make the resulting"
+  echo -n " plot contain only lines corresponding to the passed options. If"
+  echo    " none of the flags are passed, all are enabled"
+  echo -n "The --one flag will force $(basename "$0") to display all results in"
+  echo    " a single graph, even if it would normally have showed one per ap"
   exit 0
+fi
+
+single=0
+parallel=0
+mptcp=0
+one=0
+
+while [[ $1 =~ ^-- ]]; do
+  opt=${1#--}
+  eval $opt=1
+  shift
+done
+
+if ((single + parallel + mptcp == 0)); then
+  single=1
+  parallel=1
+  mptcp=1
 fi
 
 if [[ $isseq -eq 0 ]]; then
@@ -34,14 +56,19 @@ else
   args=("$@")
 fi
 
+cargs=()
 for ap in "${args[@]}"; do
   suffix="$(suffix "." "$updown" "$ap")"
   if [[ -z "$suffix" ]]; then
     continue
   fi
 
-  cargs=()
   for dir in *[-@]$suffix-$updown; do
+    # Skip unwanted tests
+    [[ $single -eq 0 && $dir =~ single ]] && continue
+    [[ $mptcp -eq 0 && $dir =~ mptcp ]] && continue
+    [[ $parallel -eq 0 && $dir =~ parallel ]] && continue
+
     if [[ $cmdb == "mp-cdf-raw" ]]; then
       ifs="$(ap2if "$dir" "$ap")"
       ifs=($ifs)
@@ -54,8 +81,15 @@ for ap in "${args[@]}"; do
     fi
   done
 
-  echo "$cmdb ${cargs[@]}"
-  "$cmd" "${cargs[@]}"
+  if [[ $one -eq 0 ]]; then
+    echo "$cmdb ${cargs[@]}"
+    "$cmd" "${cargs[@]}"
+    cargs=()
+  fi
 done
 
+if [[ ${#cargs} -gt 0 ]]; then
+  echo "$cmdb ${cargs[@]}"
+  "$cmd" "${cargs[@]}"
+fi
 # vim:textwidth=0:
