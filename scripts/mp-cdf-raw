@@ -28,7 +28,6 @@ set ylabel 'CDF'
 set grid
 set xrange [0:30]
 set yrange [0:100]
-set offset graph 0.02
 set key right bottom
 set title 'CDF'
 

@@ -21,13 +21,14 @@ int=$(cat test.txt | grep interrupt | wc -l)
 begin=$(head -n1 *.dat | tail -n1 | cut -d' ' -f1)
 end=$(tail -n1 *.dat | tail -n1 | cut -d' ' -f1)
 dur=$(echo "$end-$begin" | bc)
+perc=$(echo "$dur*0.03" | bc)
+dur=$(echo "$dur+$perc" | bc)
 
 s="
 set xlabel 'seconds'
 set grid
-set xrange [0:$dur]
-set yrange [0:100]
-set offset graph 0.02
+set xrange [-$perc:$dur]
+set yrange [-5:105]
 set key right top
 set title '$testname'
 
