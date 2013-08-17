@@ -83,7 +83,8 @@ if [[ ${#args[@]} -eq 0 ]]; then
   exit 1
 fi
 
-out=""
+out=()
+uniqs=()
 for f in "${args[@]}"; do
   f="$(realpath "$f")"
   datname="$(basename "$f")"
@@ -109,13 +110,27 @@ for f in "${args[@]}"; do
     fi
   fi
 
-  file="$dir/cdf-$o-$uniq.dat"
+  file="$dir/cdf-$uniq-$o.dat"
   if [[ ! -e "$file" ]]; then
     runr "$f" > "$file"
   fi
 
+  out+=("$file")
+  uniqs+=("$uniq")
+  ((o++))
+done
+
+mapfile -t < <(printf "%s\0" "${out[@]}" | sort -z | xargs -0n1)
+((o=1))
+for f in "${MAPFILE[@]}"; do
+  origi=0
+  for orig in "${out[@]}"; do
+    [[ $orig == "$f" ]] && break
+    ((origi++))
+  done
+
   s="$s \\
-  '$file' using (8*\$1/1048576):(\$2*100) title '$uniq' with lines ls ($o),"
+  '$f' using (8*\$1/1048576):(\$2*100) title '${uniqs[$origi]}' with lines ls ($o),"
   ((o++))
 done
 
