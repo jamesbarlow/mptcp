@@ -1,4 +1,4 @@
-GRAPHS := $(wildcard graphs/*.plot)
+GRAPHS := $(shell ../scripts/mp-discover-graph-dependencies)
 REAL_GRAPHS := $(GRAPHS:.plot=.tex) $(GRAPHS:.plot=.pdf)
 
 .PHONY : clean show

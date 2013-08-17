@@ -1,0 +1,10 @@
+#!/bin/bash
+reg='\\input\{(graphs/[^}]+).tex\}'
+for f in report.tex sections/*.tex; do
+  while read -r line; do
+    [[ $line =~ ^% ]] && continue
+    if [[ $line =~ $reg ]]; then
+      echo "${BASH_REMATCH[1]}.plot"
+    fi
+  done < "$f"
+done
