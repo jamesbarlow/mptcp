@@ -1,3 +1,124 @@
+
+In the previous section it was shown that multiple interfaces are better than a
+single one, but what exactly does MPTCP do with multiple interfaces? The
+question that should be asked now is how does MPTCP work with multiple
+interfaces and how much better does it behave when compared against parallel
+experiments.
+
+As stated in the previous section a lot of experiments were run in order to
+observe how MPTCP behaves, it was decided that the results from the MPTCP
+experiments should be compared against the parallel ones as they are the
+benchmark of how well the network can behave. To make the results more
+conclusive and accurate different congestion control mechanisms were used (reno
+and coupled).
+
+Different sets of experiments were run in a span of several days using the same
+setup. During the first few days all the experiments were run during 10 minutes
+using the coupled congestion-control, 5 minutes for the upstream and 5 minutes
+for the downstream. However, after observing some unusual results between the up
+and down tests, where the down tests would in general be fairer at distributing
+the load because they could see loss and correctly adjust the cwnd, it was
+decided that the lenght of the experiments would be increased to 15 minutes
+each. Later on experiments using the reno congestion-control were also run in
+order to compare results against experiments using coupled. After a couple of
+weeks running this setup, the lenght of the experiments was changed to 2 minutes
+and 3 different machines would run in simultaneous using both reno and coupled.
+
+\subsubsection{Upstream and Downstream}
+
+\begin{figure}[h]
+ \centering
+ \subfloat[][downlink] {\
+   \scalebox{0.55}{\input{graphs/down-fair.tex}}\label{graph:down-fair}
+ }
+ \subfloat[][uplink] {\
+   \scalebox{0.55}{\input{graphs/up-fair.tex}}\label{graph:up-fair}
+ }
+
+ \caption{Traffic distribution on downlink vs.\ uplink}\label{graph:interference}
+\end{figure}
+
+In the start both upstream and downstream experiments were run, but after
+several rounds it became clear that the downstream experiments were very similar
+and regular showing a fair distribution (throughput and utilization) between
+both networks as can be seen in figure~\ref{graph:down-fair} (which did not
+prove the same for upstream show in figure~\ref{graph:up-fair}). In spite of
+that it was decided at the time that upstream only experiments were to be run
+more extensively. It was later discovered that due to the sender not seeing
+loss, the cwnd would grow aggressively and the tests behave in such an unfair
+way (as will be explained later in the report). When the setup was changed to
+run the simultaneous experiments more rounds of downstream experiments were run
+to support our findings.
+
+% Note that towards the end we were merging results across multiple tests and
+% looking at the CDFs for these aggregated tests
+
+\subsubsection{2.4 cross-channel interference}
+Tests between cross-channel (different channels) 2.4 networks showed that there
+is quite a lot of interference between them even though they are in different
+channels (usually 1/5 or 1/11). This was quite surprising as it was expected
+that by having each network in different channels interference would be kept to
+a minimum. There could be different reasons for this such as the APs not having
+strong enough antennas (more likely to be susceptible to interference) or the
+fact the APs might be positioned very close to each other which could cause
+self-interference.
+
+% TODO: Correct figure refernces here
+As can be seen in \texttt{02-08-13/mptcp@1a-up} and
+\texttt{01-08-13/mptcp@11-up} (i/ni mptcp experiments) the throughput in
+\texttt{mptcp@1a-up} is close to the one in \texttt{01-08-13/mptcp@11-up}, but
+significantly worse in one of the links; however the other link is very similar
+which is quite surprising. The throughputs average around 20 Mbps for for ni and
+15 for i. So even if so slightly the ni experiments are performing quite close
+to the interfering ones which should not happen in theory. Experiments with the
+APs positioned far apart showed a much fairer distribution between the 2
+networks as usually the network in the less busy channel dominates the
+throughput.
+
+The comparison between the ni mptcp against the parallel graph, showed that
+MPTCP is underperforming (?) as the aggregate throughput of the MPTCP flows does
+not amount to the best single path; this can be seen in the cdf graph
+\texttt{01-08-13/coupled-1} which uses the coupled congestion control.
+
+For reno, the results (as expected) are slightly better, but the graph should
+show all the lines on top of each other which is not the case as can be seen in
+\texttt{01-08-13/reno-1} (even though the aggregate throughput of MPTCP is
+roughly the same as the best single path).
+
+\subsubsection{2.4 same-channel interference}
+% TODO: Correct figure refernces here
+As expected tests using the same channel showed a lot of interference, usually
+with one of the networks being favoured over the other (one network would have a
+quite high throughput around 15 Mbps while the other would have a very low one
+around 6 Mbps). This could be due to the fact that the coupled congestion
+control favours the less lossy link so it sends more traffic through that link
+and barely any through to the other (This could be seen when the graphs were
+compared to the single tests, in which separately each network performed
+similarly but when run simultaneously or in parallel one of the networks was
+always favoured) as in \texttt{02-08-13/mptcp@1a-up}. When the
+congestion-control was switched to Reno it was apparent right away that the
+distribution between the links was much fairer and better distributed. This
+happens because reno unlike coupled runs congestion control separately for each
+interface so it will try to fully utilise both networks resulting in a fairer
+distribution as can be seen in \texttt{02-08-13/mptcp@1b-up}. Coupled as
+mentioned before avoids lossy links so it will avoid loading that link with
+traffic and only using it as backup for when the better link is full.
+
+Reno might be more appropriate for networks on different channels as it will not
+avoid lossy links but try to equally share the load between the 2 channels
+despite of how lossy the links are. This would be fairer to both networks as
+both get to send without one being favoured over the other.
+
+The CDF graph for MPTCP using coupled and parallel show that MPTCP is
+outperforming the best single path which should not happen (as the aggregate
+throughput should be the same as the best path not more - it's violating rule 2:
+do no harm); this means that MPTCP is getting more than its fair share of
+throughput.
+
+The same CDF but running reno behaves as expected with most of the lines on top
+of each other (a fair distribution) except one of the MPTCP lines which is doing
+slighlty worse than the rest.
+
 \subsubsection{Downlink fairness}
 The setup for this test is the same as explained in the setup 3 of "Testing
 Setups". Here the goal of the experiment is to analyse MPTCP's behaviour with

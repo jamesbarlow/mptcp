@@ -1,146 +1,103 @@
-In the previous section it was shown that multiple interfaces are better than a
-single one, but what exactly does MPTCP do with multiple interfaces? The
-question that should be asked now is how does MPTCP work with multiple
-interfaces and how much better does it behave when compared against parallel
-experiments.
+Before looking at Multipath TCP with Coupled congestion control as commonly
+deployed, we present results using Multipath TCP with New Reno congestion
+control. Although this might seem unnecessary considering Multipath TCP is
+rarely ever used with New Reno as it uses an unfair share of total available
+bandwidth, we believe it is useful to show the subtle differences between
+running two parallel wireless clients and one client with multiple wireless
+interfaces. Using New Reno allows us to evaluate this separately from the
+load balancing performed by Coupled.
 
-As stated in the previous section a lot of experiments were run in order to
-observe how MPTCP behaves, it was decided that the results from the MPTCP
-experiments should be compared against the parallel ones as they are the
-benchmark of how well the network can behave. To make the results more
-conclusive and accurate different congestion control mechanisms were used (reno
-and coupled).
-
-Different sets of experiments were run in a span of several days using the same
-setup. During the first few days all the experiments were run during 10 minutes
-using the coupled congestion-control, 5 minutes for the upstream and 5 minutes
-for the downstream. However, after observing some unusual results between the up
-and down tests, where the down tests would in general be fairer at distributing
-the load because they could see loss and correctly adjust the cwnd, it was
-decided that the lenght of the experiments would be increased to 15 minutes
-each. Later on experiments using the reno congestion-control were also run in
-order to compare results against experiments using coupled. After a couple of
-weeks running this setup, the lenght of the experiments was changed to 2 minutes
-and 3 different machines would run in simultaneous using both reno and coupled.
-
-% Note that towards the end we were merging results across multiple tests and
-% looking at the CDFs for these aggregated tests
-
-\subsubsection{Upstream and Downstream}
+\subsubsection{Downlink}
 
 \begin{figure}[h]
  \centering
- \subfloat[][downlink] {\
-   \scalebox{0.55}{\input{graphs/down-fair.tex}}\label{graph:down-fair}
+ \subfloat[][2.4 GHz, same channel] {\
+% TODO: find good graph for this
+%   \scalebox{0.33}{\input{graphs/sc-reno-down.tex}}\label{graph:sc-reno-down}
  }
- \subfloat[][uplink] {\
-   \scalebox{0.55}{\input{graphs/up-fair.tex}}\label{graph:up-fair}
+ \subfloat[][2.4 GHz, disparate channel] {\
+% TODO: find good graph for this
+%   \scalebox{0.33}{\input{graphs/cc-reno-down.tex}}\label{graph:cc-reno-down}
+ }
+ \subfloat[][5 and 2.4 GHz] {\
+% TODO: find good graph for this
+%   \scalebox{0.33}{\input{graphs/cb-reno-down.tex}}\label{graph:cb-reno-down}
  }
 
- \caption{Traffic distribution on downlink vs.\ uplink}\label{graph:interference}
+ \caption{CDF of downlink throughputs using New Reno congestion control}\label{graph:reno-down}
 \end{figure}
 
-In the start both upstream and downstream experiments were run, but after
-several rounds it became clear that the downstream experiments were very similar
-and regular showing a fair distribution (throughput and utilization) between
-both networks as can be seen in figure~\ref{graph:down-fair} (which did not
-prove the same for upstream show in figure~\ref{graph:up-fair}). In spite of
-that it was decided at the time that upstream only experiments were to be run
-more extensively. It was later discovered that due to the sender not seeing
-loss, the cwnd would grow aggressively and the tests behave in such an unfair
-way (as will be explained later in the report). When the setup was changed to
-run the simultaneous experiments more rounds of downstream experiments were run
-to support our findings.
+On the downlink, we are expecting each Multipath TCP subflow to get an equal
+share of the network as the regular TCP on the same network, as there should be
+no difference in the amount of intereference when running both WiFi interfaces
+on the same machine compared to on separate machines when the interface is
+barely transmitting (only ACKs). This is also what we see from the graphs in
+figure~\ref{graph:reno-down}.
 
-\subsubsection{5 \& 2.4 interference}
-% TODO: Correct figure refernces here
-Most of the experiments between 5GHz and 2.4GHz showed that there is little
-interference between them. The 5GHz network behaves as expected, showing high
-throughputs with an average of 24 - 25 Mbps  for both the single and the
-parallel experiments, even when exposed to interference from other Wi-Fi sources
-apart from the 2.4Ghz network (when there were people around the floor on their
-cellphones and on skype) the throughput remained roughly the same, althought the
-RTT varied significantly especially in the single test as can be seen in
-\texttt{19-07-13/parallel-5-up} and \texttt{19-07-13/single-2.4-up} (which also
-reflected in the send queue).
+The per subflow fairness in the downlink case is achieved in two steps: firstly,
+the wireless medium should be shared equally between the two APs (assuming they
+both have data to send and their subbands are equally busy) thanks to carrier
+sensing; second, the flows going through each AP should get an equal share of
+that APs airtime because they are both running TCP New Reno on equal paths,
+which should lead to them sharing the available bandwidth fairly.
 
-The 2.4Ghz network as mentioned before is also not highly affected by
-interference from the 5GHz network. It behaved similarly for both the single and
-parallel tests with little difference between throughputs, averaging at 16 Mbps
-for single and around 13 Mbps for parallel (so a slight drop in throughput); but
-it should be pointed that it is more susceptible to outside interference. Even
-so as can be see in \texttt{19-07-13/single-2.4-up} and
-\texttt{19-07-13/parallel-2.4-up} both the throughputs and RTTs (with a few
-spikes for single) behave similarly, also the send queue is kept fuller at the
-single experiment (better throughput).
+\subsubsection{Uplink}
 
-The mptcp graphs correlates the results described above as can be seen in
-\texttt{19-07-13/mptcp@2.4-up}.
+\begin{figure}[h]
+ \centering
+ \subfloat[][2.4 GHz, same channel] {\
+   \scalebox{0.55}{\input{graphs/sc-reno-up.tex}}\label{graph:sc-reno-up}
+ }
+ \subfloat[][2.4 GHz, disparate channel] {\
+   \scalebox{0.55}{\input{graphs/cc-reno-up.tex}}\label{graph:cc-reno-up}
+ }
+ \\
+ \subfloat[][5 and 2.4 GHz] {\
+   \scalebox{0.55}{\input{graphs/cb-reno-up.tex}}\label{graph:cb-reno-up}
+ }
 
-The parallel graphs against MPTCP correlate what has been described above.
+ % TODO: get more stable results for all of these?
+ % TODO: confirm trend for 5 test
+ \caption{CDF of uplink throughputs using New Reno congestion control}\label{graph:reno-up}
+\end{figure}
 
-\subsubsection{2.4 cross-channel interference}
-Tests between cross-channel (different channels) 2.4 networks showed that there
-is quite a lot of interference between them even though they are in different
-channels (usually 1/5 or 1/11). This was quite surprising as it was expected
-that by having each network in different channels interference would be kept to
-a minimum. There could be different reasons for this such as the APs not having
-strong enough antennas (more likely to be susceptible to interference) or the
-fact the APs might be positioned very close to each other which could cause
-self-interference.
+Due to the volatile nature of wireless, it was hard to get consistent results
+for these tests, but the general trend we observe is that on the uplink, the
+story is much the same as on the downlink; each Multipath TCP subflow gets an
+equal share of the total throughput to every other flow on that link as seen in
+figure~\ref{graph:sc-reno-up} and figure~\ref{graph:sc-reno-up}. This also makes
+sense conceptually as the 802.11 MAC provides fairness \textbf{per 802.11
+client} using carrier sense. Note that this is different from the downlink case
+where fairness is provided by carrier sense \textbf{and} the APs. Since
+Multipath TCP has one client on every network, one would expect each subflow to
+get half the available capacity on each network when using New Reno.
 
-% TODO: Correct figure refernces here
-As can be seen in \texttt{02-08-13/mptcp@1a-up} and
-\texttt{01-08-13/mptcp@11-up} (i/ni mptcp experiments) the throughput in
-\texttt{mptcp@1a-up} is close to the one in \texttt{01-08-13/mptcp@11-up}, but
-significantly worse in one of the links; however the other link is very similar
-which is quite surprising. The throughputs average around 20 Mbps for for ni and
-15 for i. So even if so slightly the ni experiments are performing quite close
-to the interfering ones which should not happen in theory. Experiments with the
-APs positioned far apart showed a much fairer distribution between the 2
-networks as usually the network in the less busy channel dominates the
-throughput.
+The equal distribution above gives Multipath TCP an aggregate throughput equal to
+the sum of half of each link, and suggests that no additional interference
+penalty is incurred by running both interfaces on the same client rather than on
+different clients. We can also reason from this that Multipath TCP with Coupled
+congestion control should theoretically be able to eventually reach the same
+throughput as parallel clients if no other flows are competing on the network.
 
-The comparison between the ni mptcp against the parallel graph, showed that
-MPTCP is underperforming (?) as the aggregate throughput of the MPTCP flows does
-not amount to the best single path; this can be seen in the cdf graph
-\texttt{01-08-13/coupled-1} which uses the coupled congestion control.
+When the two interfaces are running on different bands, as in
+figure~\ref{graph:cb-reno-up}, we see a curious effect where Multipath TCP backs
+off the 2.4 GHz network somewhat. This was unexpected with New Reno as Multipath
+TCP should not be trying to be fair to other flows, but rather try to maximize
+the throughput on each path. It turns out that there is a connection between
+flows when running Multipath TCP regardless of what congestion control is in
+use. If Multipath TCP detects that a faster flow is forced to wait for ACKs on % TODO: We have to confirm that this is the case
+the slower flow, it will… % TODO: finish this when confirmed
 
-For reno, the results (as expected) are slightly better, but the graph should
-show all the lines on top of each other which is not the case as can be seen in
-\texttt{01-08-13/reno-1} (even though the aggregate throughput of MPTCP is
-roughly the same as the best single path).
-
-\subsubsection{2.4 same-channel interference}
-% TODO: Correct figure refernces here
-As expected tests using the same channel showed a lot of interference, usually
-with one of the networks being favoured over the other (one network would have a
-quite high throughput around 15 Mbps while the other would have a very low one
-around 6 Mbps). This could be due to the fact that the coupled congestion
-control favours the less lossy link so it sends more traffic through that link
-and barely any through to the other (This could be seen when the graphs were
-compared to the single tests, in which separately each network performed
-similarly but when run simultaneously or in parallel one of the networks was
-always favoured) as in \texttt{02-08-13/mptcp@1a-up}. When the
-congestion-control was switched to Reno it was apparent right away that the
-distribution between the links was much fairer and better distributed. This
-happens because reno unlike coupled runs congestion control separately for each
-interface so it will try to fully utilise both networks resulting in a fairer
-distribution as can be seen in \texttt{02-08-13/mptcp@1b-up}. Coupled as
-mentioned before avoids lossy links so it will avoid loading that link with
-traffic and only using it as backup for when the better link is full.
-
-Reno might be more appropriate for networks on different channels as it will not
-avoid lossy links but try to equally share the load between the 2 channels
-despite of how lossy the links are. This would be fairer to both networks as
-both get to send without one being favoured over the other.
-
-The CDF graph for MPTCP using coupled and parallel show that MPTCP is
-outperforming the best single path which should not happen (as the aggregate
-throughput should be the same as the best path not more - it's violating rule 2:
-do no harm); this means that MPTCP is getting more than its fair share of
-throughput.
-
-The same CDF but running reno behaves as expected with most of the lines on top
-of each other (a fair distribution) except one of the MPTCP lines which is doing
-slighlty worse than the rest.
+\subsubsection{A note on wireless experiments}
+Running every test many times has proven very important throughout this project.
+For the uplink reno 2.4 GHz tests for example, we initially suspected that
+Multipath TCP was consistently seeing slightly lower throughput compared to
+parallel, and we surmised that this might be because two WiFi interfaces
+connected to one machine might somehow lead to more cross-interface interference
+than with the same interfaces connected to different machines equally far apart.
+After running more experiments to confirm, however, we quickly got contradicting
+results where Multipath TCP was consistently faster than parallel. On balance,
+we consider the results to pretty much even out across many tests. The slight
+discrepancies of some links in those figures are simply due to WiFi interfaces
+being extremely sensitive to their exact positioning, and average out over a
+larger set of tests.
