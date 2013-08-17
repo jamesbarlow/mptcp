@@ -10,7 +10,8 @@ while read -r line; do
   path="${BASH_REMATCH[1]}"
   dir=~/"$(dirname "$path")"
   "$base"/mp-analyze "$dir" > /dev/null
-  [[ $path =~ $cdf ]] || continue
-  if=$(ap21if "$dir" "${BASH_REMATCH[1]}")
-  "$base"/mp-cdf-raw -g "$dir/$if.dat" > /dev/null
+  if [[ $path =~ $cdf ]]; then
+    if=$(ap21if "$dir" "${BASH_REMATCH[1]}")
+    "$base"/mp-cdf-raw -g "$dir/$if.dat" > /dev/null
+  fi
 done < "$1"
