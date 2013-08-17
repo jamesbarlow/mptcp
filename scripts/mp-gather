@@ -3,17 +3,26 @@ base="$(dirname "$0")"
 base="$(realpath "$base")"
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $(basename "$0") [-n] UP|DOWN [SET-SET]..."
+  echo "Usage: $(basename "$0") [-n] [-a] UP|DOWN [SET-SET]..."
   echo "Merges common sets from each set of sets given"
   echo "-n can be given to normalize results"
+  echo "-a can be given to merge per ap, rather than high/low"
   exit 1
 fi
 
 normalize=""
-if [[ $1 == "-n" ]]; then
-  normalize="-n"
-  shift
-fi
+perap=0
+while [[ $# -gt 0 ]]; do
+  if [[ $1 == "-n" ]]; then
+    normalize="-n"
+    shift
+  elif [[ $1 == "-a" ]]; then
+    perap=1
+    shift
+  else
+    break
+  fi
+done
 
 updown=$1
 shift
@@ -22,11 +31,21 @@ datadir=`realpath ~/Dropbox/MPTCP/data/`
 for t in 5 ni i; do
   for c in reno coupled; do
     sets=()
+    rawaps=()
     for s in "$@"; do
       sets+=("$s"/$t-*$c*)
+      ((perap)) || continue;
+      mapfile -t < <(cat "$s"/$t-*$c*/*/iwconfig.log 2>/dev/null | grep "ESSID:\"" | sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//')
+      rawaps=("${rawaps[@]}" "${MAPFILE[@]}")
     done
 
-    for h in both high low; do
+    if ((perap)); then
+      mapfile -t aps < <(printf "%s\0" "${rawaps[@]}" | sort -zu | xargs -0n1)
+    else
+      aps=(high low)
+    fi
+
+    for h in all "${aps[@]}"; do
       echo -e "\n\e[1mAggregating into $t-$c-$h\e[0m"
 
       args=()
@@ -52,40 +71,39 @@ for t in 5 ni i; do
           continue
         fi
 
-        high="$(mp-high "$updown" "$s" | sed 's/.*: //')"
-        low="$(cat "$s"/*parallel*/iwconfig.log | \
-                grep 'ESSID:"' | \
-                grep -v -- "$high-wifi" | \
-                sed 's/^.*ESSID:"//' | \
-                sed 's/\(-wifi\)*".*//')"
+        mapfile -t testaps < <(cat "$s"/*parallel*/iwconfig.log | grep 'ESSID:"' |  sed 's/^.*ESSID:"//' | sed 's/\(-wifi\)*".*//' | sort -u)
 
         # Skip tests with more than two aps
-        if [[ $(echo -e "$high\n$low" | grep -vP '^$' | wc -l) -ne 2 ]]; then
-          echo -e "\e[31mRefusing to merge broken set $setname with <> 2 aps: $(echo $high) $(echo $low)\e[0m" >> /dev/stderr
+        if [[ ${#testaps[@]} -ne 2 ]]; then
+          echo -e "\e[31mRefusing to merge broken set $setname with <> 2 aps: ${testaps[@]}\e[0m" >> /dev/stderr
           continue
         fi
 
-        if [[ $h != "both" ]]; then
+        if [[ $h == "high" || $h == "low" ]]; then
+          high="$(mp-high "$updown" "$s" | sed 's/.*: //')"
+          for a in "${testaps[@]}"; do
+            [[ $a == "$high" ]] && continue
+            low="$a"
+          done
           echo -e " \e[37m${!h}\e[0m from \e[37m$setname\e[0m"
-        else
-          echo -e " \e[37m$setname\e[0m"
-        fi
-
-        args+=("$rs")
-        if [[ $h == "high" ]]; then
-          args+=("$high")
-        elif [[ $h == "low" ]]; then
-          args+=("$low")
-        else
-          args+=("$high")
           args+=("$rs")
-          args+=("$low")
+          args+=("${!h}")
+        elif [[ $h == "all" ]]; then
+          echo -e " \e[37m$setname\e[0m"
+          for ap in "${testaps[@]}"; do
+            args+=("$rs")
+            args+=("$ap")
+          done
+        else
+          echo -e " \e[37m$h\e[0m from \e[37m$setname\e[0m"
+          args+=("$rs")
+          args+=("$h")
         fi
       done
 
       if [[ ${#args[@]} -eq 0 ]]; then continue; fi
 
-      if [[ $h == "both" ]]; then
+      if [[ $h == "all" ]]; then
         hx=""
       else
         hx="-$h"
