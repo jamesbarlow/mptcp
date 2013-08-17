@@ -80,10 +80,16 @@ might be expected.
 % TODO: 2.4 down test?
 
 \subsubsection{Interference between bands}
+
 \begin{figure}[h]
  \centering
- \input{graphs/interference-5-2.4-up.tex}
- \caption{Cross-band interference}\label{graph:cb-interference-up}
+ \subfloat[][Uplink] {\
+   \scalebox{0.55}{\input{graphs/interference-5-2.4-up.tex}}\label{graph:cb-interference-up}
+ }
+ \subfloat[][Downlink] {\
+   \scalebox{0.55}{\input{graphs/interference-5-2.4-down.tex}}\label{graph:cb-interference-down}
+ }
+ \caption{Cross-band interference}\label{graph:cb-interference-down}
 \end{figure}
 
 Most of the experiments we performed with one network on the 5 GHz band and the
@@ -96,12 +102,6 @@ two bands are indeed independent. That the throughput in the 2.4 GHz parallel
 test seems to be marginally lower than for single case is simply a result of the
 tests not being run at the same time. Other tests using the same setup show the
 2.4 GHz parallel throughput to be higher than that of the single.
-
-\begin{figure}[h]
- \centering
- \input{graphs/interference-5-2.4-down.tex}
- \caption{Cross-band interference}\label{graph:cb-interference-down}
-\end{figure}
 
 Figure~\ref{graph:cb-interference-down} shows a similar test to the above, but
 run on the downlink. Again we see the same interference pattern (or rather lack
