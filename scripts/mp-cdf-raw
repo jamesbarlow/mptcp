@@ -9,11 +9,19 @@ if [[ $1 == "-g" ]]; then
   shift
 fi
 
+pair=0
+if [[ $1 == "-p" ]]; then
+  pair=1
+  shift
+fi
+
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $(basename "$0") [-g] [DAT]..."
+  echo "Usage: $(basename "$0") [-g] [-p] [DAT]..."
   echo "For each DAT file, calculates and displays the CDF"
   echo -n "The -g flag will force $(basename "$0") only generate the CDF files,"
   echo    " but not display the resulting CDF"
+  echo -n "If the -p flag is given, each DAT file should be succeeded by the"
+  echo    " filename the resulting CDF data should be written to"
   exit 1
 fi
 
@@ -53,7 +61,10 @@ lastparpar=""
 lastpar=""
 parshared=1
 parparshared=1
-for arg; do
+while [[ $# -gt 0 ]]; do
+  arg=$1
+  shift
+
   if [[ ! -e "$arg" ]]; then
     echo -e "\e[31m$arg: No such data file\e[0m" >> /dev/stderr
     continue
@@ -75,6 +86,11 @@ for arg; do
     parparshared=0
   fi
 
+  if ((pair)); then
+    # Note that we put the destination *before* the source
+    args+=("$1")
+    shift
+  fi
   args+=("$arg")
 done
 
@@ -85,32 +101,43 @@ fi
 
 out=()
 uniqs=()
+tofile=""
 for f in "${args[@]}"; do
+  if [[ $pair -eq 1 && -z "$tofile" ]]; then
+    tofile="$f"
+    continue
+  fi
+
   f="$(realpath "$f")"
   datname="$(basename "$f")"
   datname="${datname%.dat}"
   dir="$(dirname "$f")"
   dirname="$(basename "$dir")"
 
-  uniq=""
-  if ((parshared)); then
-    if [[ -e "$dir/iwconfig.log" ]]; then
-      uniq="$(if2ap "$dir" "$datname")"
+  if [[ -z "$tofile" ]]; then
+    uniq=""
+    if ((parshared)); then
+      if [[ -e "$dir/iwconfig.log" ]]; then
+        uniq="$(if2ap "$dir" "$datname")"
+      fi
+
+      if [[ -z "$uniq" ]]; then
+        uniq="$datname"
+      fi
+    elif ((parparshared)); then
+      if [[ -e "$dir/iwconfig.log" ]]; then
+        uniq="$(if2ap "$dir" "$datname")"
+        uniq="$dirname-$uniq"
+      else
+        uniq="$dirname-$datname"
+      fi
     fi
 
-    if [[ -z "$uniq" ]]; then
-      uniq="$datname"
-    fi
-  elif ((parparshared)); then
-    if [[ -e "$dir/iwconfig.log" ]]; then
-      uniq="$(if2ap "$dir" "$datname")"
-      uniq="$dirname-$uniq"
-    else
-      uniq="$dirname-$datname"
-    fi
+    file="$dir/cdf-$uniq-$o.dat"
+  else
+    file="$tofile"
   fi
 
-  file="$dir/cdf-$uniq-$o.dat"
   if [[ ! -e "$file" ]]; then
     runr "$f" > "$file"
   fi
@@ -118,6 +145,7 @@ for f in "${args[@]}"; do
   out+=("$file")
   uniqs+=("$uniq")
   ((o++))
+  tofile=""
 done
 
 mapfile -t < <(printf "%s\0" "${out[@]}" | sort -z | xargs -0n1)
