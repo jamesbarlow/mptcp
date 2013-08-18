@@ -26,7 +26,7 @@ graphs/%.tex graphs/%.eps: graphs/%.plot
 	set terminal epslatex \
 	set output "graphs/$*.tex"' "$<.tmp"
 	@sed -i '/^set title/d' "$<.tmp"
-	# Make all lines solid
+	@# Make all lines solid
 	@sed -i 's/ lt [^ ]*/ lt 1/' "$<.tmp"
 	@gnuplot "$<.tmp"
 	@rm "$<.tmp"
