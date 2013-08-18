@@ -1,18 +1,29 @@
-\subsection{WiFi}
+\subsection{WiFi and Interference}
 The 802.11 standards are a set of physical layer and MAC specifications for
 implementing WiFi networks.  802.11 networks commonly operate on frequencies in
-the 2.4 GHz and 5 GHz banks, which are divided into a number of overlapping
-channels. For example, the 802.11b channels in the 2.4 GHz band are 22 MHz wide
-and spaced 5 MHz apart, beginning with 2.412 GHz.
+the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
+sub-bands. For example, the 802.11b sub-bands in the 2.4 GHz band are 22 MHz 
+wide and spaced 5 MHz apart, beginning with 2.412 GHz. Given that the 2.4 GHz 
+and 5 GHz bands are not specifically reservered for WiFi makes it more 
+susceptible to noise as other devices such as microwave ovens and bluetooth 
+enabled electronics can interfere with the WiFi network. Furthermore, a typical 
+WiFi deployment would consist of several stations usually connected to the 
+network via an access point (AP). The greater the number of stations connected 
+to an AP on a sub-band, the higher the probability that the stations would 
+interfere with each other as they contend for the access to the medium in order 
+to transmit data. Interference as a results of other stations on the network is 
+undesirable as it leads to lower network utilization and hence lower throughput.
 
-\subsection{Interference}
 In order to overcome interference with other stations transmitting on the same
-channel, or a nearby channel, 802.11 implements Carrier Sense and random
+sub-band, or a nearby sub-band, 802.11 implements carrier sense and random
 back-off. Before transmitting, a station will sense the medium to determine if
 another station is currently transmitting a data frame. If the medium is busy,
 the station will defer for a random period of time and retry. This behaviour is
 also used when multiple stations begin transmitting at the same time, and
-collide. The 802.11MAC layer implements packet acknowledgements separately from
+collide. The random back-off selected by each station reduces the probability 
+of the stations interfering with each others transmission on the next retry and 
+this by extension ensures fairness.
+The 802.11MAC layer implements packet acknowledgements separately from
 TCP, which are sent after each data frame is successfully received. A station
 will generally retry transmitting a fixed number of times without receiving
 acknowledgment before dropping a packet.
@@ -24,12 +35,15 @@ single network path in each direction. TCP is a packet-based protocol, and uses
 positive acknowledgement of packets to signal successful delivery.
 
 Routers and other devices in a network must assign some buffer space for
-incoming packets. There is a risk that the available buffer at the bottleneck
-may be filled if data is sent at a faster rate than the device is able to
-forward or process it. This can result in packets being dropped, and potentially
-congestion collapse of the network. This is one of the main problems which TCP
-must overcome, and the protocol implements flow control and congestion control
-mechanisms to share bottlenecks fairly and avoid overload.
+incoming packets in order to process them before forwrding. Due to heavy load or 
+low outgoing link rate, these buffers can become large; resulting in a queue 
+hence these routers become a bottleneck along the path. There is a risk that the 
+available buffer at the bottlenck may be filled if data is sent at a faster rate 
+than the device is able to forward or process it. This can result in packets 
+being dropped, and potentially congestion collapse of the network. This is one 
+of the main problems which TCP must overcome, and the protocol implements flow
+control and congestion control mechanisms to share bottlenecks fairly and avoid 
+overload.
 
 Flow control is used to avoid sending data at a faster rate than the receiving
 host is able to process it. This is implemented using a sliding window
@@ -53,14 +67,14 @@ an appropriate send rate.
 TCP New Reno flows begin in a slow start phase. An initial small congestion
 window is chosen, and this is increased by one maximum segment size (MSS) for
 each packet acknowledgment received. This has the effect of increasing the
-congestion window size exponentially per round-trip time. The slow start phase
-ends when a packet acknowledgement is not received, presumably due to congestion
-along the network path.
+congestion window size exponentially until a congestion event occurs; this can 
+either be a time out or three duplicate ACKs. 
 
-After the initial slow start, the congestion window is halved and TCP New Reno
-enters an additive-increase phase. The congestion window is increased by one MSS
-per round-trip time, which allows it to expand into any additional capacity
-which becomes available as other flows complete.
+The congestion event halves the congestion window and at this point TCP New Reno 
+exits the slow start phase and enters an additive-increase phase; where the 
+congestion window is increased by one MSS per round-trip time, which allows it 
+to expand into any additional capacity which becomes available as other flows 
+complete.
 
 TCP New Reno implements two mechanisms for backing off when congestion is
 detected. After a missed packet acknowledgement, the algorithm returns the
@@ -123,3 +137,12 @@ links, the aggregate throughput of an MPTCP flow will be the capacity of both
 links combined.
 
 \subsection{Motivation}
+Knowing that multiple clients connected on the same or nearby WiFi sub-bands 
+can interfere with each other and that multipath TCP can make use of multiple 
+interfaces connected to different WiFi networks which can typically be in the 
+same or nearby sub-bands; it is pertinent to investigate the effect of the 
+underlying network on multipath TCP and vice versa. To do this we shall rely on 
+some experiments which shall be explained in greater detail in the following 
+section.
+
+
