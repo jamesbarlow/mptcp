@@ -50,11 +50,10 @@ set style line 1 lt 1 lc rgb \"red\"
 set style line 2 lt 2 lc rgb \"royalblue\"
 set style line 3 lt 3 lc rgb \"forest-green\"
 set style line 4 lt 4 lc rgb \"dark-magenta\"
-set style line 5 lt 5 lc rgb \"gray\"
-set style line 6 lt 6 lc rgb \"black\"
+set style line 5 lt 5 lc rgb \"black\"
+set style line 6 lt 6 lc rgb \"gray\"
 
 plot "
-o="1"
 
 args=()
 lastparpar=""
@@ -99,6 +98,7 @@ if [[ ${#args[@]} -eq 0 ]]; then
   exit 1
 fi
 
+o=1
 out=()
 uniqs=()
 tofile=""
@@ -148,8 +148,8 @@ for f in "${args[@]}"; do
 
   out+=("$file")
   uniqs+=("$uniq")
-  ((o++))
   tofile=""
+  ((o=o+1))
 done
 
 mapfile -t < <(printf "%s\0" "${out[@]}" | sort -z | xargs -0n1)
