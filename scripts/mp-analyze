@@ -249,8 +249,11 @@ while (<$stats>) {
       } else {
         $ifaces{$if}->{'data'} .= "0 ";
       }
-      /cwnd:([\d\.]+)/;
-      $ifaces{$if}->{'data'} .= sprintf "%d ", $1;
+      if (/cwnd:([\d\.]+)/) {
+        $ifaces{$if}->{'data'} .= sprintf "%d ", $1;
+      } else {
+        $ifaces{$if}->{'data'} .= "0 ";
+      }
       $ran5{$if} = 1;
     } elsif (defined $if and /rtt:/) {
       printf "\nFound multiple rtt readings at line $.\n";
