@@ -37,4 +37,4 @@ graphs/%.tex graphs/%.eps: graphs/%.plot
 
 clean:
 	rm -f report.{aux,log,out,pdf}
-	rm -f graphs/*.{tex,pdf}
+	rm -f graphs/*.{tex,pdf,tmp}
