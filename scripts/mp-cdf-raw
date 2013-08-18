@@ -117,7 +117,9 @@ for f in "${args[@]}"; do
   if [[ -z "$tofile" ]]; then
     uniq=""
     if ((parshared)); then
-      if [[ -e "$dir/iwconfig.log" ]]; then
+      if [[ $datname == "totals" ]]; then
+        uniq="mptcp-total"
+      elif [[ -e "$dir/iwconfig.log" ]]; then
         uniq="$(if2ap "$dir" "$datname")"
       fi
 
@@ -125,7 +127,9 @@ for f in "${args[@]}"; do
         uniq="$datname"
       fi
     elif ((parparshared)); then
-      if [[ -e "$dir/iwconfig.log" ]]; then
+      if [[ $datname == "totals" ]]; then
+        uniq="$dirname-mptcp-total"
+      elif [[ -e "$dir/iwconfig.log" ]]; then
         uniq="$(if2ap "$dir" "$datname")"
         uniq="$dirname-$uniq"
       else
@@ -157,9 +161,14 @@ for f in "${MAPFILE[@]}"; do
     ((origi++))
   done
 
-  s="$s \\
-  '$f' using (8*\$1/1048576):(\$2*100) title '${uniqs[$origi]}' with lines ls ($o),"
-  ((o++))
+  if [[ $f =~ mptcp-total ]]; then
+    s="$s \\
+    '$f' using (8*\$1/1048576):(\$2*100) title '${uniqs[$origi]}' with lines ls 6,"
+  else
+    s="$s \\
+    '$f' using (8*\$1/1048576):(\$2*100) title '${uniqs[$origi]}' with lines ls ($o),"
+    ((o++))
+  fi
 done
 
 ((display)) || exit 0

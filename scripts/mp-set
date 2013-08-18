@@ -14,10 +14,12 @@ fi
 cmdb="$(basename "$cmd")"
 
 if [[ $1 == "-h" ]]; then
-  echo "Usage: $(basename "$0") [--single] [--parallel] [--mptcp] [--one] [AP...]"
+  echo "Usage: $(basename "$0") [--single] [--parallel] [--mptcp] [--total] [--one] [AP...]"
   echo -n "The --single, --parallel and --mptcp flags will make the resulting"
   echo -n " plot contain only lines corresponding to the passed options. If"
   echo    " none of the flags are passed, all are enabled"
+  echo -n "The --total flag will include a CDF of the totals for the mptcp test"
+  echo    " if the current set is a simultaneous test"
   echo -n "The --one flag will force $(basename "$0") to display all results in"
   echo    " a single graph, even if it would normally have showed one per ap"
   exit 0
@@ -26,6 +28,7 @@ fi
 single=0
 parallel=0
 mptcp=0
+total=0
 one=0
 
 while [[ $1 =~ ^-- ]]; do
@@ -40,13 +43,8 @@ if ((single + parallel + mptcp == 0)); then
   mptcp=1
 fi
 
-if [[ $isseq -eq 0 ]]; then
-  for d in ./*-$updown; do
-    "$base"/mp-analyze "$d"
-  done
-
-  "$cmd" ./*-$updown/w*.dat
-  exit
+if ((total + isseq == 2)); then
+  total=0
 fi
 
 if [[ $# -eq 0 ]]; then
@@ -57,6 +55,32 @@ else
 fi
 
 cargs=()
+if [[ $isseq -eq 0 ]]; then
+  for ap in "${args[@]}"; do
+  for dir in ./*-$updown; do
+    if [[ $dir =~ mptcp && $total -eq 1 ]]; then
+      cargs+=("$dir/totals.dat")
+      total=0
+    fi
+
+    # Skip unwanted tests
+    [[ $single -eq 0 && $dir =~ single ]] && continue
+    [[ $mptcp -eq 0 && $dir =~ mptcp ]] && continue
+    [[ $parallel -eq 0 && $dir =~ parallel ]] && continue
+
+    "$base"/mp-analyze "$dir"
+    ifs="$(ap2if "$dir" "$ap")"
+    ifs=($ifs)
+    for i in "${ifs[@]}"; do
+      cargs+=("$dir/$i.dat")
+    done
+  done
+  done
+
+  "$cmd" "${cargs[@]}"
+  exit
+fi
+
 for ap in "${args[@]}"; do
   suffix="$(suffix "." "$updown" "$ap")"
   if [[ -z "$suffix" ]]; then
@@ -69,16 +93,8 @@ for ap in "${args[@]}"; do
     [[ $mptcp -eq 0 && $dir =~ mptcp ]] && continue
     [[ $parallel -eq 0 && $dir =~ parallel ]] && continue
 
-    if [[ $cmdb == "mp-cdf-raw" ]]; then
-      ifs="$(ap2if "$dir" "$ap")"
-      ifs=($ifs)
-      for i in "${ifs[@]}"; do
-        cargs+=("$dir/$i.dat")
-      done
-    else
-      cargs+=("$dir")
-      cargs+=("$ap")
-    fi
+    cargs+=("$dir")
+    cargs+=("$ap")
   done
 
   if [[ $one -eq 0 ]]; then
