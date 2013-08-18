@@ -14,7 +14,7 @@ set style line 5 lt 5 lc rgb "gray"
 set style line 6 lt 6 lc rgb "black"
 
 plot  \
-  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/mptcp@2.4-up/cdf-mptcp@2.4-up-fry-3.dat' using (8*$1/1048576):($2*100) title 'MPTCP 2.4 GHz' with lines ls (1), \
-  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/mptcp@5-up/cdf-mptcp@5-up-bender-1.dat' using (8*$1/1048576):($2*100) title 'MPTCP 5 GHz' with lines ls (2), \
-  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/parallel-2.4-up/cdf-parallel-2.4-up-fry-4.dat' using (8*$1/1048576):($2*100) title 'Parallel 2.4 GHz' with lines ls (3), \
-  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/parallel-5-up/cdf-parallel-5-up-bender-2.dat' using (8*$1/1048576):($2*100) title 'Parallel 5 GHz' with lines ls (4)
+  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/mptcp@2.4-up/cdf-fry-1.dat' using (8*$1/1048576):($2*100) title 'MPTCP 2.4 GHz' with lines ls (1), \
+  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/mptcp@5-up/cdf-bender-2.dat' using (8*$1/1048576):($2*100) title 'MPTCP 5 GHz' with lines ls (2), \
+  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/parallel-2.4-up/cdf-fry-3.dat' using (8*$1/1048576):($2*100) title 'Parallel 2.4 GHz' with lines ls (3), \
+  '~/Dropbox/MPTCP/data/2013-08-05/5-reno/parallel-5-up/cdf-bender-4.dat' using (8*$1/1048576):($2*100) title 'Parallel 5 GHz' with lines ls (4)

@@ -14,7 +14,7 @@ set style line 5 lt 5 lc rgb "gray"
 set style line 6 lt 6 lc rgb "black"
 
 plot  \
-  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/parallel-5-up/cdf-1-parallel-5-up-bender.dat' using (8*$1/1048576):($2*100) title '5 GHz parallel' with lines ls (1), \
-  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/parallel-2.4-up/cdf-3-parallel-2.4-up-zoidberg.dat' using (8*$1/1048576):($2*100) title '2.4 GHz parallel' with lines ls (3), \
-  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/single-5-up/cdf-2-single-5-up-bender.dat' using (8*$1/1048576):($2*100) title '5 GHz single' with lines ls (2), \
-  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/single-2.4-up/cdf-4-single-2.4-up-zoidberg.dat' using (8*$1/1048576):($2*100) title '2.4 GHz single' with lines ls (4)
+  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/parallel-5-up/cdf-bender-1.dat' using (8*$1/1048576):($2*100) title '5 GHz parallel' with lines ls (1), \
+  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/parallel-2.4-up/cdf-zoidberg-2.dat' using (8*$1/1048576):($2*100) title '2.4 GHz parallel' with lines ls (3), \
+  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/single-5-up/cdf-bender-3.dat' using (8*$1/1048576):($2*100) title '5 GHz single' with lines ls (2), \
+  '~/Dropbox/MPTCP/data/2013-07-22/5-coupled-1/single-2.4-up/cdf-zoidberg-4.dat' using (8*$1/1048576):($2*100) title '2.4 GHz single' with lines ls (4)
