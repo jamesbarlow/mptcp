@@ -11,7 +11,7 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	pdflatex -halt-on-error report.tex > /dev/null
 
 show: report.pdf
-	xdg-open report.pdf
+	xdg-open report.pdf &
 
 graphs/%.pdf: graphs/%.eps
 	@echo "Generating $@ from EPS"
