@@ -4,8 +4,10 @@ REAL_GRAPHS := $(GRAPHS:.plot=.tex) $(GRAPHS:.plot=.pdf)
 .PHONY : clean show
 
 report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
+	@echo "Parsing .tex file - first pass"
 	@pdflatex -halt-on-error report.tex
 	@# Run twice to resolve references
+	@echo "Parsing .tex file again to resolve references"
 	pdflatex -halt-on-error report.tex > /dev/null
 
 show: report.pdf
@@ -23,9 +25,9 @@ graphs/%.tex graphs/%.eps: graphs/%.plot
 	@sed -i '/^plot/i \
 	set terminal epslatex \
 	set output "graphs/$*.tex"' "$<.tmp"
-	@sed -i '/^set style/d' "$<.tmp"
 	@sed -i '/^set title/d' "$<.tmp"
-	@sed -i 's/ ls [^,]*//' "$<.tmp"
+	# Make all lines solid
+	@sed -i 's/ lt [^ ]*/ lt 1/' "$<.tmp"
 	@gnuplot "$<.tmp"
 	@rm "$<.tmp"
 	
