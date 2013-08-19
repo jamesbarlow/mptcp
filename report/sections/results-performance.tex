@@ -1,0 +1,39 @@
+Section~\ref{sec:results-interference} showed us that there is a performance
+boost to be had when using multitple wireless networks if the two networks are
+somewhat separated in the frequency domain. From section~\ref{sec:results-mptcp}
+we know that Multipath TCP has the potential to fully saturate both of these
+links if given the chance. Our uplink experiments in
+section~\ref{sec:results-fairness} suggest that Coupled will, if it thinks it is
+not inveniencing any other flow, gladly fill its entire MAC layer share of the
+network capacity. This section will attempt to determine whether Coupled will
+eventually fill both its wireless links if there are no other clients on the
+network at the same time.
+
+For the uplink case, we already know that Coupled will eventually use the
+capacity of the link. Because of the lack of congestion feedback discussed in
+section~\ref{sec:results-fairness}, the congestion window will grow large,
+meaning there will always be packets waiting in the send queue, and thus the
+only limiting factor is MAC layer fairness. If no other clients are competing
+for access, the MAC will give 100\% capacity to the Coupled flow, and thus it
+will saturate the link. Until this lack of feedback is somehow resolved,
+therefore, the results from experiments with Coupled on the uplink are
+uninteresting.
+
+When Coupled is running for a downlink connection, however, congestion feedback
+\textbf{is} given, and so its behaviour when there are no competing flows is
+not obvious. To answer this, we performed a series of experiments where a
+parallel test was run and then immediately followed by a test where one host was
+connected to both hosts and running Coupled. Due to the timing difference
+between the parallel and Coupled tests, getting the exact same throughput is
+unlikely, but we would be surprised to see a consistent difference in throughput
+between parallel and Coupled at this point.
+
+% TODO: Maybe use merged results here? Have to be careful to only include
+% non-simulateneous results
+% TODO: Rewrite this if results show something different
+The graphs in figure FIG show the downlink results for the aforementioned
+experiments, and we can see that Coupled is undoubtedly following the
+performance profile of the independent interfaces. This implies that Coupled is
+in fact allowing Multipath TCP to eventually get a total throughput equal to the
+sum of what TCP New Reno would get on each flow individually when there are no
+competing flows.
