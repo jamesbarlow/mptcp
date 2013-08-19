@@ -1,16 +1,38 @@
+\subsection{Introduction}
+To address the question this project posed or in other words, how interference 
+might affect multiple WiFi interfaces on the same device, in particular 
+Multipath TCP, a methodology plan was created. This plan describes how the 
+"interference problem with Multipath TCP" was approached. 
+It was clear from the start that the focus and base of this project would be to 
+run various experiments in different scenarios and environments and from the 
+results of these experiments be able to analyse the behaviour of Multipath TCP 
+and draw conclusions as to why it behaved the way it did as well as answer the 
+many questions encountered along the way. 
+This section of the report describes this plan and is devided into 4 
+sub-sections which will describe: the equipment and software used, the 
+experiment setups such as type of experiments and layout, the metrics used in 
+the graphs and a detailed description of the various scripts needed to run the 
+experiments and plot the 
+graphs.
+
 \subsection{Equipment and software}
-The tools used to create the test environment includes four 2.4GHz Wifi USB
-dongles, a 5GHz Wifi USB dongle, three wireless basestations; two operating on
-the 2.4GHz channel and one dual-band on 2.4GHz and  5GHz channel, two server
-machines and two laptop PCs. At the time of this experiment, both the servers
-and personal computers were running the most current version of the Linux MPTCP
-enabled kernel gotten from \href{http://multipath-tcp.org/}{multipath-tcp.org}
+Different types of tools were used to create the test environment, including:
+four 2.4GHz Wifi USB dongles, a 5GHz Wifi USB dongle, three wireless 
+basestations; two operating on the 2.4GHz channel and one on the 5GHz channel, 
+two server machines and two laptop PCs. The software used included: NetPerf used 
+to measure performance between the different networks and qDisc/Netem which were 
+used to provide network emulation for some of the experiments by purposely 
+adding latency and delay to the network.
+At the time of these experiments, both the servers and personal computers were 
+running the most current version of Linux, the 0.87 with the 3.10 MPTCP enabled 
+kernel version, gotten from \href{http://multipath-tcp.org/}{multipath-tcp.org}
+ 
 
 \subsection{Experiment setups}
 \subsubsection{Sequential TCP tests}
-For most tested configurations, be it non-interfering 2.4 Ghz and 5 Ghz networks
-or interfering 2.4 Ghz networks on the same channel, one of two tests setups
-were used. The first setup was running the five tests outlined below
+For most tested configurations, be it cross-channel 2.4 Ghz and 5 Ghz networks
+or same-channel 2.4 Ghz networks, one of two tests setups were used. The first 
+setup was running the five tests outlined below
 sequentially:
 
 \begin{enumerate}
@@ -31,22 +53,30 @@ split it into two tests early on in order to be able to more directly compare
 the utilization and performance of a network using MPTCP to its single and
 parallel counterparts. Most of the comparisons done in this paper show
 comparisons between test \#1, \#3 and \#4 or \#2, \#3 and \#5.
+In this setup there was also a variance in the layout of the tests. For the most
+part of the tests the PCs would be placed right next to each other on the same 
+table and about a meter away from the APs which were also placed on the same 
+table with about a 30cm gap between them. Some other layouts included the APs 
+being far apart from one another (about two - three meters) and from the PCs 
+(around 1 - 2 meters) which would ocasionally be placed next to each other or 
+far apart like the APs. These differences in the layout proved quite interesting
+as they resulted in very different data; to be more specific we observed some 
+cases in which the throughput would improve when the APs were far apart and the 
+interference in cross-channel networks would decrease, as well as others which 
+will be described later in the report (will they though?? or should we describe 
+them here?).   
 
 \subsubsection{Simultaneous TCP tests}
 The other common test setup was using three machines at the same time so that
 one machine was connected to network \#1, one machine to network \#2, and one
-machine to both networks. All machines were running the MPTCP kernel. This setup
-allowed us to more directly compare the performance of MPTCP to that of a two
-simultaneous non-MPTCP clients. It also let us evaluate the fairness of MPTCP
-when other clients are also using the network.
+machine to both networks (Multipath TCP). All machines were running the MPTCP 
+kernel. This setup allowed us to more directly compare the performance of MPTCP 
+to that of a two simultaneous non-MPTCP clients. It also let us evaluate the 
+fairness of MPTCP when other clients are also using the network.
 
 \subsubsection{UDP interrupt tests}
-For the interrupt tests, each wireless interface is connected to a separate
-basestation just like in the other setups, the only difference here is that one
-of the interfaces alternates between being in idle and active mode while the
-other interface is always active. The alternating interface is idle or active
-for fixed time slots in the duration of the experiment.
-
+UDP interrupt tests consist in alternating the medium access between two 
+interfaces to see if there is any interference between them.
 The idea behind alternating the active periods for one of the interfaces is
 simple; ideally if there is no interference between these interfaces then there
 would not be a loss in throughput for the always-active interface when the
@@ -54,10 +84,15 @@ alternating interface is active. Given the nature of wireless signals this is a
 rather utopic idea, hence a more desirable result would be one that shows
 minimal drop in throughput. Minimal in this scenario means that each interface
 should achieve at least 90\% of its throughput in a single interface setup.
-However, the graph of figure FIG shows that ther is some considerable drop in  % TODO: insert correct figure reference
-throughput when the alternating interface is switched-on thereby indicating the
-presence on non-minimal cross-interface interference between the wireless
-interfaces.
+
+For the interrupt tests, each wireless interface was connected to a separate
+basestation just like in the other setups, the only difference here is that one
+of the interfaces alternates between being in idle and active mode while the
+other interface is always active. The alternating interface is idle or active
+for fixed time slots in the duration of the experiment.
+However, the graph of figure FIG shows that there is some considerable drop in  % TODO: insert correct figure reference
+throughput when the alternating interface is switched-on, thereby indicating the
+presence of non-minimal cross-interface interference.
 
 \subsection{Metrics}
 Note that many of the graphs shown in this section are drawn using our
@@ -65,7 +100,9 @@ Note that many of the graphs shown in this section are drawn using our
 $[0,100]$. A couple of points about this scaling that are worth pointing out:
 throughput is measured in Mbps; utilization is a measure of what percentage of
 total throughput is sent through each interface and is displayed so that 80 is
-0\% and 100 is 100\%.
+0\% and 100 is 100\%. The other graphs were drawn mostly using the 
+\texttt{mp-cdf} script which is described in more detail in the Scripts 
+sub-section. (Should we add more than this?)
 
 \subsection{Scripts}
 In order to automate several oft-performed tasks such as running tests and
@@ -74,10 +111,10 @@ of this paper. The most interesting ones are outlined below.
 
 Note that many of these scripts perform magic based on what wireless networks
 the host machine is connected to. For this paper, two servers were used: fry and
-zoidberg. Four wireless networks were set up, named bender-wifi, fry-wifi,
-leela-wifi and zoidberg-wifi. Every test involved at least one of fry-wifi and
-zoidberg-wifi, and the scripts below use the presence of a connection to one of
-them as an indicator of which server will be used for tests.
+zoidberg. Three wireless networks were set up, named bender-wifi, fry-wifi and 
+zoidberg-wifi. Every test involved at least one of fry-wifi and zoidberg-wifi, 
+and the scripts below use the presence of a connection to one of them as an 
+indicator of which server will be used for tests.
 
 \begin{description}
   \item[mp-start and mp-congestion]
@@ -94,10 +131,10 @@ them as an indicator of which server will be used for tests.
   \item[mp-run]
     The primary testing script for MPTCP experiments. First, logs information
     about test location, connected networks, nearby wireless networks, tcp
-    configuration parameters, kernel version, etc. Then it starts various
-    logging daemons such as mp-stats and tcpdump to record state information
-    during the experiments. It then runs netperf for a configurable period of
-    time before it stops all logging daemons and compresses any large logs.
+    configuration parameters and kernel version to name a few. Then it starts 
+    various logging daemons such as mp-stats to record state information during 
+    the experiments. It then runs netperf for a configurable period of time 
+    before it stops all logging daemons and compresses any large logs.
 
     Also supports doing downlink tests by spawning a local netperf server and
     running the netperf client on one of the server machines.
@@ -109,9 +146,9 @@ them as an indicator of which server will be used for tests.
   \item[mp-int]
     Works much the same as mp-run, but instead of running TCP sessions with
     netperf on all connected interfaces, it runs a UDP\_STREAM test continuously
-    on one interface and periodically on the other connected interace. This test
-    is performed mainly to test the amount of interference between interfaces
-    without the overhead of tcp.
+    on one interface and periodically on the other connected interface. This 
+    test is performed mainly to test the amount of interference between 
+    interfaces without the overhead of tcp. Used in the UDP interrupt tests (?).
   \item[mp-analyze]
     Given a test directory created by mp-run or mp-int, mp-analyze will extract
     information from various log files and output a simple space-separated file
