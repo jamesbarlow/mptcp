@@ -35,15 +35,15 @@ single network path in each direction. TCP is a packet-based protocol, and uses
 positive acknowledgement of packets to signal successful delivery.
 
 Routers and other devices in a network must assign some buffer space for
-incoming packets in order to process them before forwrding. Due to heavy load or 
-low outgoing link rate, these buffers can become large; resulting in a queue 
-hence these routers become a bottleneck along the path. There is a risk that the 
-available buffer at the bottlenck may be filled if data is sent at a faster rate 
-than the device is able to forward or process it. This can result in packets 
-being dropped, and potentially congestion collapse of the network. This is one 
-of the main problems which TCP must overcome, and the protocol implements flow
-control and congestion control mechanisms to share bottlenecks fairly and avoid 
-overload.
+incoming packets in order to process them before forwarding along the path.
+Due to heavy load or low outgoing link rate, these buffers can become large;
+resulting in a queue hence these routers become a bottleneck along the path.
+There is a risk that the available buffer at the bottlenck may be filled if
+data is sent at a faster rate than the device is able to forward or process it.
+This can result in packets being dropped, and potentially congestion collapse
+of the network. This is one of the main problems which TCP must overcome, and
+the protocol implements flow control and congestion control mechanisms to share
+bottlenecks fairly and avoid overload.
 
 Flow control is used to avoid sending data at a faster rate than the receiving
 host is able to process it. This is implemented using a sliding window
@@ -138,10 +138,10 @@ links combined.
 
 \subsection{Motivation}
 Knowing that multiple clients connected on the same or nearby WiFi sub-bands 
-can interfere with each other and that multipath TCP can make use of multiple 
+can interfere with each other and that Multipath TCP can make use of multiple 
 interfaces connected to different WiFi networks which can typically be in the 
 same or nearby sub-bands; it is pertinent to investigate the effect of the 
-underlying network on multipath TCP and vice versa. To do this we shall rely on 
+underlying network on Multipath TCP and vice versa. To do this we shall rely on 
 some experiments which shall be explained in greater detail in the following 
 section.
 
