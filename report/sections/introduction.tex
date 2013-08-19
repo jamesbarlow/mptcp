@@ -1,21 +1,7 @@
-With the extension of Multipath TCP to regular TCP it is possible to have
-multiple simultaneous connections on one device. On modern mobile devices that
-usually have more than one network interface(wifi, 3G) this can gaurantee extra
-reliablity making the connections more robust to loss. With the promise of
-greater throughput and reliability, it is immediately easy to see usage
-scenarios that involve  multiple wifi cards on a laptop in order to benifit from
-MPTCP.
+Multipath TCP is a recent extension to TCP which allows a single connection to make use of multiple subflows, each taking a different path through the network. Modern smartphones commonly  have both WiFi and 3G connectivity, and data centres often provide multiple paths between top of rack network devices or to the wider internet. By using multiple subflows, a Multipath TCP connection provides greater reliability and throughput than a regular TCP flow.
 
-Interference is a bane of any wireless network and wifi is no exception to this.
-Multiple devices with single wifi card often interfer with each other and rely
-on 802.11 carrier-sense to ensure fair access to the wireless medium. Hence it
-is only natural that multiple wifi cards on a device would lead to some degree
-of interference.
+Interference between wireless devices is a common problem. The 802.11 WiFi standard implements a carrier-sense mechanism to ensure fair and exclusive access to the medium. It is also possible that a device with multiple wireless interfaces may cause self-interference, either by transmitting simultaneously on overlapping frequencies or due to a lack of RF shielding in the device itself.
 
-The goal of this report is to investigate the degree of interference(if any)
-between multiple wifi interfaces on the same device, how this interference
-influences throughput and fairness to other devices on the network, and how this
-influences the multipath TCP protocol. The remaining part of this report would
-present a brief background on TCP, Wifi, and Multipath TCP, the methodology of
-the experiments conducted, results and evaluation of these experiments and the
-conclusions reached.
+In general, Multipath TCP has been designed for wired networks. This raises questions about how Multipath TCP would perform in a wireless setting, where a device connected to multiple networks may suffer from self-interference. This report is an investigation into the degree of self-interference caused by Multipath TCP over WiFi networks, and the effect of this on throughput and fairness.
+
+The remaining sections present a brief background of Multipath TCP and WiFi, and then discuss the experiments conducted, results and evaluation.
