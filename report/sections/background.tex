@@ -136,6 +136,27 @@ subflow to use the full capacity available to it. For example, with two idle
 links, the aggregate throughput of an MPTCP flow will be the capacity of both
 links combined.
 
+% TODO: The following one and a half paragraphs are a draft of a "nicer"
+% explanation of Coupled congestion control; of the intuition behind it in a
+% sense
+
+Before detailing the experiments, it is important to understand \textbf{why}
+Coupled is expected to eventually fill the link. In order to do that, one must
+understand how Coupled tries to be fair in the first place. As the throughput of
+a Coupled flow approaches the throughput a New Reno flow would get on the best
+link available to the flow, Coupled gradually decreases the aggressiveness of
+each of its subflows. It does this by effectively decreasing the growth rate of
+each flow's congestion window. This means that the flow will still continue to
+try to use more and more of the link's capacity, but it will do so very slowly.
+This means that should any other flow appear, its window will grow faster than
+the Coupled flow's window, and when a congestion event occurs, % TODO HERE
+
+When a flow with
+multiple subflows detects that it is getting a throughput equivalent to that of
+a regular TCP flow on a singe link, it effectively decreases the growth rate of
+the congestion window on each of its links. This causes the subflows to
+gradually attempt to get more throughput 
+
 \subsection{Motivation}
 Knowing that multiple clients connected on the same or nearby WiFi sub-bands 
 can interfere with each other and that Multipath TCP can make use of multiple 
