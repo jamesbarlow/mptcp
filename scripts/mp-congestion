@@ -7,7 +7,7 @@ if [[ $# -eq 0 ]]; then
   aps="$(iwconfig 2>/dev/null | grep "ESSID:" | grep -E "fry-wifi|zoidberg-wifi" | sed 's/^.*ESSID:"\(.*\)-wifi".*$/\1/')"
   aps=($aps)
 else
-  aps=$@
+  aps=($@)
 fi
 
 echo -en "==> Setting local congestion control: "
