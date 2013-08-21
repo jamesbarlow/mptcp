@@ -128,7 +128,7 @@ fairly when links are shared by other TCP or Multipath TCP flows. More
 specifically, a single Multipath TCP flow should not gain more throughput than a 
 competing TCP flow simply because it has multiple subflows. However, the Coupled 
 algorithm also aims to utilise the available links fully when they would 
-otherwise be idle.
+otherwise be idle, meaning no other competing flows are sending.
 
 The Coupled algorithm maintains a separate congestion window for each subflow
 and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
@@ -156,39 +156,67 @@ congested links to increase at a slower rate than less congested links. This has
 the effect of shifting traffic  onto less congested paths, which helps to
 balance traffic in a network.
 
-If the available links are idle, meaning links that are currently not sending 
-anything, then the Coupled algorithm will allow each subflow to use the full 
-capacity available to it. For example, with two idle links the aggregate 
-throughput of an MPTCP flow will be the capacity of both links combined.
+If the available links are idle then the Coupled algorithm will allow each 
+subflow to use the full capacity available to it. For example, with two idle 
+links the aggregate throughput of an MPTCP flow will be the capacity of both 
+links combined.
 
 % TODO: The following one and a half paragraphs are a draft of a "nicer"
 % explanation of Coupled congestion control; of the intuition behind it in a
 % sense
 
-Before detailing the experiments, it is important to understand \textbf{why}
-Coupled is expected to eventually fill the link. In order to do that, one must
-understand how Coupled tries to be fair in the first place. As the throughput of
-a Coupled flow approaches the throughput a New Reno flow would get on the best
-link available to the flow, Coupled gradually decreases the aggressiveness of
-each of its subflows. It does this by effectively decreasing the growth rate of
-each flow's congestion window. This means that the flow will still continue to
-try to use more and more of the link's capacity, but it will do so very slowly.
-This means that should any other flow appear, its window will grow faster than
-the Coupled flow's window, and when a congestion event occurs, % TODO HERE
-
-When a flow with
-multiple subflows detects that it is getting a throughput equivalent to that of
-a regular TCP flow on a singe link, it effectively decreases the growth rate of
-the congestion window on each of its links. This causes the subflows to
-gradually attempt to get more throughput 
+However, it is important to understand \textbf{why} Coupled is expected to 
+eventually fill the link. In order to do that, one must understand how Coupled 
+tries to be fair in the first place. As the throughput of a Coupled flow 
+approaches the throughput a New Reno flow would get on the best link available 
+to the flow, Coupled gradually decreases the aggressiveness of each of its 
+subflows; this aggressiveness is controlled by the Alpha parameter (as 
+previously explained). It does this by effectively decreasing the growth rate of 
+each flow's congestion window. This means that the flow will still continue to 
+try to use more and more of the link's capacity, but it will do so very slowly. 
+This means that should any other flow appear, its window will grow faster than 
+the Coupled flow's window, and when a congestion event occurs, the window size 
+of both the TCP flow and Multipath TCP flow will be halved the same way. This 
+phenomenon happens because the Coupled algorithm (Linked increases) does not 
+allow perfect resource pooling, in other words, it couples the increase rate of 
+all Multipath TCP subflows but keeps a separate congestion window for the 
+decrease, this measure ensures fairness by avoiding flappiness (which would be 
+seen if the algorithm was fully coupled). With perfect resource pooling the 
+traffic would go to the best path, but if there happened to be two paths with 
+the same level of congestion the traffic would enter a continuous state of 
+flapping between the two paths, leading to the congestion controller not 
+allocating any window time to other subflows (extremely unfair). By only 
+coupling the increase of subflows, limiting the increase rate to the maximum 
+increase a TCP flow would have, more window will proportionally be given to 
+lower loss rate subflows and the decrease will only depend on the congestion 
+window of each separate subflow which again will lead to Coupled being able to 
+probe the very lossy paths and finding the best paths more efficiently. 
+Due to the Alpha parameter controlling the aggressivenes of Multipath TCP 
+subflows and the fact that their decrease behaves the same as New Reno this 
+shows that the aggregate throughput of all the subflows should only be up to the 
+best a single TCP flow would get on its best path. (maybe i'm stretching this a 
+bit now or repeating myself but hey my thought flow is not the greatest at this 
+time :D)  % TODO HERE
 
 \subsection{Motivation}
-Knowing that multiple clients connected on the same or nearby WiFi sub-bands 
-can interfere with each other and that Multipath TCP can make use of multiple 
-interfaces connected to different WiFi networks which can typically be in the 
-same or nearby sub-bands; it is pertinent to investigate the effect of the 
-underlying network on Multipath TCP and vice versa. To do this we shall rely on 
-some experiments which shall be explained in greater detail in the following 
-section.
+Multipath TCP is a very desirable alternative to single TCP.
+
+- Multipath TCP makes use of multiple interfaces which can be either 
+cross-channel or same channel and aim to provide better throughput and 
+redundancy when compared to single TCP.
+
+- Multipath TCP, regardless of having been designed for wired environments, from 
+seen experiments shows a significant gain in throughput and better redundancy.
+
+However, it is known that multiple clients connected to the same or nearby WiFi 
+channels can interfere with each other and in some cases even cross-channel 
+connections experience significant interference (can I say this here?). Also, 
+since Multipath TCP was designed for wired networks it is pertinent (or relevant
+?) to investigate the effect of the underlying network on Multipath TCP and 
+vice-versa in a wireless setting which is very prone to interference and quite 
+unpredictable as it deals with other factors such as white noise, external 
+factors, hardware issues, and so on (Too much??). 
+To approach this problem we have based our project on several experiments which 
+will be explained in greater detail in the following section of the report.
 
 
