@@ -5,10 +5,21 @@ REAL_GRAPHS := $(GRAPHS:.plot=.tex) $(GRAPHS:.plot=.pdf)
 
 report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	@echo "Parsing .tex file - first pass"
-	@pdflatex -halt-on-error report.tex
+	@-pdflatex -halt-on-error report.tex > /dev/null 2> /dev/null
 	@# Run twice to resolve references
 	@echo "Parsing .tex file again to resolve references"
-	pdflatex -halt-on-error report.tex > /dev/null
+	@pdflatex -halt-on-error report.tex \
+		| sed -n '/^ (\.\/report\.out)/,$$p' \
+		| grep -v "./report.out" \
+		| grep -v "\`h' float specifier changed to" \
+		| grep -v "sections/" \
+		| grep -v "graphs/" \
+		| grep -v '^\[[0-9]' \
+		| grep -v "^ )$$" \
+		| awk '/see the transcript/{i++} /Output/{i--} (i-1)' \
+		| grep -v "/usr/share/texmf-dist" \
+		| grep -v "Transcript" \
+		| grep -v '^$$'
 
 show: report.pdf
 	xdg-open report.pdf &
