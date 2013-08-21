@@ -87,16 +87,9 @@ than one would reasonably expect.
 
 \begin{figure}[h]
  \centering
- \subfloat[][Uplink] {\
-   \scalebox{0.55}{\input{graphs/interference-5-2.4-up.tex}}\label{graph:cb-interference-up}
- }
- \subfloat[][Downlink] {\
-   \scalebox{0.55}{\input{graphs/interference-5-2.4-down.tex}}\label{graph:cb-interference-down}
- }
- \caption{Cross-band interference}\label{graph:cb-interference}
+ \input{graphs/interference-5-2.4-up.tex}
+ \caption{Cross-band interference uplink}\label{graph:cb-interference-up}
 \end{figure}
-
-% These need to be larger ;-)
 
 As expected, the experiments we performed with one network operating on the 2.4
 GHz band and one network on the 5 GHz band showed little interference between
@@ -109,6 +102,12 @@ independently. The throughput of the 2.4 GHz parallel test is marginally lower
 than in the single test; we attribute this simply to the tests not being run at
 the same time. Other tests using the same setup show the 2.4 GHz parallel
 throughput to be higher than that of the single.
+
+\begin{figure}[h]
+ \centering
+ \input{graphs/interference-5-2.4-down.tex}
+ \caption{Cross-band interference downlink}\label{graph:cb-interference-down}
+\end{figure}
 
 % A test at the same time would be nice?
 
