@@ -2,20 +2,21 @@
 The 802.11 standards are a set of physical layer and MAC specifications for
 implementing WiFi networks.  802.11 networks commonly operate on frequencies in
 the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
-sub-bands. For example, the 802.11b sub-bands in the 2.4 GHz band are 22 MHz 
-wide and spaced 5 MHz apart, beginning with 2.412 GHz. Given that the 2.4 GHz 
-and 5 GHz bands are not specifically reservered for WiFi makes it more 
-susceptible to noise as other devices such as microwave ovens and bluetooth 
-enabled electronics can interfere with the WiFi network. Furthermore, a typical 
-WiFi deployment would consist of several stations usually connected to the 
-network via an access point (AP). The greater the number of stations connected 
-to an AP on a sub-band, the higher the probability that the stations would 
-interfere with each other as they contend for the access to the medium in order 
-to transmit data. Interference as a results of other stations on the network is 
-undesirable as it leads to lower network utilization and hence lower throughput.
+sub-bands or more commonly known as channels. For example, the 802.11b channels 
+in the 2.4 GHz band are 22 MHz wide and spaced 5 MHz apart, beginning with 2.412 
+GHz. Given that the 2.4 GHz and 5 GHz bands are not specifically reserved for 
+WiFi makes it more susceptible to noise as other devices such as microwave ovens 
+and bluetooth enabled electronics can interfere with the WiFi network. 
+Furthermore, a typical WiFi deployment would consist of several stations usually 
+connected to the network via an access point (AP). The greater the number of 
+stations connected to an AP on a channel, the higher the probability that the 
+stations would interfere with each other as they contend for the access to the 
+medium in order to transmit data. Interference as a results of other stations on 
+the network is undesirable as it leads to lower network utilization and hence 
+lower throughput.
 
 In order to overcome interference with other stations transmitting on the same
-sub-band, or a nearby sub-band, 802.11 implements carrier sense and random
+channel, or a nearby channel, 802.11 implements carrier sense and random 
 back-off. Before transmitting, a station will sense the medium to determine if
 another station is currently transmitting a data frame. If the medium is busy,
 the station will defer for a random period of time and retry. This behaviour is
@@ -23,32 +24,53 @@ also used when multiple stations begin transmitting at the same time, and
 collide. The random back-off selected by each station reduces the probability 
 of the stations interfering with each others transmission on the next retry and 
 this by extension ensures fairness.
-The 802.11MAC layer implements packet acknowledgements separately from
-TCP, which are sent after each data frame is successfully received. A station
-will generally retry transmitting a fixed number of times without receiving
-acknowledgment before dropping a packet.
+The 802.11 MAC layer implements packet acknowledgements separately from
+TCP. Acknowledgment packets are sent after each data frame is successfully 
+received. A station will generally retry transmitting a fixed number of times 
+without receiving acknowledgment before dropping a packet.
 
 \subsection{TCP}
-The Transmission Control Protocol (TCP) is one of the core internet protocols
-and provides reliable, in-order delivery of data between two systems using a
-single network path in each direction. TCP is a packet-based protocol, and uses
-positive acknowledgement of packets to signal successful delivery.
+The Transmission Control Protocol (TCP) is one of the core internet protocols. 
+It provides reliable, in-order delivery of data (a stream of bytes) between two 
+systems, it also offers a full-duplex service meaning that it allows a pair of 
+byte streams to flow, one in each direction, per TCP connection. TCP is a 
+packet-based protocol, and uses positive acknowledgement of packets to signal 
+successful delivery. TCP has many other features such as, supporting 
+demultiplexing, which allows various application processes on any given host to 
+share the underlying network, and flow and congestion control which will be 
+explained in more detail later in this section.
 
-Routers and other devices in a network must assign some buffer space for
-incoming packets in order to process them before forwarding along the path.
-Due to heavy load or low outgoing link rate, these buffers can become large;
-resulting in a queue hence these routers become a bottleneck along the path.
-There is a risk that the available buffer at the bottlenck may be filled if
-data is sent at a faster rate than the device is able to forward or process it.
-This can result in packets being dropped, and potentially congestion collapse
-of the network. This is one of the main problems which TCP must overcome, and
-the protocol implements flow control and congestion control mechanisms to share
-bottlenecks fairly and avoid overload.
+TCP supports connections between any two systems in the Internet, it is an 
+end-to-end protocol, but in order to do this it requires an explicit connection 
+establishment phase. This phase is called the "three-way handshake" and is where 
+the communicating parties agree to exchange data. It also has a connection 
+teardown phase (both parties can free their allocated resources). When the 
+connection is set up TCP buffers enough bytes from the sending process to create 
+a packet and sends it to the receiver. The packet has many fields to make sure it
+reaches the correct destination such as, sequence number which contains the 
+first byte of data carried in the packet, source/destination address, checksum 
+to ensure correctness and many others. All these fields play a very important 
+role in routing the packet correctly to its destination. 
+  
+As previously mentioned TCP is a packet-based protocol, so after establishing
+the connection between two communicating parties and creating the packets which 
+will be sent it will use flow and congestion control mechanisms to manage how 
+packets are exchanged throughout the network. Upon receiving packets, routers 
+and other devices in a network must assign some buffer space for these incoming 
+packets, in order to process them before forwarding along the path. Due to heavy 
+load or low outgoing link rate these buffers can become quite large resulting in 
+a queue; hence these routers become a bottleneck along the path. There is a risk 
+that the available buffer at the bottleneck may be filled if data is sent at a 
+faster rate than the device is able to forward or process it. This can result in 
+packets being dropped, and potentially the overload of the network. This is one 
+of the main problems which TCP must overcome, and the protocol implements flow 
+control and congestion control mechanisms to share bottlenecks fairly and avoid 
+overload.
 
 Flow control is used to avoid sending data at a faster rate than the receiving
-host is able to process it. This is implemented using a sliding window
+host is able to process. This is implemented using a sliding window algorithm 
 representing the amount of buffer space the receiver is able to commit to a
-flow, and is advertised by the receiver using a field in each packet
+flow, and is advertised by the receiver using a field in each packet 
 acknowledgement sent. The sender may only keep one window of data in flight at
 any given time, and so avoids overloading the receive buffer.
 
@@ -59,7 +81,7 @@ flow must also sense congestion, where the queues at the bottleneck are
 overloaded, and back off its send rate accordingly.
 
 The canonical congestion control algorithm is TCP New Reno. This algorithm
-maintains a congestion window, similar to the receivers flow control window,
+maintains a congestion window, similar to the receiver's flow control window,
 which specifies the number of packets which may be in flight concurrently. The
 sender must respect both the flow control and congestion windows in determining
 an appropriate send rate.
@@ -75,6 +97,8 @@ exits the slow start phase and enters an additive-increase phase; where the
 congestion window is increased by one MSS per round-trip time, which allows it 
 to expand into any additional capacity which becomes available as other flows 
 complete.
+
+(I feel that these 2 paragraphs are a bit confusing)
 
 TCP New Reno implements two mechanisms for backing off when congestion is
 detected. After a missed packet acknowledgement, the algorithm returns the
@@ -96,14 +120,15 @@ reliability, meaning that they have several points of access to the wider
 internet. Multipath TCP (MPTCP) is an extension to TCP currently being
 standardised by the IETF, which aims to improve redundancy and throughput by
 taking advantage of multiple paths for a single TCP flow. In order to achieve
-this, MPTCP adds additional subflows to a TCP connection such that the network
-interfaces of each host are connected in a fully-connected mesh.
+this, Multipath TCP adds additional subflows to a TCP connection such that the 
+network interfaces of each host are connected in a fully-connected mesh.
 
-MPTCP has introduced Coupled congestion control, which aims to behave fairly
-when links are shared by other TCP or MPTCP flows. More specifically, a single
-MPTCP flow should not gain more throughput than a competing TCP flow simply
-because it has multiple subflows. However, the Coupled algorithm also aims to
-utilise the available links fully when they would otherwise be idle.
+Multipath TCP has introduced Coupled congestion control, which aims to behave 
+fairly when links are shared by other TCP or Multipath TCP flows. More 
+specifically, a single Multipath TCP flow should not gain more throughput than a 
+competing TCP flow simply because it has multiple subflows. However, the Coupled 
+algorithm also aims to utilise the available links fully when they would 
+otherwise be idle.
 
 The Coupled algorithm maintains a separate congestion window for each subflow
 and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
@@ -131,10 +156,10 @@ congested links to increase at a slower rate than less congested links. This has
 the effect of shifting traffic  onto less congested paths, which helps to
 balance traffic in a network.
 
-If the available links are idle, however, the Coupled algorithm will allow each
-subflow to use the full capacity available to it. For example, with two idle
-links, the aggregate throughput of an MPTCP flow will be the capacity of both
-links combined.
+If the available links are idle, meaning links that are currently not sending 
+anything, then the Coupled algorithm will allow each subflow to use the full 
+capacity available to it. For example, with two idle links the aggregate 
+throughput of an MPTCP flow will be the capacity of both links combined.
 
 \subsection{Motivation}
 Knowing that multiple clients connected on the same or nearby WiFi sub-bands 
