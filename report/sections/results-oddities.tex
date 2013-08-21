@@ -6,58 +6,66 @@ in some of the graphs given above.
 
 \subsubsection{Congestion window and the send queue}
 Most of the time plots above show the send queue size tracing the congestion
-window size through the entire test. Since we were seeing very  little loss in many
-of our tests, and thus the congestion window was clearly growing larger than it
-should be, we initially reasoned that most of the bytes of the congestion window were likely to be in the host's send queue. In this case, we would expect the send queue to closely follow the congestion window, with a small gap between them representing the packets actually in flight.
+window size through the entire test. Since we were seeing very  little loss in
+many of our tests, and thus the congestion window was clearly growing larger
+than it should be, we initially reasoned that most of the bytes of the
+congestion window were likely to be in the host's send queue. In this case, we
+would expect the send queue to closely follow the congestion window, with a
+small gap between them representing the packets actually in flight.
 
-However, we then noticed that we were seeing the send queue following
-the congestion window also when we \textbf{were} seeing loss and the congestion
+However, we then noticed that we were seeing the send queue following the
+congestion window also when we \textbf{were} seeing loss and the congestion
 window was \textbf{not} inflated. In these cases, there should not be many
 packets in the send queue at all; they should mostly all be in flight.
 
 Our first guess was that the send queue size included the TCP socket buffer
-size, but this was quickly discarded as the TCP socket buffer should usually be close to
-full (i.e.\ a constant value) due to the netperf tool adding packets
-in tight loop. That was clearly not what was happening here.
+size, but this was quickly discarded as the TCP socket buffer should usually be
+close to full (i.e.\ a constant value) due to the netperf tool adding packets in
+tight loop. That was clearly not what was happening here.
 
 It turns out that the reason for this is surprisingly simple; the send queue
-size reported by the kernel includes \textit{unacked packets}. TCP keeps packets after sending in case they must be re-transmitted, so until they have been ACKed, they
-will continue to take up space in the queue. This explains both why we were not
-seeing a gap between the send queue size and the congestion window in the
-no-loss experiments, \textbf{and} why the send queue was seemingly following the
-congestion window when loss was occurring.
+size reported by the kernel includes \textit{unacked packets}. TCP keeps packets
+after sending in case they must be re-transmitted, so until they have been
+ACKed, they will continue to take up space in the queue. This explains both why
+we were not seeing a gap between the send queue size and the congestion window
+in the no-loss experiments, \textbf{and} why the send queue was seemingly
+following the congestion window when loss was occurring.
 
 \subsubsection{Inflated RTT}
-Many of our results show very high RTTs of around 600 ms despite the network being relatively
-fast (i.e.\ we see an RTT of $\approx 7$ ms with \texttt{ping}). In fact, the
-RTTs are so high that they are plotted as 10s of ms to fit them in
-the range $[0-100]$.
+Many of our results show very high RTTs of around 600 ms despite the network
+being relatively fast (i.e.\ we see an RTT of $\approx 7$ ms with
+\texttt{ping}). In fact, the RTTs are so high that they are plotted as 10s of ms
+to fit them in the range $[0-100]$.
 
-Thr RTT seems to increase and decrease with the
-size of the send queue. As observed in section SOMETHING, the lack of loss     % TODO: set correct section reference
-causes unbounded growth of the congestion window, but with most of the
-packets stuck in the send queue. Since TCP estimates RTT based on when the
-packet was put into the send queue, \textbf{not} when it is actually sent by the
-network interface, the RTT estimate will include the time a packet spent in the queue. Since
-the queue is growing, so will the RTT.
+% TODO: set correct section
+Thr RTT seems to increase and decrease with the size of the send queue. As
+observed in section SOMETHING, the lack of loss reference causes unbounded
+growth of the congestion window, but with most of the packets stuck in the send
+queue. Since TCP estimates RTT based on when the packet was put into the send
+queue, \textbf{not} when it is actually sent by the network interface, the RTT
+estimate will include the time a packet spent in the queue. Since the queue is
+growing, so will the RTT.
 
 \subsubsection{Logarithmic growth of congestion window}
 When looking at the growth of the congestion window, it is clear that it shows
 something resembling logarithmic growth rather than the familiar linear
-saw-tooth. To understand why this is happening, it is necessary to look closer at
-how the congestion window is increased.
+saw-tooth. To understand why this is happening, it is necessary to look closer
+at how the congestion window is increased.
 
-The Coupled congestion control used by Multipath TCP tries to increase the congestion
-window by one MSS per RTT.\@ It does this by increasing the congestion window by
-$\sfrac{1}{cwnd}$ per received ACK.\@ This works well in the assumed case where
-increasing the congestion window will cause you to send more packets, and thus
-receive more ACKs per RTT, but is not correct when the link layer masks loss.
+The Coupled congestion control used by Multipath TCP tries to increase the
+congestion window by one MSS per RTT.\@ It does this by increasing the
+congestion window by $\sfrac{1}{cwnd}$ per received ACK.\@ This works well in
+the assumed case where increasing the congestion window will cause you to send
+more packets, and thus receive more ACKs per RTT, but is not correct when the
+link layer masks loss.
 
-What happens when TCP does not see loss, as discussed in section SECTION, is   % TODO: set correction section reference
-that the congestion window usually grows larger than the network interface can handle, and so increasing it will not cause any more packets to be sent. The number of ACKs received in an RTT will therefore remain constant. The
-$\sfrac{1}{cwnd}$ term will grow smaller, and so the growth
-of the congestion window relative to the congestion window size per RTT will
-decrease, leading to the logartichmic growth we see.
+What happens when TCP does not see loss, as discussed in section SECTION, is   %
+TODO: set correction section reference that the congestion window usually grows
+larger than the network interface can handle, and so increasing it will not
+cause any more packets to be sent. The number of ACKs received in an RTT will
+therefore remain constant. The $\sfrac{1}{cwnd}$ term will grow smaller, and so
+the growth of the congestion window relative to the congestion window size per
+RTT will decrease, leading to the logartichmic growth we see.
 
 \subsubsection{Congestion window and throughput}
 In figure 2013-08-14/100+100/parallel we can observe another very strange      % TODO: insert correct figure reference here
@@ -70,16 +78,17 @@ kilobytes, whereas the throughput is plotted in Mbit/s.
 
 To determine why this was happening, we first tried to find commonalities
 between the graphs that were showing this peculiar trend. It turns out that we
-were only seeing this in tests which showed either a high RTT with constant loss rates, or a
-high amount of loss. These cases both share the feature that the congestion
-window is constrained from growing to the full bandwidth delay product of the
-path, and thus no queues are expected to build up anywhere in the network. The
-limiting factor for the throughput is the congestion window not allowing TCP to
-add more packets to the send queue, even though the link is ready to send. The
-net effect of this is that the throughput is limited by the congestion window;
-whenever the congestion window grows, the throughput increases because TCP is
-allowed to put more packets on the wire. If the congestion window is halved, TCP
-stops sending packets almost immediately, and the throughput drops.
+were only seeing this in tests which showed either a high RTT with constant loss
+rates, or a high amount of loss. These cases both share the feature that the
+congestion window is constrained from growing to the full bandwidth delay
+product of the path, and thus no queues are expected to build up anywhere in the
+network. The limiting factor for the throughput is the congestion window not
+allowing TCP to add more packets to the send queue, even though the link is
+ready to send. The net effect of this is that the throughput is limited by the
+congestion window; whenever the congestion window grows, the throughput
+increases because TCP is allowed to put more packets on the wire. If the
+congestion window is halved, TCP stops sending packets almost immediately, and
+the throughput drops.
 
 This still did not immediately explain why we see close to a 1:1 correspondence
 between the congestion window and the throughput in the 100 ms RTT test. After
@@ -105,7 +114,7 @@ $cw$ over a link with RTT $\approx 100ms$:
 
 Since the congestion window is not allowed to grow to the bandwidth delay
 product as explained above, we expect the real throughput $t(x)$ to be
-approximately limited by $t'(cw_x)$. It is clear from the above that
-$t'(cw) = 0.8 c(x)$, and so in this particular setup, we would expect to
-see the throughput follow the congestion window closely at these particular
-scales because $t(x) \approx 0.8 c(x)$.
+approximately limited by $t'(cw_x)$. It is clear from the above that $t'(cw) =
+0.8 c(x)$, and so in this particular setup, we would expect to see the
+throughput follow the congestion window closely at these particular scales
+because $t(x) \approx 0.8 c(x)$.
