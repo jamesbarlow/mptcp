@@ -1,9 +1,9 @@
-Section~\ref{sec:results-interference} showed us that there is a performance
+\S\ref{sec:results-interference} showed us that there is a performance
 boost to be had when using multitple wireless networks if the two networks are
-somewhat separated in the frequency domain. From section~\ref{sec:results-mptcp}
+somewhat separated in the frequency domain. From \S\ref{sec:results-mptcp}
 we know that Multipath TCP has the potential to fully saturate both of these
 links if given the chance. Our uplink experiments in
-section~\ref{sec:results-fairness} suggest that Coupled will, if it thinks it is
+\S\ref{sec:results-fairness} suggest that Coupled will, if it thinks it is
 not inconveniencing any other flow, gladly fill its entire MAC layer share of the
 network capacity. This section will attempt to determine whether Coupled will
 eventually fill both its wireless links if there are no other clients on the
@@ -11,7 +11,7 @@ network at the same time.
 
 For the uplink case, we already know that Coupled will eventually use the
 capacity of the link. Because of the lack of congestion feedback discussed in
-section~\ref{sec:results-fairness}, the congestion window will grow large,
+\S\ref{sec:results-fairness}, the congestion window will grow large,
 meaning there will always be packets waiting in the send queue, and thus the
 only limiting factor is MAC layer fairness. If no other clients are competing
 for access, the MAC will give 100\% capacity to the Coupled flow, and thus it
