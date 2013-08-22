@@ -146,8 +146,10 @@ underlying problem, it will limit the amount of delay a misbehaving TCP flow can
 inflict on other flows.
 
 For Multipath TCP with Coupled congestion control, however, this becomes a
-problem. As explained in section COUPLED-BACKGROUND, Coupled tries to not be   % TODO: Fix section reference too aggressive on any one link by throttling the
-growth of the congestion window. This works correctly if the congestion window
+problem. As explained in section COUPLED-BACKGROUND, Coupled tries to not be   % TODO: Fix section reference
+too aggressive on any one link by throttling the
+growth of the congestion window.
+This works correctly if the congestion window
 directly impacts how often the NIC puts packets on the network as throttling the
 growth of the congestion window will effectively lead to other clients on the
 network getting a larger share of the network capacity. When the congestion
