@@ -18,6 +18,7 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 		| grep -v "^ )$$" \
 		| awk '/see the transcript/{i++} /Output/{i--} (i-1)' \
 		| grep -v "/usr/share/texmf-dist" \
+		| grep -v ".pfb" \
 		| grep -v "Transcript" \
 		| grep -v '^$$'
 
