@@ -14,8 +14,8 @@ set style line 5 lt 5 lc rgb "black"
 set style line 6 lt 6 lc rgb "gray"
 
 plot  \
-    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/mptcp-down/cdf-fry-1.dat' using (8*$1/1048576):($2*100) title 'Channel 1 MPTCP' with lines ls (1), \
-    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/mptcp-down/cdf-zoidberg-2.dat' using (8*$1/1048576):($2*100) title 'Channel 2 MPTCP' with lines ls (2), \
-    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/parallel-11-down/cdf-fry-3.dat' using (8*$1/1048576):($2*100) title 'Channel 1 Parallel' with lines ls (3), \
-    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/parallel-5-down/cdf-zoidberg-4.dat' using (8*$1/1048576):($2*100) title 'Channel 2 Parallel' with lines ls (4), \
-    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/mptcp-down/cdf-mptcp-total-5.dat' using (8*$1/1048576):($2*100) title 'Aggregate MPTCP' with lines ls 6
+    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/mptcp-down/cdf-fry-1.dat' using (8*$1/1048576):($2*100) title 'Multipath network A' with lines ls (1), \
+    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/mptcp-down/cdf-zoidberg-2.dat' using (8*$1/1048576):($2*100) title 'Multipath network B' with lines ls (2), \
+    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/parallel-11-down/cdf-fry-3.dat' using (8*$1/1048576):($2*100) title 'Parallel network A' with lines ls (3), \
+    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/parallel-5-down/cdf-zoidberg-4.dat' using (8*$1/1048576):($2*100) title 'Parallel network B' with lines ls (4), \
+    '~/Dropbox/MPTCP/data/2013-08-12/ni-coupled-down-2/mptcp-down/cdf-mptcp-total-5.dat' using (8*$1/1048576):($2*100) title 'Multipath total' with lines ls 6

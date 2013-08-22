@@ -4,7 +4,7 @@ set grid
 set xrange [0:30]
 set yrange [0:100]
 set key right bottom
-set title 'CDF 5-coupled-simultaneous-1'
+set title 'CDF 5-coupled-up-3'
 
 set style line 1 lt 1 lc rgb "red"
 set style line 2 lt 2 lc rgb "royalblue"
@@ -14,8 +14,8 @@ set style line 5 lt 5 lc rgb "black"
 set style line 6 lt 6 lc rgb "gray"
 
 plot  \
-  '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/mptcp-up/cdf-bender-1.dat' using (8*$1/1048576):($2*100) title '5 GHz MPTCP' with lines ls (1), \
-  '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/mptcp-up/cdf-fry-2.dat' using (8*$1/1048576):($2*100) title '2.4 GHz MPTCP' with lines ls (2), \
-  '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/parallel-5-up/cdf-bender-3.dat' using (8*$1/1048576):($2*100) title '5 GHz Parallel' with lines ls (4), \
-  '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/parallel-11-up/cdf-fry-4.dat' using (8*$1/1048576):($2*100) title '2.4 GHz Parallel' with lines ls (3), \
-  '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/mptcp-up/cdf-mptcp-total-5.dat' using (8*$1/1048576):($2*100) title 'Aggregate MPTCP' with lines ls 6
+    '~/Dropbox/MPTCP/data/2013-08-20/5-coupled-up-3/mptcp-up/cdf-mptcp-up-bender-2.dat' using (8*$1/1048576):($2*100) title 'Multipath 5 GHz' with lines ls (1), \
+    '~/Dropbox/MPTCP/data/2013-08-20/5-coupled-up-3/mptcp-up/cdf-mptcp-up-fry-4.dat' using (8*$1/1048576):($2*100) title 'Multipath 2.4 GHz' with lines ls (2), \
+    '~/Dropbox/MPTCP/data/2013-08-20/5-coupled-up-3/parallel-5-up/cdf-parallel-5-up-bender-3.dat' using (8*$1/1048576):($2*100) title 'Parallel 5 GHz' with lines ls (4), \
+    '~/Dropbox/MPTCP/data/2013-08-20/5-coupled-up-3/parallel-2.4-up/cdf-parallel-2.4-up-fry-5.dat' using (8*$1/1048576):($2*100) title 'Parallel 2.4 GHz' with lines ls (3), \
+    '~/Dropbox/MPTCP/data/2013-08-20/5-coupled-up-3/mptcp-up/cdf-mptcp-up-mptcp-total-1.dat' using (8*$1/1048576):($2*100) title 'Multipath total' with lines ls 6

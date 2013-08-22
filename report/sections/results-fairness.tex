@@ -10,25 +10,16 @@ Multipath TCP with Coupled congestion control ensures fairness on wireless
 networks.
 
 As in the previous section, we will evaluate Multipath TCP's behaviour on the
-downlink first, and then move on to the uplink. Both the following sections will
-refer to figure~\ref{graph:fairness}
+downlink first, and then move on to the uplink.
+
+\subsubsection{Downlink fairness}
 
 \begin{figure}[h]
  \centering
- \subfloat[][downlink] {\
-   % TODO: Maybe make this a 5-2.4 as well?
-   \scalebox{0.55}{\input{graphs/down-fair.tex}}\label{graph:down-fair}
- }
- \subfloat[][uplink] {\
-   % TODO: Can we do another 5 up without the steps?
-   % Otherwise, we should explain why we see the steps and the diverging 2.4s below
-   \scalebox{0.55}{\input{graphs/up-fair.tex}}\label{graph:up-fair}
- }
-
- \caption{Traffic distribution on downlink vs.\ uplink}\label{graph:fairness}
+ \input{graphs/down-fair.tex}
+ \caption{Traffic distribution, downlink, non-overlapping 2.4 GHz}\label{graph:down-fair}
 \end{figure}
 
-\subsubsection{Downlink fairness}
 In the downlink case, the Coupled algorithm has no consequences for parallel
 clients with only a single interface, since they will only use one subflow. In
 essence, the Multipath TCP flows behaves like regular TCP New Reno. However, for
@@ -64,6 +55,13 @@ kind of adaptation to changing network characteristics is another goal of the
 Coupled congestion control.
 
 \subsubsection{Uplink fairness}
+
+\begin{figure}[h]
+ \centering
+ \input{graphs/up-fair.tex}
+ \caption{Traffic distribution, uplink, 5 and 2.4 GHz}\label{graph:up-fair}
+\end{figure}
+
 Initially, we expected Multipath TCP with Coupled congestion control to perform
 similarly in both the uplink and downlink cases. However, we soon determined
 that this was not the case. Most of the time plots and CDF graphs showed MPTCP
@@ -172,14 +170,15 @@ the wireless link is.
 \begin{figure}[h]
  \centering
  \subfloat[][CDF] {\
-   \scalebox{0.55}{\input{graphs/fairness-rtt-up-cdf.tex}}\label{graph:fairness-rtt-up-cdf}
+   \input{graphs/fairness-rtt-up-cdf.tex}\label{graph:fairness-rtt-up-cdf}
  }
+ \\
  \subfloat[][Multipath TCP time plot] {\
-   \scalebox{0.55}{\input{graphs/fairness-rtt-up-close.tex}}\label{graph:fairness-rtt-up-close}
+   \input{graphs/fairness-rtt-up-close.tex}\label{graph:fairness-rtt-up-close}
    % TODO: congestion window is not /10 here, throughput is *10
    % update oddities section calculation to match this
  }
- \caption{Uplink test with 100ms added to RTT}\label{graph:fairness-rtt-up}
+ \caption{Uplink, non-overlapping 2.4 GHz, +100ms}\label{graph:fairness-rtt-up}
 \end{figure}
 
 Figure~\ref{graph:fairness-rtt-up} shows a test in which the RTT was

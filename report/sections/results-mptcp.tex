@@ -14,21 +14,19 @@ separately from the load balancing performed by the Coupled algorithm.
 \label{sec:results-mptcp-down}
 
 \begin{figure}[h]
- \centering
- \subfloat[][2.4 GHz, same channel] {\
-% TODO: find good graph for this
-%   \scalebox{0.33}{\input{graphs/sc-reno-down.tex}}\label{graph:sc-reno-down}
- }
- \subfloat[][2.4 GHz, disparate channel] {\
-% TODO: find good graph for this
-%   \scalebox{0.33}{\input{graphs/cc-reno-down.tex}}\label{graph:cc-reno-down}
- }
- \subfloat[][5 and 2.4 GHz] {\
-% TODO: find good graph for this
-%   \scalebox{0.33}{\input{graphs/cb-reno-down.tex}}\label{graph:cb-reno-down}
- }
-
- \caption{CDF of downlink throughputs using New Reno congestion control}\label{graph:reno-down}
+  \centering
+  \subfloat[][2.4 GHz, same channel] {\
+    \scalebox{0.70}{\input{graphs/sc-reno-down.tex}}\label{graph:sc-reno-down}
+  }
+  \\
+  \subfloat[][2.4 GHz, non-overlapping channels] {\
+    \scalebox{0.70}{\input{graphs/cc-reno-down.tex}}\label{graph:cc-reno-down}
+  }
+  \\
+  \subfloat[][5 and 2.4 GHz] {\
+    \scalebox{0.70}{\input{graphs/cb-reno-down.tex}}\label{graph:cb-reno-down}
+  }
+  \caption{Downlink, New Reno}\label{graph:reno-down}
 \end{figure}
 
 On the downlink, we would expect each Multipath TCP subflow to get an equal
@@ -48,26 +46,24 @@ should lead to them sharing the available bandwidth fairly.
 \label{sec:results-mptcp-up}
 
 \begin{figure}[h]
- \centering
- \subfloat[][2.4 GHz, same channel] {\
-   \scalebox{0.55}{\input{graphs/sc-reno-up.tex}}\label{graph:sc-reno-up}
- }
- \subfloat[][2.4 GHz, disparate channel] {\
-   \scalebox{0.55}{\input{graphs/cc-reno-up.tex}}\label{graph:cc-reno-up}
- }
- \\
- \subfloat[][5 and 2.4 GHz] {\
-   \scalebox{0.55}{\input{graphs/cb-reno-up.tex}}\label{graph:cb-reno-up}
- }
-
- % TODO: get more stable results for all of these?
- % TODO: confirm trend for 5 test
- \caption{CDF of uplink throughputs using New Reno congestion control}\label{graph:reno-up}
+  \centering
+  \subfloat[][2.4 GHz, same channel] {\
+    \scalebox{0.70}{\input{graphs/sc-reno-up.tex}}\label{graph:sc-reno-up}
+  }
+  \\
+  \subfloat[][2.4 GHz, non-overlapping channels] {\
+    \scalebox{0.70}{\input{graphs/cc-reno-up.tex}}\label{graph:cc-reno-up}
+  }
+  \\
+  \subfloat[][5 and 2.4 GHz] {\
+    \scalebox{0.70}{\input{graphs/cb-reno-up.tex}}\label{graph:cb-reno-up}
+  }
+  \caption{Uplink, New Reno}\label{graph:reno-up}
 \end{figure}
 
 Due to the unpredictable nature of wireless and varying levels of background
 traffic, finding consistent results for these tests was a time consuming
-process. The general trend we observe in figure~\ref{graph:sc-reno-up} is the
+process. The general trend we observe in figure~\ref{graph:reno-up} is the
 same for both the uplink and downlink; each Multipath TCP subflow gets an equal
 share of the total throughput to every other flow on that link. This also makes
 sense conceptually, as in the uplink case the 802.11 MAC provides fairness

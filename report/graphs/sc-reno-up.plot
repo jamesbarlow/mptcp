@@ -14,7 +14,7 @@ set style line 5 lt 5 lc rgb "gray"
 set style line 6 lt 6 lc rgb "black"
 
 plot  \
-  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/mptcp-up/cdf-fry-1.dat' using (8*$1/1048576):($2*100) title 'Channel 1 MPTCP' with lines ls (1), \
-  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/mptcp-up/cdf-zoidberg-2.dat' using (8*$1/1048576):($2*100) title 'Channel 2 MPTCP' with lines ls (2), \
-  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/parallel-5a-up/cdf-fry-3.dat' using (8*$1/1048576):($2*100) title 'Channel 1 Parallel' with lines ls (3), \
-  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/parallel-5b-up/cdf-zoidberg-4.dat' using (8*$1/1048576):($2*100) title 'Channel 2 Parallel' with lines ls (4)
+  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/mptcp-up/cdf-fry-1.dat' using (8*$1/1048576):($2*100) title 'Multipath network A' with lines ls (1), \
+  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/mptcp-up/cdf-zoidberg-2.dat' using (8*$1/1048576):($2*100) title 'Multipath network B' with lines ls (2), \
+  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/parallel-5a-up/cdf-fry-3.dat' using (8*$1/1048576):($2*100) title 'Parallel network A' with lines ls (3), \
+  '~/Dropbox/MPTCP/data/2013-08-07/i-reno-simultaneous-2/parallel-5b-up/cdf-zoidberg-4.dat' using (8*$1/1048576):($2*100) title 'Parallel network B' with lines ls (4)
