@@ -35,16 +35,16 @@ following the congestion window when loss was occurring.
 Many of our results show very high RTTs of around 600 ms despite the network
 being relatively fast (i.e.\ we see an RTT of $\approx 7$ ms with
 \texttt{ping}). In fact, the RTTs are so high that they are plotted as 10s of ms
-to fit them in the range $[0-100]$.
+to fit them in the range $[0-100]$. 
 
-% TODO: set correct section
-Thr RTT seems to increase and decrease with the size of the send queue. As
-observed in section SOMETHING, the lack of loss reference causes unbounded
-growth of the congestion window, but with most of the packets stuck in the send
-queue. Since TCP estimates RTT based on when the packet was put into the send
-queue, \textbf{not} when it is actually sent by the network interface, the RTT
-estimate will include the time a packet spent in the queue. Since the queue is
-growing, so will the RTT.
+% TODO: set correct section 
+As seen in FIGURE [show graph with high RTT] The RTT seems to increase and 
+decrease with the size of the send queue. As observed in section 4.3.2, the lack 
+of loss reference causes unbounded growth of the congestion window, but with 
+most of the packets stuck in the send queue. Since TCP estimates RTT based on 
+when the packet was put into the send queue, \textbf{not} when it is actually 
+sent by the network interface, the RTT estimate will include the time a packet 
+spent in the queue. Since the queue is growing, so will the RTT.
 
 \subsubsection{Logarithmic growth of congestion window}
 When looking at the growth of the congestion window, it is clear that it shows
@@ -59,13 +59,13 @@ the assumed case where increasing the congestion window will cause you to send
 more packets, and thus receive more ACKs per RTT, but is not correct when the
 link layer masks loss.
 
-What happens when TCP does not see loss, as discussed in section SECTION, is   %
-TODO: set correction section reference that the congestion window usually grows
-larger than the network interface can handle, and so increasing it will not
-cause any more packets to be sent. The number of ACKs received in an RTT will
-therefore remain constant. The $\sfrac{1}{cwnd}$ term will grow smaller, and so
-the growth of the congestion window relative to the congestion window size per
-RTT will decrease, leading to the logartichmic growth we see.
+What happens when TCP does not see loss, as discussed in section 4.3.2, is   %TODO: set correction section reference 
+that the congestion window usually grows larger than the network interface can 
+handle, and so increasing it will not cause any more packets to be sent. 
+The number of ACKs received in an RTT will therefore remain constant. The 
+$\sfrac{1}{cwnd}$ term will grow smaller, and so the growth of the congestion 
+window relative to the congestion window size per RTT will decrease, leading to 
+the logartichmic growth seen in the results.
 
 \subsubsection{Congestion window and throughput}
 In figure 2013-08-14/100+100/parallel we can observe another very strange      % TODO: insert correct figure reference here

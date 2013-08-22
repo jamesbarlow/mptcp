@@ -1,0 +1,15 @@
+This report evaluates the effect of WiFi interference on Multipath TCP. 
+The results presented in this report show that there can be a performance gain 
+in using Multipath TCP with WiFi both on the downlink and uplink.
+
+In both cases, they show that on two idle path it can attain an aggregate
+throughput which is equal to the sum of both links or more. However with 
+contending traffic results for the downlink show that the aggregate throughput 
+is reduced to the sum of the best single link. The uplink results show that the 
+aggregate throughput is more than that of the best link and in some cases equal 
+to the sum of both links.
+
+The behaviour of Multipath TCP on the uplink is unfair to other flows on the 
+medium as it gets a larger share in total. This contradicts the second rule of 
+its default congestion control algorithm; the Coupled congestion control which 
+is do no harm. 
