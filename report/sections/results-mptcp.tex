@@ -89,19 +89,3 @@ is in use. If Multipath TCP detects that a faster flow is forced to wait for
 ACKs on the slower flow, it will…
 % TODO: We have to confirm that this is the case
 % TODO: finish this when confirmed
-
-\subsubsection{A note on wireless experiments}
-Move me to the evaluation!
-
-Running every test many times has proven very important throughout this project.
-For the uplink reno 2.4 GHz tests for example, we initially suspected that
-Multipath TCP was consistently seeing slightly lower throughput compared to
-parallel, and we surmised that this might be because two WiFi interfaces
-connected to one machine might somehow lead to more cross-interface interference
-than with the same interfaces connected to different machines equally far apart.
-After running more experiments to confirm, however, we quickly got contradicting
-results where Multipath TCP was consistently faster than parallel. On balance,
-we consider the results to pretty much even out across many tests. The slight
-discrepancies of some links in those figures are simply due to WiFi interfaces
-being extremely sensitive to their exact positioning, and average out over a
-larger set of tests.
