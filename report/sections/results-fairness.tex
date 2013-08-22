@@ -48,7 +48,7 @@ using an unfair share of the overall capacity.
 \end{figure}
 
 Similar results are seen when the two wireless links are operating on separate
-bands, as seen in figure~\ref{graph:cb-fairness-down}. Coupled effectively uses
+bands, as seen in Figure~\ref{graph:cb-fairness-down}. Coupled effectively uses
 the 2.4 GHz link only when the 5 GHz network sees lowered throughput for periods
 due to other clients using the network, which is precisely as expected. This
 kind of adaptation to changing network characteristics is another goal of the
@@ -66,7 +66,7 @@ Initially, we expected Multipath TCP with Coupled congestion control to perform
 similarly in both the uplink and downlink cases. However, we soon determined
 that this was not the case. Most of the time plots and CDF graphs showed MPTCP
 performing as well as parallel on \textbf{both} links as seen in
-figure~\ref{graph:up-fair}, showing that the client with multiple interfaces was
+Figure~\ref{graph:up-fair}, showing that the client with multiple interfaces was
 not behaving fairly. Instead, it was taking more of the capacity than the other
 single-flow clients.
 
@@ -93,7 +93,7 @@ this value.
 Since Coupled uses the congestion window size to determine how aggressive it
 should be, an inflated congestion window will clearly make it more aggressive
 than the environment would suggest, resulting in the exact behaviour we see in
-figure~\ref{graph:up-fair}.
+Figure~\ref{graph:up-fair}.
 
 To understand what is going on here, some background knowledge about how TCP
 works in Linux, and how the Linux kernel manages network queues is needed. Linux
@@ -189,7 +189,7 @@ congestion window during slow-start. The CDF, however, shows that throughput is
 drastically reduced and is lower than New Reno.
 
 To understand what is happening, consider the time plot of one of the Multipath
-TCP flows in figure~\ref{graph:fairness-rtt-up-close}. The ``Bandwidth delay
+TCP flows in Figure~\ref{graph:fairness-rtt-up-close}. The ``Bandwidth delay
 product'' line shows the bandwidth delay product (and thus the target congestion
 window size) of the real RTT + 100ms times the throughput observed without an
 inflated RTT.\@ Clearly, the congestion window is never approaching this value.

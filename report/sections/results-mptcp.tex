@@ -33,7 +33,7 @@ On the downlink, we would expect each Multipath TCP subflow to get an equal
 share of the total throughput as a regular TCP flow, as there should be no
 difference in interference when running both WiFi interfaces on the same machine
 compared to on separate machines, when each interface is only transmitting ACKs.
-This is shown in figure~\ref{graph:reno-down}.
+This is shown in Figure~\ref{graph:reno-down}.
 
 The per-subflow fairness in the downlink case is achieved in two steps: firstly,
 the wireless medium should be shared equally between the two APs (assuming they
@@ -63,7 +63,7 @@ should lead to them sharing the available bandwidth fairly.
 
 Due to the unpredictable nature of wireless and varying levels of background
 traffic, finding consistent results for these tests was a time consuming
-process. The general trend we observe in figure~\ref{graph:reno-up} is the
+process. The general trend we observe in Figure~\ref{graph:reno-up} is the
 same for both the uplink and downlink; each Multipath TCP subflow gets an equal
 share of the total throughput to every other flow on that link. This also makes
 sense conceptually, as in the uplink case the 802.11 MAC provides fairness
@@ -80,7 +80,7 @@ congestion control should theoretically be able to eventually reach the same
 throughput as parallel clients if no other flows are competing on the network.
 
 When the two interfaces are running on different bands, as in
-figure~\ref{graph:cb-reno-up}, we see a curious effect where Multipath TCP
+Figure~\ref{graph:cb-reno-up}, we see a curious effect where Multipath TCP
 lowers its send rate on the 2.4 GHz network. This was unexpected with New Reno
 as Multipath TCP should not be trying to be fair to other flows, but rather try
 to maximize the throughput on each path. It turns out that there is a connection
