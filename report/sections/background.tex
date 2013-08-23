@@ -1,27 +1,25 @@
 \subsection{TCP}
 The Transmission Control Protocol (TCP) is one of the core internet protocols.
 It provides reliable, in-order delivery of data (a stream of bytes) between two
-systems, it also offers a full-duplex service meaning that it allows a pair of
-byte streams to flow, one in each direction, per TCP connection. TCP is a
-packet-based protocol, and uses positive acknowledgement of packets to signal
-successful delivery. TCP has many other features such as, supporting
-demultiplexing, which allows various application processes on any given host to
-share the underlying network, and flow and congestion control which will be
-explained in more detail later in this section.
+systems; it also offers a full-duplex service, meaning it allows a pair of byte
+streams to flow, one in each direction, per connection. TCP is a packet-based
+protocol, and uses positive acknowledgement of packets to signal successful
+delivery. It also supports demultiplexing, which allows different application
+processes on a host to share the underlying network, and flow and congestion
+control which will be explained later in this section.
 
-TCP supports connections between any two systems in the Internet, it is an
-end-to-end protocol, but in order to do this it requires an explicit connection
-establishment phase. This phase is called the "three-way handshake" and is where
-the communicating parties agree to exchange data. It also has a connection
-teardown phase (both parties can free their allocated resources). When the
-connection is set up TCP buffers enough bytes from the sending process to create
-a packet and sends it to the receiver. The packet has many fields to make sure
-it reaches the correct destination such as, sequence number which contains the
-first byte of data carried in the packet, source/destination address, checksum
-to ensure correctness and many others. All these fields play a very important
-role in routing the packet correctly to its destination.
+% Do we even need this paragraph?
 
-As previously mentioned TCP is a packet-based protocol, so after establishing
+TCP requires an explicit connection establishment phase called the ``three-way
+handshake'' to establish common connection parameters between the two end hosts.
+It also has a connection teardown phase which lets both parties free their
+allocated resources. When the connection is set up, TCP buffers enough bytes
+from the sending process to create a packet and sends it to the receiver. The
+packet has many fields to make sure it reaches the correct destination such as,
+sequence number which contains the first byte of data carried in the packet,
+source/destination address, checksum to ensure correctness and many others.
+
+As previously mentioned, TCP is a packet-based protocol, so after establishing
 the connection between two communicating parties and creating the packets which
 will be sent it will use flow and congestion control mechanisms to manage how
 packets are exchanged throughout the network. Upon receiving packets, routers
@@ -45,29 +43,29 @@ any given time, and so avoids overloading the receive buffer.
 
 Congestion control is another rate-limiting mechanism which is used to avoid
 overloading devices in the middle of the network path. Ideally, each TCP flow
-will gain an equal share of the capacity available at the bottleneck link. A TCP
-flow must also sense congestion, where the queues at the bottleneck are
+will get an equal share of the capacity available at the bottleneck link. A TCP
+flow must also detect congestion when the queues at the bottleneck are
 overloaded, and back off its send rate accordingly.
 
 The canonical congestion control algorithm is TCP New Reno. This algorithm
 maintains a congestion window, similar to the receiver's flow control window,
 which specifies the number of packets which may be in flight concurrently. The
-sender must respect both the flow control and congestion windows in determining
-an appropriate send rate.
+sender must respect both the receive and congestion windows in determining an
+appropriate send rate.
 
 TCP New Reno flows begin in a slow start phase. An initial small congestion
-window is chosen, and this is increased by one maximum segment size (MSS) for
+window is chosen, and this is increased by one maximum segment size (MSS) for  % Explain MSS
 each packet acknowledgment received. This has the effect of increasing the
 congestion window size exponentially until a congestion event occurs; this can
-either be a time out or three duplicate ACKs. 
+either be a time out or three duplicate ACKs.
+
+% Merge the following two paragraphs
 
 The congestion event halves the congestion window and at this point TCP New Reno
 exits the slow start phase and enters an additive-increase phase; where the
 congestion window is increased by one MSS per round-trip time, which allows it
 to expand into any additional capacity which becomes available as other flows
 complete.
-
-(I feel that these 2 paragraphs are a bit confusing)
 
 TCP New Reno implements two mechanisms for backing off when congestion is
 detected. After a missed packet acknowledgement, the algorithm returns the
@@ -80,22 +78,27 @@ The repeated behaviour of probing for available capacity and then reducing the
 window size when congestion occurs produces a distinctive saw-tooth of the
 congestion window size.
 
+% Explain RTT?
+
 \subsection{WiFi and Interference}
+
+% Add explanation of NIC
+
 The 802.11 standards are a set of physical layer and MAC specifications for
-implementing WiFi networks.  802.11 networks commonly operate on frequencies in
+implementing WiFi networks. 802.11 networks commonly operate on frequencies in
 the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
-sub-bands or more commonly known as channels. For example, the 802.11b channels
-in the 2.4 GHz band are 22 MHz wide and spaced 5 MHz apart, beginning with 2.412
+sub-bands more commonly known as channels. For example, the 802.11g channels in
+the 2.4 GHz band are 22 MHz wide and spaced 5 MHz apart, beginning with 2.412
 GHz. Given that the 2.4 GHz and 5 GHz bands are not specifically reserved for
-WiFi makes it more susceptible to noise as other devices such as microwave ovens
-and bluetooth enabled electronics can interfere with the WiFi network.
-Furthermore, a typical WiFi deployment would consist of several stations usually
-connected to the network via an access point (AP). The greater the number of
-stations connected to an AP on a channel, the higher the probability that the
-stations would interfere with each other as they contend for the access to the
-medium in order to transmit data. Interference as a results of other stations on
-the network is undesirable as it leads to lower network utilization and hence
-lower throughput.
+WiFi, they are susceptible to noise as other devices such as microwave ovens and
+bluetooth enabled electronics can interfere with the WiFi network. Furthermore,
+a typical WiFi deployment would consist of several stations usually connected to
+the network via an access point (AP). The greater the number of stations
+connected to an AP on a channel, the higher the probability that the stations
+would interfere with each other as they contend for the access to the medium in
+order to transmit data. Interference as a results of other stations on the
+network is undesirable as it leads to lower network utilization and hence lower
+throughput.
 
 In order to overcome interference with other stations transmitting on the same
 channel, or a nearby channel, 802.11 implements carrier sense and random
@@ -107,22 +110,29 @@ collide. The random back-off selected by each station reduces the probability of
 the stations interfering with each others transmission on the next retry and
 this by extension ensures fairness.
 
-The 802.11 MAC layer implements packet acknowledgements separately from TCP.\@
-Acknowledgment packets are sent after each data frame is successfully received.
-A station will generally retry transmitting a fixed number of times without
-receiving acknowledgment before dropping a packet.
+The 802.11 MAC layer also implements packet acknowledgements separately from
+TCP.\@ Acknowledgment packets are sent after each data frame is successfully
+received. A station will generally retry transmitting a fixed number of times
+without receiving acknowledgment before dropping a packet.
 
-\subsection{MultiPath TCP}
+\subsection{Multipath TCP}
+
+% Add the three goals of MPTCP
+
 Devices with multiple network interfaces are common. Many consumer smart phones
-have both Wi-Fi and 3G interfaces, and data centres networks are often deployed
-in topologies such as FatTree, where equipment racks are connected through
-multiple paths. Data centres themselves are often multihomed to improve
-reliability, meaning that they have several points of access to the wider
-internet. Multipath TCP (MPTCP) is an extension to TCP currently being
-standardised by the IETF, which aims to improve redundancy and throughput by
-taking advantage of multiple paths for a single TCP flow. In order to achieve
-this, Multipath TCP adds additional subflows to a TCP connection such that the
-network interfaces of each host are connected in a fully-connected mesh.
+have both WiFi and 3G interfaces, and data centres networks are often deployed
+so that equipment racks are connected through multiple paths. Data centres
+themselves are often multihomed to improve reliability, meaning that they have
+several points of access to the wider internet. Multipath TCP is an
+extension to TCP currently being standardised by the IETF, which aims to improve
+redundancy and throughput by taking advantage of multiple paths for a single TCP
+flow. In order to achieve this, Multipath TCP adds additional subflows to a TCP
+connection such that the network interfaces of each host are connected in a
+fully-connected mesh. % Explain fully connected mesh
+
+% Maybe add why using multiple interfaces is a good idea?
+% Reliability (load-balancing + failover)
+% Throughput
 
 Multipath TCP has introduced Coupled congestion control, which aims to behave
 fairly when links are shared by other TCP or Multipath TCP flows. More
@@ -135,8 +145,10 @@ The Coupled algorithm maintains a separate congestion window for each subflow
 and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
 additive increase across all subflows to ensure fairness.
 
-For each packet acknowledgment received on subflow i, the congestion window is
+For each packet acknowledgment received on subflow $i$, the congestion window is
 increased by
+
+% Reference RFC here
 
 \begin{align*}
   cwnd_i &= cwnd_i +
@@ -166,14 +178,16 @@ links combined.
 % explanation of Coupled congestion control; of the intuition behind it in a
 % sense
 
-However, it is important to understand \textbf{why} Coupled is expected to
+% This needs trimming and rewording
+
+However, it is important to understand \textit{why} Coupled is expected to
 eventually fill the link. In order to do that, one must understand how Coupled
 tries to be fair in the first place. As the throughput of a Coupled flow
 approaches the throughput a New Reno flow would get on the best link available
 to the flow, Coupled gradually decreases the aggressiveness of each of its
 subflows; this aggressiveness is controlled by the Alpha parameter (as
 previously explained). It does this by effectively decreasing the growth rate of
-each flow's congestion window. This means that the flow will still continue to
+each flow's congestion window which means that the flow will still continue to
 try to use more and more of the link's capacity, but it will do so very slowly.
 This means that should any other flow appear, its window will grow faster than
 the Coupled flow's window, and when a congestion event occurs, the window size
@@ -200,24 +214,16 @@ repeating myself but hey my thought flow is not the greatest at this
 time :D)  % TODO HERE
 
 \subsection{Motivation}
-Multipath TCP is a very desirable alternative to single TCP.
+Multipath TCP is without question a useful extension to vanilla TCP, but it was
+primarily designed for wired networks in which links are usually independent.
+The nature of wireless means that wireless interfaces can interfere with each
+other, something Multipath TCP was not designed to deal with. Even networks on
+different WiFi channels have been known to intefere, and so if Multipath TCP is
+tries to use multiple interfaces at the same time, the self-interference might
+prove sufficiently strong that the benefits of Multipath TCP are effectively
+negated.
 
-\begin{enumerate}
-  \item Multipath TCP makes use of multiple interfaces which can be either
-    cross-channel or same channel and aim to provide better throughput and
-    redundancy when compared to single TCP.
-  \item Multipath TCP, regardless of having been designed for wired
-    environments, from seen experiments shows a significant gain in throughput
-    and better redundancy.
-\end{enumerate}
-
-However, it is known that multiple clients connected to the same or nearby WiFi
-channels can interfere with each other and in some cases even cross-channel
-connections experience significant interference (can I say this here?). Also,
-since Multipath TCP was designed for wired networks it is pertinent (or
-relevant?) to investigate the effect of the underlying network on Multipath TCP
-and vice-versa in a wireless setting which is very prone to interference and
-quite unpredictable as it deals with other factors such as white noise, external
-factors, hardware issues, and so on (Too much??).  To approach this problem we
-have based our project on several experiments which will be explained in greater
-detail in the following section of the report.
+In this paper, we aim to investigate the extent to which wireless networks
+interfere with each other, and how Multipath TCP behaves when it encounters
+non-independent interfaces. To explore this, we will analyse its behaviour in a
+series of wireless experiments. Our results are presented in the next section.
