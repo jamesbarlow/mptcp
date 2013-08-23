@@ -1,35 +1,3 @@
-\subsection{WiFi and Interference}
-The 802.11 standards are a set of physical layer and MAC specifications for
-implementing WiFi networks.  802.11 networks commonly operate on frequencies in
-the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
-sub-bands or more commonly known as channels. For example, the 802.11b channels
-in the 2.4 GHz band are 22 MHz wide and spaced 5 MHz apart, beginning with 2.412
-GHz. Given that the 2.4 GHz and 5 GHz bands are not specifically reserved for
-WiFi makes it more susceptible to noise as other devices such as microwave ovens
-and bluetooth enabled electronics can interfere with the WiFi network.
-Furthermore, a typical WiFi deployment would consist of several stations usually
-connected to the network via an access point (AP). The greater the number of
-stations connected to an AP on a channel, the higher the probability that the
-stations would interfere with each other as they contend for the access to the
-medium in order to transmit data. Interference as a results of other stations on
-the network is undesirable as it leads to lower network utilization and hence
-lower throughput.
-
-In order to overcome interference with other stations transmitting on the same
-channel, or a nearby channel, 802.11 implements carrier sense and random
-back-off. Before transmitting, a station will sense the medium to determine if
-another station is currently transmitting a data frame. If the medium is busy,
-the station will defer for a random period of time and retry. This behaviour is
-also used when multiple stations begin transmitting at the same time, and
-collide. The random back-off selected by each station reduces the probability of
-the stations interfering with each others transmission on the next retry and
-this by extension ensures fairness.
-
-The 802.11 MAC layer implements packet acknowledgements separately from TCP.\@
-Acknowledgment packets are sent after each data frame is successfully received.
-A station will generally retry transmitting a fixed number of times without
-receiving acknowledgment before dropping a packet.
-
 \subsection{TCP}
 The Transmission Control Protocol (TCP) is one of the core internet protocols.
 It provides reliable, in-order delivery of data (a stream of bytes) between two
@@ -111,6 +79,38 @@ packet, the congestion window is halved and additive-increase continues.
 The repeated behaviour of probing for available capacity and then reducing the
 window size when congestion occurs produces a distinctive saw-tooth of the
 congestion window size.
+
+\subsection{WiFi and Interference}
+The 802.11 standards are a set of physical layer and MAC specifications for
+implementing WiFi networks.  802.11 networks commonly operate on frequencies in
+the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
+sub-bands or more commonly known as channels. For example, the 802.11b channels
+in the 2.4 GHz band are 22 MHz wide and spaced 5 MHz apart, beginning with 2.412
+GHz. Given that the 2.4 GHz and 5 GHz bands are not specifically reserved for
+WiFi makes it more susceptible to noise as other devices such as microwave ovens
+and bluetooth enabled electronics can interfere with the WiFi network.
+Furthermore, a typical WiFi deployment would consist of several stations usually
+connected to the network via an access point (AP). The greater the number of
+stations connected to an AP on a channel, the higher the probability that the
+stations would interfere with each other as they contend for the access to the
+medium in order to transmit data. Interference as a results of other stations on
+the network is undesirable as it leads to lower network utilization and hence
+lower throughput.
+
+In order to overcome interference with other stations transmitting on the same
+channel, or a nearby channel, 802.11 implements carrier sense and random
+back-off. Before transmitting, a station will sense the medium to determine if
+another station is currently transmitting a data frame. If the medium is busy,
+the station will defer for a random period of time and retry. This behaviour is
+also used when multiple stations begin transmitting at the same time, and
+collide. The random back-off selected by each station reduces the probability of
+the stations interfering with each others transmission on the next retry and
+this by extension ensures fairness.
+
+The 802.11 MAC layer implements packet acknowledgements separately from TCP.\@
+Acknowledgment packets are sent after each data frame is successfully received.
+A station will generally retry transmitting a fixed number of times without
+receiving acknowledgment before dropping a packet.
 
 \subsection{MultiPath TCP}
 Devices with multiple network interfaces are common. Many consumer smart phones
