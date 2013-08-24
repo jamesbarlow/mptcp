@@ -1,6 +1,7 @@
 #!/bin/bash
 reg='\\input\{(graphs/[^}]+).tex\}'
 for f in report.tex sections/*.tex; do
+  [[ -e "$f" ]] || continue;
   while read -r line; do
     [[ $line =~ ^% ]] && continue
     if [[ $line =~ $reg ]]; then
