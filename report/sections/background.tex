@@ -1,4 +1,5 @@
 \subsection{TCP}
+\label{sec:bg:tcp}
 The Transmission Control Protocol (TCP) is one of the core internet protocols.
 It provides reliable, in-order delivery of data (a stream of bytes) between two
 systems; it also offers a full-duplex service, meaning it allows a pair of byte
@@ -65,7 +66,7 @@ window size when congestion occurs produces a distinctive saw-tooth of the
 congestion window size.
 
 \subsection{WiFi and Interference}
-
+\label{sec:bg:wifi}
 The 802.11 standards are a set of physical layer and MAC specifications for
 implementing WiFi networks. 802.11 networks commonly operate on frequencies in
 the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
@@ -111,7 +112,7 @@ will generally retry transmitting a fixed number of times without receiving
 acknowledgment before dropping a packet.
 
 \subsection{Multipath TCP}
-
+\label{sec:bg:mptcp}
 Devices with multiple network interfaces are common. Many consumer smart phones
 have both WiFi and 3G interfaces, and data centres networks are often deployed
 so that equipment racks are connected through multiple paths. Data centres
@@ -193,6 +194,7 @@ Note that Coupled does not guarantee perfect resource pooling;
 % Not sure how to finish this?
 
 \subsection{Motivation}
+\label{sec:bg:motivation}
 Multipath TCP is without question a useful extension to vanilla TCP, but it was
 primarily designed for wired networks in which links are usually independent.
 The nature of wireless means that wireless interfaces can interfere with each
