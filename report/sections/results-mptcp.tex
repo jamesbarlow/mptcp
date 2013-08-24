@@ -3,7 +3,7 @@ results using Multipath TCP with New Reno congestion control operating
 independently for each subflow. This congestion control algorithm allows the
 congestion window of each subflow to grow as if it were an independent TCP flow,
 and is known to use an unfair share of the total available bandwidth [1]. These
-results may therefore seem unnecessary, however we believe it is useful to show
+results may seem unnecessary, however we believe it is useful to show
 the subtle difference between running two wireless clients in parallel and one
 client with multiple wireless interfaces. New Reno allows us to evaluate this
 separately from the load balancing performed by the Coupled algorithm.
@@ -35,12 +35,21 @@ difference in interference when running both WiFi interfaces on the same machine
 compared to on separate machines, when each interface is only transmitting ACKs.
 This is shown in Figure~\ref{graph:reno-down}.
 
-The per-subflow fairness in the downlink case is achieved in two steps: firstly,
+The per-subflow fairness in the downlink case is achieved in two steps. Firstly,
 the wireless medium should be shared equally between the two APs (assuming they
-both have data to send and their subbands are equally busy) due to carrier
-sense; second, the flows going through each AP should get an equal share of that
-APs airtime because they are both running TCP New Reno on equal paths, which
-should lead to them sharing the available bandwidth fairly.
+both have data to send and their channels are equally busy) due to carrier
+sense. Additionally, because TCP New Reno does not try to balance the load on 
+each flow, the sender would continously try to push as much data as it can get 
+on the link and this is only limited by the finite buffer at the AP. The effect 
+of this is that the APs drop further incoming packets as soon as the buffers are 
+full and this notifies the sender to adapt its rate. However this doesnt mean 
+that TCP New Reno would reduce its agressiveness, it just reduces the amount of 
+packets it has in flight at a given time. This value still grows as agressively 
+as before hence the buffers at the AP are always full. The full buffers ensure 
+that the AP's always have data to send on behalf of each flow when it gets its 
+fair share of the medium as determined by carrier sense. Hence this should lead 
+to the flows sharing the available bandwidth fairly as they have roughly the 
+same amount of access to the medium.
 
 \subsubsection{Uplink}
 \label{sec:results-mptcp-up}
@@ -62,9 +71,9 @@ should lead to them sharing the available bandwidth fairly.
 \end{figure}
 
 Due to the unpredictable nature of wireless and varying levels of background
-traffic, finding consistent results for these tests was a time consuming
+traffic, obtaining consistent results for these tests was a time consuming
 process. The general trend we observe in Figure~\ref{graph:reno-up} is the
-same for both the uplink and downlink; each Multipath TCP subflow gets an equal
+same seen on the downlink; each Multipath TCP subflow gets an equal
 share of the total throughput to every other flow on that link. This also makes
 sense conceptually, as in the uplink case the 802.11 MAC provides fairness
 \textbf{per 802.11 client} using carrier sense, and in the downlink case
@@ -77,7 +86,8 @@ to the sum of half of each link, and suggests that no additional interference
 penalty is incurred by running both interfaces on the same client rather than on
 different clients. We can also reason from this that Multipath TCP with Coupled
 congestion control should theoretically be able to eventually reach the same
-throughput as parallel clients if no other flows are competing on the network.
+throughput as parallel clients if no other flows are competing on the network; 
+this would be looked at in \S\ref{results-performance}.
 
 When the two interfaces are running on different bands, as in
 Figure~\ref{graph:cb-reno-up}, we see a curious effect where Multipath TCP
@@ -87,5 +97,7 @@ to maximize the throughput on each path. It turns out that there is a connection
 between flows when running Multipath TCP regardless of what congestion control
 is in use. If Multipath TCP detects that a faster flow is forced to wait for
 ACKs on the slower flow, it will…
+[the graph refernced above doesnt actaully show lower send rate on 2.4GHz
+do we have a graph that shows this?? consider removing the paragraph ]
 % TODO: We have to confirm that this is the case
 % TODO: finish this when confirmed

@@ -3,21 +3,21 @@ worth exploring whether the nature of wireless permits transmitting concurrently
 across multiple wireless links at all. In particular, we want to determine:
 
 \begin{enumerate}
-  \item Are there any inherent perfomance penalties to broadcasting on two
-    interfaces concurrently?
-  \item Can any performance benefit be gained when broadcasting on two
-    interfaces concurrently?
+  \item Are there any inherent performance penalties to transmitting on two
+    interfaces concurrently on the uplink?
+  \item Can any performance benefit be gained when transmitting on two
+    interfaces concurrently on the uplink?
   \item To what degree is the downlink performance affected by multiple clients
     using different networks simultaneously?
 \end{enumerate}
 
-To answer these questions, we ran several experiments using the UDP and regular
-TCP protocols, with the different setups outlined in section TEST-SETUPS.      % TODO: fix section reference
+To answer these questions, we ran several experiments using the UDP and TCP New 
+Reno protocols, with the different setups outlined in \S\ref{sec:met:setups}.      % TODO: fix section reference
 The channel frequencies of the two networks were varied between experiments. One
 network was generally kept on channel 1 in the 2.4 GHz band, whilst the other
 was switched between channel 1 for same-channel tests, channel 5 or 11 for
-non-overlapping channel tests and a channel in the 5 GHz band. We will state
-which channel combinations were being used for all of the following results.
+non-overlapping channel tests and a channel in the 5 GHz band for the dual band 
+test. 
 
 \subsubsection{Interference between 2.4 GHz channels}
 
@@ -27,14 +27,8 @@ which channel combinations were being used for all of the following results.
  \caption{Non-overlapping channel interference (channels 1 and 11)}\label{graph:cc-interference}
 \end{figure}
 
-We performed some initial tests using netperf's UDP\_STREAM benchmark. This
-simply generates UDP packets in a busy loop, allowing us to saturate the
-available links as fully as possible. Figure~\ref{graph:cc-interference} shows a
-UDP test where two interfaces on a single host are connected to wireless
-networks on different channels. The test was run as outlined in TEST-SETUPS.
-% TODO: fix section reference
-% TODO: really should explain the experiment here, not in another section? J
-
+Figure~\ref{graph:cc-interference} shows a UDP test as described in 
+\S\ref{sec:met:setups:intudp}
 The interference pattern observed here is quite interesting, as the throughput
 and utilization measurements show completely fair sharing of aggregate
 throughput between the two networks when both interfaces are active. The
@@ -69,8 +63,8 @@ In both the cases above, it seems as though carrier sense is not working quite
 as expected. We would generally expect few backoffs due to carrier sense between
 two networks on non-overlapping channels, but clearly this is not the case.
 Conversely, for networks on the same channel we would expect carrier sense to
-time-multiplex fairly between the clients. These tests also show a high number
-of link layer transmit failures, suggesting that carrier sense if often failing
+time-multiplex fairly between the clients. These tests show a high number of 
+link layer transmit failures, suggesting that carrier sense if often failing 
 to prevent collisions.
 % How many? Need to quantify this? J
 
@@ -94,14 +88,14 @@ than one would reasonably expect.
 As expected, the experiments we performed with one network operating on the 2.4
 GHz band and one network on the 5 GHz band showed little interference between
 the interfaces.  Figure~\ref{graph:cb-interference-up} shows the CDF of the
-throughputs for an uplink test with three of the tests described in section TEST
-SECTION, namely the parallel test and the two single tests. We see that the    % TODO: fix section reference
-throughputs are almost identical in the parallel case and in the single case,
-implying that the networks on these two bands are indeed operating
-independently. The throughput of the 2.4 GHz parallel test is marginally lower
-than in the single test; we attribute this simply to the tests not being run at
-the same time. Other tests using the same setup show the 2.4 GHz parallel
-throughput to be higher than that of the single.
+throughputs for an uplink test with three of the tests described in 
+\S\ref{sec:met:setups:seqtcp}, namely the parallel test and the two single tests.
+ We see that the throughputs are almost identical in the parallel case and in 
+the single case, implying that the networks on these two bands are indeed 
+operating independently. The throughput of the 2.4 GHz parallel test is 
+marginally lower than in the single test; we attribute this simply to the tests 
+not being run at the same time. Other tests using the same setup show the 2.4 
+GHz parallel throughput to be higher than that of the single.
 
 \begin{figure}[h]
  \centering
