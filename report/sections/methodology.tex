@@ -1,61 +1,57 @@
 In order to establish how well Multipath TCP works in its default configuration
-with multiple WiFi interfaces, we performed a host of wireless experiments that
-measure Multipath TCP's behaviour in different wireless environments and with
-different configurations.
+with multiple WiFi interfaces, we performed a number of wireless experiments to
+measure Multipath TCP's behaviour in various wireless environments and configurations.
 
-We first outline the different testing setups used for the experiments in
-\S\ref{sec:met:setups} and the equipment and software we used in
+We first outline the testing setups used for the experiments in
+\S\ref{sec:met:setups}, and the equipment and tools used in
 \S\ref{sec:met:equip}. \S\ref{sec:met:metrics} then describes the
 data that was recorded during the each test. Finally,
 \S\ref{sec:met:scripts} gives an overview of the different scripts used
-for running, analysing and plotting tests.
+for running, analysing and graphing tests.
 
 \subsection{Experiment setups}
 \label{sec:met:setups}
-All experiments we performed used one of the following configurations, usually
-for both cross-channel 2.4 GHz, same-channel 2.4 GHz and 5 Ghz configurations.
+All experiments were performed using one of the following configurations, usually
+for both same-channel and non-overlapping 2.4 GHz and 5 Ghz configurations.
 
 \subsubsection{Physical layout}
-For the most part of the tests the wireless clients would be placed next to each
-other with about equal spacing. The APs were placed on a table two meters away
-at the same height as the clients, spaced approximately 30cm apart. For the
-tests in \S\ref{sec:met:setups:simtcp}, the clients were about a meter
-further away due to the need for more space for the extra client.
+In the static tests, the wireless clients were placed next to each other with approximately 60cm equal spacing. The
+APs were located 2-3 metres away, and spaced 30cm apart.
 
 \subsubsection{Sequential TCP tests}
 \label{sec:met:setups:seqtcp}
 This test setup consisted of running five tests one after another, and then
 plotting all the results in a single graph. For each test, a TCP connection was
-initiated from each client to a test server, and data was pushed through the
+initiated from each client to a local test server, and data was pushed through the
 connection as fast as the congestion control mechanism would allow it. Two APs
 were used; one hosting network A and one hosting network B. The five tests were
 as follows:
 
 \begin{enumerate}
-  \item Machine A connected to network A
-  \item Machine B connected to network B
-  \item Machine A connected to network A and machine B connected to network B
-  \item Machine A connected to network A and network B
-  \item Machine B connected to network A and network B
+  \item Machine A connected to network A.
+  \item Machine B connected to network B.
+  \item Machine A connected to network A and machine B connected to network B.
+  \item Machine A connected to network A and network B.
+  \item Machine B connected to network A and network B.
 \end{enumerate}
 
 The two first tests were primarily used as baselines for the other tests to see
-how well each network performed on its own without interference from the other
+how well each network performed on its own without interference from another
 network.
 
-The parallel test is used to measure how well two simulateneous, but physically
-different, wireless clients would perform on each network. This was done in
+The parallel test is used to measure how well two wireless clients would perform when transmitting simultaneously on each network. This was done in
 order to measure how well Multipath TCP utilized the two networks compared to
-two entirely separate, vanilla TCP clients.
+two entirely separate, regular TCP clients.
 
 Running the dual-network configuration on both machines may seem unnecessary,
 but it is vital to be able to correctly compare the parallel performance on a
 given channel to the Multipath TCP performance on the same channel. The reason
-for this is that wireless behaves slightly different on different machines and
-in different locations. Running the dual-network test on both machines allows us
-to compare the use of network A for single, parallel and Multipath TCP without
+for this is that due to positioning and differences in driver implementations and hardware, wireless
+performance can differ between different machines and locations. Running the dual-network test on
+both machines allows us to compare the use of network A for
+single, parallel and Multipath TCP without
 worrying about machine discrepancies. Note that a side-effect of this is that
-the Multipath TCP lines in a plot are \textbf{not} from the same test, and thus
+the Multipath TCP lines in a graph are \textbf{not} from the same test, and thus
 would not be expected to match up entirely. That said, we usually observe close
 to the exact same behaviour for Multipath TCP for the two last tests.
 
@@ -64,7 +60,7 @@ from the simultaneous TCP test setup described in the next section.
 
 \subsubsection{Simultaneous TCP tests}
 \label{sec:met:setups:simtcp}
-This test setup had two APs running two different networks and three wireless
+The simultaneous TCP tests used two APs running two different networks and three wireless
 clients. The middle client had two wireless interfaces with one connected to
 each network. The two other clients had only a single interface each, and were
 connected to either of the two networks.
@@ -75,9 +71,9 @@ us to more directly compare the performance of a Multipath TCP client to that of
 two simultaneous clients. It also let us evaluate the fairness of Multipath TCP
 when other clients are using the network at the same time.
 
-This testing setup also avoids the cross-host comparison issue exhibited by the
+This test also avoids the cross-host comparison issue exhibited by the
 sequential tests, and consequently we mainly include results from the
-simultaneous tests in this report.
+simultaneous tests in this report as they are more robust.
 
 \subsubsection{UDP interrupt tests}
 \label{sec:met:setups:intudp}
@@ -85,8 +81,8 @@ UDP interrupt tests are run with only a single wireless client with two wireless
 interfaces. Each wireless interface was connected to one of the APs as in the
 other setups, but initially data is only transmitted on one of the interfaces.
 The other interface alternates between being in idle and active mode. The
-alternating interface is idle or active for fixed time slots during the
-experiment.
+alternating interface is idle or active for fixed time slots of 30 seconds
+during the experiment.
 
 The idea behind alternating the active periods for one of the interfaces is
 simple; ideally, if there is no interference between these interfaces, then
@@ -95,45 +91,36 @@ the alternating interface is active. If there is interference (such as with
 networks on the same 2.4 GHz channel), the throughput of the always-on interface
 should drop significantly when the other interface is active.
 
-To avoid having the throughput be limited by other factors than the wireless
-channels, interrupt tests are run with UDP rather than TCP.\@ This ensures that
-the only limiting factor for the througput is the NIC itself.
+To avoid having the throughput be limited by factors other than the wireless
+channels, such as congestion control, interrupt tests were run with UDP rather than TCP.\@ This ensures that
+the only limiting factor for the throughput is the NIC itself.
 
 \subsection{Equipment and software}
 \label{sec:met:equip}
 The WiFi interfaces used in our experiments were mostly 2.4 GHz Wi-Pi dongles
-from Element 14 commonly found in Raspberry Pi devices. For the 5 GHz tests, a
+from Element 14, commonly found in Raspberry Pi devices. For the 5 GHz tests, a
 % TODO: confirm model
-Tenda W322U
-was used. These dongles did prove somewhat flaky and would occasionally drop
+Tenda W522U
+was used. These dongles did prove somewhat unreliable and would occasionally drop
 substantial amounts of packets or fail altogether, particularly in uplink tests.
 For some experiments we were therefore forced to use the built-in wireless
 interfaces on the laptops to perform the experiments. These exhibited
 more stable loss rates and generally did not fail during experiments, but also
 made comparing results across tests more difficult.
 
-Our APs were two 2.4 GHz
-% TODO: confirm model
-NETGEAR ProSafe
-as well as a
-% TODO: confirm model
-D-Link
+Our APs were two 2.4 GHz NETGEAR ProSafe WG103 as well as a Netgear N600
 which was used exclusively for 5 GHz tests. All tests were performed with WPA2
 encryption enabled and using 802.11g only.
 
-% TODO: confirm models
-For wireless clients we used personal laptops including a Lenovo ThinkPad X1
-Carbon, a Dell, an Alienware, a MacBook and a Fujitsu-Siemens.
+The test servers were two dedicated machines connected to the UCL internal
+network using a gigabit switch. Since the APs were all 100 megabit
+only, there should be no bottleneck in the network beyond the APs. We used a variety of personal laptops as wireless clients.
 
-The test servers were two dedicated stationary machines connected to the UCL
-internal network using a gigabit switch. Since the APs were all 100 megabit
-only, there should be no bottleneck in the network beyond the APs.
-
-To run the tests, NetPerf was used to generate TCP or UDP traffic; the netem
-module for qdisc let us emulate network delays and the \texttt{ss} tool provided
+To run the tests, the NetPerf performance testing tool was used to generate TCP or UDP traffic; the netem
+module for qdisc allowed us to emulate network delays and the \texttt{ss} tool provided
 invaluable information about internal TCP socket information.
 
-At the time of these experiments, both the servers and laptops were running the
+At the time of these experiments, both the servers and client laptops were running the
 most recent version of the Multipath TCP kernel, version 0.87, which is based
 on Linux 3.10.
 
@@ -146,23 +133,20 @@ discussed below:
 
 \begin{description}
   \item[throughput]
-    Throughput is calculated by looking at the difference in the number of bytes
+    This is calculated using the difference in the number of bytes
     sent on each interface (as reported by \texttt{/proc\-/net/\-dev}) and
     dividing it by the time since the last run of \texttt{mp-stats}.
   \item[congestion window]
     Retrieved from the command \texttt{ss -inot} which shows TCP socket
     information. The congestion window size is reported in number of packets,
-    and so we multiply it by the mss to get the real congestion window size.
+    and so we multiply it by the MSS to get the real congestion window size.
   \item[roundtrip time]
     TCP's RTT estimate is also extracted from the output of \texttt{ss}.
   \item[send queue size]
-    Printed by \texttt{ss}, but does not show the size of the IP send queue as
-    suspected. It also includes the size of any packets sent, but not yet ACKed
-    by TCP.\@ This phenomenon is further examined in
-    \S\ref{sec:results-closing-remarks}.
+    Printed by \texttt{ss}. This includes the size of any packets sent, but not yet ACKed
+    by TCP.
   \item[TCP retransmissions]
-    This information is provided in \texttt{/proc\-/net/\-netstat}, but not per
-    connection or per interface, only on a global level.
+    This statistic is provided in \texttt{/proc\-/net/\-netstat} across all interfaces in a machine.
 \end{description}
 
 In order to make multiple metrics easier to plot on a single graph, many of the
@@ -177,11 +161,11 @@ which is detailed in \S\ref{sec:met:scripts}.
 
 \subsection{Scripts}
 \label{sec:met:scripts}
-In order to automate oft-performed tasks such as running tests and analyzing
+In order to automate common tasks such as running tests and analyzing
 data, we developed several scripts that were then used throughout the
 experiments. The most interesting ones are outlined below.
 
-Note that many of these scripts perform magic based on what wireless networks
+Note that many of these scripts perform some magic based on what wireless networks
 the host machine is connected to. For this paper, two servers were used: fry and
 zoidberg. Three wireless networks were set up, named bender-wifi, fry-wifi and
 zoidberg-wifi. Every test involved at least one of fry-wifi and zoidberg-wifi,
@@ -190,18 +174,18 @@ an indicator of which server should be used for tests.
 
 \begin{description}
   \item[mp-start and mp-congestion]
-    These two scripts enable MPTCP on the current machine, as well as set the
+    These two scripts enable Multipath TCP on the current machine, as well as set the
     appropriate congestion control algorithm on both the local machine and any
     remote machines it might be connected to.\ \texttt{mp-start} also stops any
     other wireless connections as well as some common network-intensive
     applications such as Dropbox. This prevents other traffic interfering with
     the tests.
   \item[mp-routes]
-    Examines the ip addresses of any active network interfaces and sets up
+    Examines the IP addresses of any active network interfaces and sets up
     routing tables according to
     \href{http://multipath-tcp.org/pmwiki.php/Users/ConfigureRouting}{http://multipath-tcp.org/\-pmwiki.php/\-Users/\-ConfigureRouting}.
   \item[mp-run]
-    The primary testing script for MPTCP experiments. First, logs information
+    The primary testing script for our experiments. First, logs information
     about test location, connected networks, nearby wireless networks, TCP
     configuration parameters and kernel version to name a few. Then it starts
     the \texttt{mp-stats} logging daemons to record state information during the
@@ -215,12 +199,12 @@ an indicator of which server should be used for tests.
     Collects the majority of statistics during a test. By default it samples
     data once every second. It logs stats from the wireless interfaces (signal
     strength, bitrate, retransmit failures), IP (bytes and packets sent) and TCP
-    (queue sizes, rtt estimates, retransmits)
+    (queue sizes, RTT estimates, retransmits)
   \item[mp-int]
     Works much the same as mp-run, but instead of running TCP sessions with
-    netperf on all connected interfaces, it runs a UDP\_STREAM test continuously
+    netperf on all connected interfaces, it runs a UDP\_STREAM benchmark continuously
     on one interface and periodically on the other connected interface. This
-    script effectively runs the UDP interrupt tests described in
+    script implements the UDP interrupt tests described in
     \S\ref{sec:met:setups:intudp}.
   \item[mp-analyze]
     Given a test directory created by \texttt{mp-run} or \texttt{mp-int},
