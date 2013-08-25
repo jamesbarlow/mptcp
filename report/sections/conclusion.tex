@@ -1,0 +1,37 @@
+In this paper we have presented a number of wireless experiments showing that
+multiplexing across multiple wireless interfaces on a single host may indeed
+provide advantages over single interface hosts for certain network
+configurations both in terms of reliability and throughput.
+
+Further, we have shown that Multipath TCP works quite well when traffic is
+primarily downlink, as is often the case on wireless networks today, as traffic
+is balanced between the available wireless networks and each host only uses a
+fair share of the total network capacity. We have also shown that Multipath TCP
+does not behave correctly for connections with mostly uplink traffic due to a
+combination of 802.11 retransmissions and effectively unbounded buffering in the
+network stack.
+
+Finally, we have discussed how the uplink problems experienced by Multipath TCP
+are not unique to wireless links, and that they manifest also for vanilla TCP
+connections as bloated buffers. Unfortunately, we have not been able to test our
+suggestion for a solution to this problem, and so the question of how to
+properly limit queue sizes without the presence of loss remains an open problem.
+
+Due to the widespread deployment and high diversity in wireless networks, there
+are many potentially interesting experiments we have not been able to do due to
+time constraints. First and foremost, all of our experiments were performed in
+a building where several other wireless networks were present, making it
+difficult to obtain consistent results. To verify the behaviour we have
+observer, repeating the experiments in more controlled environments may be a
+sound next step.
+
+Most of our experiments were also conducted with only two, static APs, two or
+three wireless clients each with a maximum of two interfaces. Investigating how
+Multipath TCP behaves when more networks are available, or how it behaves with
+different positioning of the APs may yield significantly differing results. As
+5~GHz networks become more prevalent, testing the amount of interference between
+5~GHz channels could also be of value.
+
+The interference patters we observed in \S~\ref{sec:results-interference} also
+suggest that some further research on how Carrier Sense works across channels
+could be warranted.
