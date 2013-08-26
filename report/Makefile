@@ -8,6 +8,9 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	@-pdflatex -halt-on-error report.tex > /dev/null 2> /dev/null
 	@# Run twice to resolve references
 	@echo "Parsing .tex file again to resolve references"
+	@-pdflatex -halt-on-error report.tex > /dev/null 2> /dev/null
+	@# Run thrice to fix table of contents
+	@echo "Parsing .tex file yet again to build table of contents"
 	@pdflatex -halt-on-error report.tex \
 		| sed -n '/^ (\.\/report\.out)/,$$p' \
 		| grep -v "./report.out" \
@@ -48,5 +51,5 @@ graphs/%.tex graphs/%.eps: graphs/%.plot
 	@sed -i 's/\(\\put(0,0){\\includegraphics{\)\(graphs\/.*\.[^p].*\)}}/\1{\2}.pdf}}/' "graphs/$*.tex"
 
 clean:
-	rm -f report.{aux,log,out,pdf}
+	rm -f report.{aux,log,out,pdf,toc}
 	rm -f graphs/*.{tex,pdf,tmp,eps}
