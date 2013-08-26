@@ -6,7 +6,7 @@ in some of the graphs given above.
 
 \subsubsection{Curing inflated congestion windows}
 The issue observer in section~\ref{sec:results-fairness} is one that will affect
-any connection where the bottleneck link is the immedate link a client is
+any connection where the bottleneck link is the immediate link a client is
 connected to, and as mentioned, it will affect both TCP and Multipath TCP,
 albeit with differing effects. In both cases, the congestion window rarely be
 cut in half, and thus will grow indefinitely beyond the ``correct'' value of the
@@ -17,7 +17,7 @@ continue to assume that they are being fair by continuing to put packets onto
 the send queue, even though these packets are drained slower than they are being
 put in. This is what is causing the bloated queue we saw in the graphs. For TCP,
 this is not a problem beyond adding delay for any other flows on the host as
-their packets will be queued behin an abnormally large amount of packets from
+their packets will be queued behind an abnormally large amount of packets from
 the bloated TCP flow. For Multipath TCP on the other hand, this is a problem as
 Multipath TCP will then never yield the link voluntarily (because it will always
 have a packet in the queue to send).
@@ -56,10 +56,10 @@ should have to wait for the immediate link to become available:
   QL = \frac{var \cdot cwnd}{RTT}\label{eq:ql}
 \end{align}
 
-where $QL$ is the expected limit of the send queue, and var is the RTT variance
-measured by TCP.\@ For links where the bottleneck is not our immediate link,
-however, equation~\ref{eq:ql} may not behave as desired; as the sending host
-will now attempt to balance its local queue according to the queue of the
+Where $QL$ is the expected limit of the send queue, and $var$ is the RTT
+variance measured by TCP.\@ For links where the bottleneck is not our immediate
+link, however, equation~\ref{eq:ql} may not behave as desired; as the sending
+host will now attempt to balance its local queue according to the queue of the
 bottleneck link, potentially occasionally leaving the bottleneck link without
 data to send, which would be bad for throughput. This may be overcome by
 measuring the send delay variance of the immediate link directly and
@@ -77,7 +77,7 @@ should be appropriate.
 
 To make it easier to integrate this with TCP, one could also implement this as a
 ``once per ACK'' operation just like how New Reno increases the congestion
-window. We want one RTT's worth of ACKs to decrease $cwnd$ by half, and so:
+window. We want one RTT worth of ACKs to decrease $cwnd$ by half, and so:
 
 \begin{align}
   \frac{cwnd}{MSS} \cdot step = \frac{cwnd_i}{2} \\
@@ -94,7 +94,7 @@ Thus, if we do the following on every received ACK:
     cwnd_i = cwnd
 \end{verbatim}
 
-We believe this might correct TCPs congestion window size, bringing it back to
+We believe this might correct TCP's congestion window size, bringing it back to
 the point where the send queue hovers around 0. Being dynamic, it would also be
 a superior solution to TCP Small Queues. It would possibly also fix the fairness
 issue we've seen with Multipath TCP over feedback-less links as the congestion
@@ -106,7 +106,7 @@ trying to fix TCP when used in conjunction with wireless networks.
 
 \subsubsection{Wireless experiments}
 Running every test many times has proven very important throughout this project.
-For the uplink reno 2.4 GHz tests for example, we initially suspected that
+For the uplink New Reno 2.4 GHz tests for example, we initially suspected that
 Multipath TCP was consistently seeing slightly lower throughput compared to
 parallel, and we surmised that this might be because two WiFi interfaces
 connected to one machine might somehow lead to more cross-interface interference
@@ -134,7 +134,7 @@ packets in the send queue at all; they should mostly all be in flight.
 
 Our first guess was that the send queue size included the TCP socket buffer
 size, but this was quickly discarded as the TCP socket buffer should usually be
-close to full (i.e.\ a constant value) due to the netperf tool adding packets in
+close to full (i.e.\ a constant value) due to the NetPerf tool adding packets in
 a tight loop. That was clearly not what was happening here.
 
 It turns out that the reason for this is surprisingly simple; the send queue
@@ -165,12 +165,12 @@ something resembling logarithmic growth rather than the familiar linear
 saw-tooth. To understand why this is happening, it is necessary to look closer
 at how the congestion window is increased.
 
-The congestion control mechanisms used by Multipath TCP and regular TCP try to 
-increase the congestion window by one MSS per RTT.\@ It does this by increasing 
-thecongestion window by approximately $\sfrac{1}{cwnd}$ per received ACK.\@ This 
-works well in the assumed case where increasing the congestion window will cause 
-you to send more packets, and thus receive more ACKs per RTT, but is not correct 
-when the link layer masks loss.
+The congestion control mechanisms used by Multipath TCP and regular TCP try to
+increase the congestion window by one MSS per RTT.\@ It does this by increasing
+the congestion window by approximately $\sfrac{1}{cwnd}$ per received ACK.\@
+This works well in the assumed case where increasing the congestion window will
+cause you to send more packets, and thus receive more ACKs per RTT, but is not
+correct when the link layer masks loss.
 
 What happens when TCP does not see loss, as discussed in 
 \S\ref{sec:results-fairness}, is %TODO: set correction section reference 
@@ -179,12 +179,12 @@ can handle, and so increasing it will not cause any more packets to be sent.
 The number of ACKs received in an RTT will therefore remain constant. The 
 $\sfrac{1}{cwnd}$ term will grow smaller, and so the growth of the congestion 
 window relative to the congestion window size per RTT will decrease, leading to 
-the logartichmic growth seen in the results.
+the logarithmic growth seen in the results.
 
 \subsubsection{Congestion window and throughput}
 
 In Figure~\ref{graph:fairness-rtt-up-close}, we can observe another very strange
-phenomenon that occured in a number of experiments. Here, we see a curious
+phenomenon that occurred in a number of experiments. Here, we see a curious
 correlation between throughput and the congestion window size. Other tests also
 show a correlation between then two, but it is particularly evident in this one
 as the throughput looks like it is actually bounded by the congestion window.
@@ -217,7 +217,7 @@ plotted as 10s of kilobytes, and thus we plot $c(x)$ as
        = \frac{cw_x}{10 \cdot 1024} \text{\ (10 kB)}
 \end{align*}
 
-now, consider the throughput $t'(cw)$ allowed by a congestion window of size
+Now, consider the throughput $t'(cw)$ allowed by a congestion window of size
 $cw$ over a link with RTT $\approx 100ms$:
 
 \begin{align*}

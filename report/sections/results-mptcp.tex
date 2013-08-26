@@ -38,17 +38,17 @@ This is shown in Figure~\ref{graph:reno-down}.
 The per-subflow fairness in the downlink case is achieved in two steps. Firstly,
 the wireless medium should be shared equally between the two APs (assuming they
 both have data to send and their channels are equally busy) due to carrier
-sense. Additionally, because TCP New Reno does not try to balance the load on 
-each flow, the sender would continously try to push as much data as it can get 
-on the link and this is only limited by the finite buffer at the AP. The effect 
-of this is that the APs drop further incoming packets as soon as the buffers are 
-full and this notifies the sender to adapt its rate. However this doesnt mean 
-that TCP New Reno would reduce its agressiveness, it just reduces the amount of 
-packets it has in flight at a given time. This value still grows as agressively 
-as before hence the buffers at the AP are always full. The full buffers ensure 
-that the AP's always have data to send on behalf of each flow when it gets its 
-fair share of the medium as determined by carrier sense. Hence this should lead 
-to the flows sharing the available bandwidth fairly as they have roughly the 
+sense. Additionally, because TCP New Reno does not try to balance the load on
+each flow, the sender would continuously try to push as much data as it can get
+on the link and this is only limited by the finite buffer at the AP. The effect
+of this is that the APs drop further incoming packets as soon as the buffers are
+full and this notifies the sender to adapt its rate. However this does not mean
+that TCP New Reno would reduce its aggressiveness, it just reduces the amount of
+packets it has in flight at a given time. This value still grows as aggressively
+as before hence the buffers at the AP are always full. The full buffers ensure
+that the AP's always have data to send on behalf of each flow when it gets its
+fair share of the medium as determined by carrier sense. Hence this should lead
+to the flows sharing the available bandwidth fairly as they have roughly the
 same amount of access to the medium.
 
 \subsubsection{Uplink}

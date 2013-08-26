@@ -13,7 +13,7 @@ tests.
 \subsection{Experiment setups}
 \label{sec:met:setups}
 All experiments were performed using one of the following configurations,
-usually for both same-channel and non-overlapping 2.4 GHz and 5 Ghz
+usually for both same-channel and non-overlapping 2.4 GHz and 5 GHz
 configurations.
 
 \subsubsection{Physical layout}
@@ -111,7 +111,7 @@ use the built-in wireless interfaces on the laptops to perform the experiments.
 These exhibited more stable loss rates and generally did not fail during
 experiments, but also made comparing results across tests more difficult.
 
-Our APs were two 2.4 GHz NETGEAR ProSafe WG103 as well as a Netgear N600 which
+Our APs were two 2.4 GHz Netgear ProSafe WG103 as well as a Netgear N600 which
 was used exclusively for 5 GHz tests. All tests were performed with WPA2
 encryption enabled and using 802.11g only.
 
@@ -167,7 +167,7 @@ detailed in \S\ref{sec:met:scripts}.
 
 \subsection{Scripts}
 \label{sec:met:scripts}
-In order to automate common tasks such as running tests and analyzing data, we
+In order to automate common tasks such as running tests and analysing data, we
 developed several scripts that were then used throughout the experiments. The
 most interesting ones are outlined below.
 
@@ -195,20 +195,20 @@ one of them as an indicator of which server should be used for tests.
     about test location, connected networks, nearby wireless networks, TCP
     configuration parameters and kernel version to name a few. Then it starts
     the \texttt{mp-stats} logging daemons to record state information during the
-    experiments. It then starts the test itself by running netperf for a
-    configurable period of time. When the netperf test is done, the logging
+    experiments. It then starts the test itself by running NetPerf for a
+    configurable period of time. When the NetPerf test is done, the logging
     daemon is stopped and any large log files are compressed.
 
     \texttt{mp-run} also supports doing downlink tests by spawning a local
-    netperf server and running the netperf client on one of the server machines.
+    NetPerf server and running the NetPerf client on one of the server machines.
   \item[mp-stats]
     Collects the majority of statistics during a test. By default it samples
-    data once every second. It logs stats from the wireless interfaces (signal
-    strength, bitrate, retransmit failures), IP (bytes and packets sent) and TCP
-    (queue sizes, RTT estimates, retransmits)
+    data once every second. It logs statistics from the wireless interfaces
+    (signal strength, bit rate, retransmit failures), IP (bytes and packets
+    sent) and TCP (queue sizes, RTT estimates, retransmits)
   \item[mp-int]
     Works much the same as mp-run, but instead of running TCP sessions with
-    netperf on all connected interfaces, it runs a UDP\_STREAM benchmark
+    NetPerf on all connected interfaces, it runs a UDP\_STREAM benchmark
     continuously on one interface and periodically on the other connected
     interface. This script implements the UDP interrupt tests described in
     \S\ref{sec:met:setups:intudp}.
@@ -216,7 +216,7 @@ one of them as an indicator of which server should be used for tests.
     Given a test directory created by \texttt{mp-run} or \texttt{mp-int},
     \texttt{mp-analyze} will extract information from various log files and
     output a simple space-separated file for each interface (and a total) with
-    values for everything from throughput to bitrate. This information is then
+    values for everything from throughput to bit rate. This information is then
     used by \texttt{mp-plot} or \texttt{mp-cdf} to display graphs or other
     statistical information about the data.
   \item[mp-plot]
@@ -240,7 +240,7 @@ one of them as an indicator of which server should be used for tests.
     relevant when the merged set of samples are plotted as a single CDF.\@ The
     normalization is performed by finding the average of the median throughput
     in each test in the set, and then subtracting that from every throughput
-    measurement. This retains both the shape and width of the CDFs, while
+    measurement. This retains both the shape and width of the CDF, while
     ignoring the absolute throughput values which can vary quite a lot from one
     test to another due to other clients using the network.
   \item[mp-gather]

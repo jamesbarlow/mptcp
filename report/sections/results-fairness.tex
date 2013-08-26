@@ -103,7 +103,7 @@ and only then will it pass the packet to the send queue. The NIC takes packets
 from the send queue in FIFO order to transmit them on the medium.
 
 Ignoring the advertised receive window, the two limits to how fast a TCP flow
-can send are therefore the congestion wndow and the link speed of the NIC.\@ If
+can send are therefore the congestion window and the link speed of the NIC.\@ If
 TCP passes packets into the queue faster than the NIC can transmit them, the
 send queue will simply grow, but not drop packets. The TCP flow counts the
 packet as having been sent, but the packet will be kept in the send queue until
@@ -135,7 +135,7 @@ send queue with packets that the NIC can't send. This is a problem because any
 packets sent by other flows on the same host will now be queued behind these
 packets, increasing delay significantly, which is a problem for flows where
 latency is more important than throughput such as VoIP.\@ To mitigate this 
-problem, TCP Small Queues has been implementd in the Linux kernel, effectively 
+problem, TCP Small Queues has been implemented in the Linux kernel, effectively 
 hard capping the amount of bytes any TCP flow can keep in the IP send queue at 
 any given point in time. Although this will not solve the underlying problem, it 
 will limit the amount of delay a misbehaving TCP flow can inflict on other flows.
@@ -190,7 +190,7 @@ product'' line shows the bandwidth delay product (and thus the target congestion
 window size) of the real RTT + 100ms times the throughput observed without an
 inflated RTT.\@ Clearly, the congestion window is never approaching this value.
 The same is the case for the other subflow and the two parallel flows. By
-looking at the number of tranmission failures reported by the NIC, we can see
+looking at the number of transmission failures reported by the NIC, we can see
 that the amount of dropped packets is similar to the number observed in tests
 without artificially high RTT.\@ This kind of constant loss causes both Coupled
 and New Reno to continuously halve their congestion windows, and with the higher
