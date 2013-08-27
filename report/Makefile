@@ -12,7 +12,8 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	@# Run thrice to fix table of contents
 	@echo "Parsing .tex file yet again to build table of contents"
 	@pdflatex -halt-on-error report.tex \
-		| sed -n '/(\.\/report\.aux$$/,$$p' \
+		| sed -n '/hyperref\/hpdftex\.def$$/,$$p' \
+		| (cat \
 		| grep -v "^\[Loading" \
 		| grep -v "^\*geometry\*" \
 		| grep -v "./report.out" \
@@ -25,7 +26,7 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 		| grep -v "/usr/share/texmf-dist" \
 		| grep -v ".pfb" \
 		| grep -v "Transcript" \
-		| grep -v '^$$'
+		| grep -v '^$$'; :) # Because grep returns 1 on no matches...
 
 show: report.pdf
 	xdg-open report.pdf &
