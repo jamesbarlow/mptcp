@@ -51,7 +51,7 @@ This is typically either a timeout waiting for an ACK, or the receipt of
 multiple duplicate ACKs.
 
 TCP New Reno implements two mechanisms for backing off when congestion is
-detected. After a congestion event occurs, the algorithm returns the congestion
+detected. In the case of a missed ACK, the algorithm returns the congestion
 window to its small initial size and begins slow start again. Since the timeout
 in TCP must be fairly long to cater for high-latency links, a fast
 recovery mechanism is also implemented. When three duplicate ACKs are received,
@@ -105,7 +105,7 @@ fairness. Ideally, stations should not carrier sense, and thus defer to, other
 stations transmitting on independent channels as this would prevent stations
 that could transmit simultaneously from doing so.
 
-The 802.11 MAC layer also implements separate packet acknowledgements in addition
+The 802.11 MAC layer also implements its own packet acknowledgements in addition
 to those provided by TCP.\@ Acknowledgement packets are sent immediately after
 each data frame is successfully received in a reserved time slot where no station
 may transmit. A station will generally retry transmitting a fixed number of times
