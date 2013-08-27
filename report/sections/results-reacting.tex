@@ -1,2 +1,26 @@
+One of the goals of Multipath TCP is to use the available links to improve
+reliability, and one of the ways it does so is by moving traffic off congested
+paths. Considering WiFi connectivity changes drastically as a user moves around,
+we felt it would be interesting to put Multipath TCP's ability to move traffic
+from one link to another to the test.
+
+\begin{figure}[h]
+ \centering
+ \input{graphs/mobility.tex}
+ \caption{Traffic distribution with movement, downlink, non-overlapping 2.4 GHz}\label{graph:mobility}
+\end{figure}
+
+We therefore ran a test as described in \S~\ref{sec:met:setups:mobility} in
+which a client moved between two APs positioned sufficiently far apart that one
+link was significantly better when near any one of the APs. The results shown in
+Figure~\ref{graph:mobility} tell us that Coupled is indeed doing exactly what
+you would expect. More traffic goes through one interface when the user is
+closer to that AP, as expected, but more importantly, it evenly distributes the
+traffic when the user moves back into a position where both networks are
+approximately equally strong.
+
+We chose to only perform this test with downlink traffic since, as discussed in
+\S~\ref{sec:results-fairness}, Coupled simply behaves like New Reno, making the
+results uninteresting.
 
 % vim:textwidth=80:colorcolumn=80:spell:
