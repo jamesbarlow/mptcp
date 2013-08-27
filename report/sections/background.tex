@@ -2,8 +2,8 @@
 \label{sec:bg:tcp}
 The Transmission Control Protocol (TCP) is one of the core internet protocols.
 It provides reliable, in-order delivery of data (a stream of bytes) between two
-systems; it also offers a full-duplex service, meaning it allows a pair of byte
-streams to flow, one in each direction, per connection. It is a packet-based
+systems and operates in full-duplex, meaning that it allows a pair of byte
+streams to flow per connection, one in each direction. It is a packet-based
 protocol, and uses positive acknowledgement of packets to signal successful
 delivery. TCP also supports demultiplexing, which allows different application
 processes on a host to share the underlying network, and flow and congestion
@@ -11,16 +11,16 @@ control which will be explained later in this section.
 
 After establishing a connection between two communicating parties, TCP allows
 each host to feed it data that will be split into packets and sent over the
-network to the other host. The Maximum Segment Size (MSS) limits how much data
-TCP is allowed to put into a single packet, and TCP generally tries to ensure
-that every packet is exactly one MSS large to avoid sending more packets than
-strictly necessary.
+network to the other host. The Maximum Segment Size (MSS) of a path limits
+how much data TCP is allowed to put into a single packet, and TCP generally
+tries to ensure that every packet is exactly one MSS large to avoid sending
+more packets than strictly necessary.
 
 To avoid overloading the network or the receiving host, TCP uses two rate
 control mechanisms: flow control and congestion control. Flow control is used to
 avoid sending data at a faster rate than the receiving host is able to process.
 Every packet a host sends out contains an indication of the amount of free
-buffer space available at the host, and the sending host has to make sure it
+buffer space available at the host, and the sending host must ensure that it
 does not transmit data that the receiver does not have room for. This is
 implemented using a sliding window algorithm where each host limits the number
 of packets in flight at any given time, making sure to never put more data on
@@ -34,7 +34,7 @@ next link. If a device in the network receives packets faster than it can
 retransmit them, the buffer will fill up, and eventually packets are dropped
 because the buffer is full. This packet loss indicates congestion, and TCP
 attempts to limit itself so that it does not congest any network device along
-the path, whilst still getting its fair share of the available capacity.
+the path, while still taking an equal, fair share of the available capacity.
 
 The canonical congestion control algorithm is TCP New Reno. This algorithm
 maintains a congestion window, similar to the receiver's flow control window,
@@ -47,19 +47,19 @@ window is chosen, and this is increased by one MSS for each received packet
 acknowledgement received (also known as an ACK). This has the effect of
 increasing the congestion window size exponentially until a congestion event
 occurs. A congestion event is anything that indicates that a loss has occurred.
-This is typically either a timeout waiting for an ACK, or the receipt or
-multiple duplicate ACKs (three by default in New Reno).
+This is typically either a timeout waiting for an ACK, or the receipt of
+multiple duplicate ACKs.
 
 TCP New Reno implements two mechanisms for backing off when congestion is
-detected. After a missed ACK, the algorithm returns the congestion window to its
-small initial size and runs slow start again. Since the timeout in TCP has to be
-quite long to cater for slow or high-latency links, a fast recovery mechanism is
-also implemented. When three duplicate ACKs are received, TCP considers this an
-indication of congestion, and will halve its congestion window. This is called a
-fast retransmit since it (hopefully) prevents TCP from having to wait for a
-timeout an reinitiate slow start. After fast retransmits, New Reno runs in
-additive-increase mode, where each the congestion window is increased by one
-packet every roundtrip time (RTT).
+detected. After a congestion event occurs, the algorithm returns the congestion
+window to its small initial size and begins slow start again. Since the timeout
+in TCP must be fairly long to cater for high-latency links, a fast
+recovery mechanism is also implemented. When three duplicate ACKs are received,
+TCP considers this an indication of congestion, and will halve its congestion
+window. This is called a fast retransmit since it is intended to prevent TCP
+from having to wait for a timeout and re-enter slow start. After fast
+retransmits, New Reno runs in additive-increase mode, where each the congestion
+window is increased by one packet every round-trip time (RTT).
 
 The repeated behaviour of probing for available capacity and then reducing the
 window size when congestion occurs produces a distinctive saw-tooth of the
@@ -70,13 +70,13 @@ congestion window size.
 The 802.11 standards are a set of physical layer and MAC specifications for
 implementing WiFi networks. 802.11 networks commonly operate on frequencies in
 the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
-sub-bands more commonly known as channels. For example, the 802.11g channels in
+sub-bands, commonly known as channels. For example, the 802.11g channels in
 the 2.4 GHz band are 22 MHz wide and spaced 5 MHz apart, beginning with 2.412
 GHz.
 
 Since many of the wireless channels are overlapping, traffic on one network will
-affect neighbouring channels, interfering with any signals that are currently
-being transmitted in that channel. Given that the 2.4 GHz and 5 GHz bands are
+affect neighbouring channels and interfere with any signals that are currently
+being transmitted on that channel. Given that the 2.4 GHz and 5 GHz bands are
 not specifically reserved for WiFi, they are also susceptible to noise from
 other devices such as microwave ovens and Bluetooth enabled electronics.
 Wireless networks are therefore notoriously volatile, and performance can change
@@ -105,11 +105,11 @@ fairness. Ideally, stations should not carrier sense, and thus defer to, other
 stations transmitting on independent channels as this would prevent stations
 that could transmit simultaneously from doing so.
 
-The 802.11 MAC layer also implements packet acknowledgements separately from
-TCP.\@ Acknowledgement packets are sent immediately after each data frame is
-successfully received in a time slot where no station may transmit. A station
-will generally retry transmitting a fixed number of times without receiving
-acknowledgement before dropping a packet.
+The 802.11 MAC layer also implements separate packet acknowledgements in addition
+to those provided by TCP.\@ Acknowledgement packets are sent immediately after
+each data frame is successfully received in a reserved time slot where no station
+may transmit. A station will generally retry transmitting a fixed number of times
+without receiving acknowledgement before dropping a packet.
 
 \subsection{Multipath TCP}
 \label{sec:bg:mptcp}
@@ -119,7 +119,7 @@ so that equipment racks are connected through multiple paths. Data centres
 themselves are often multihomed to improve reliability, meaning that they have
 several points of access to the wider internet. Multipath TCP\footnote{RFC 6824
  - TCP Extensions for Multipath Operation with Multiple Addresses.} is an
-extension to TCP currently being standardised by the IETF, which aims to improve
+extension to TCP recently standardised by the IETF, which aims to improve
 redundancy and throughput by taking advantage of multiple paths for a single
 TCP flow. In order to achieve this, Multipath TCP adds additional ``subflows''
 to a TCP connection so that data flows between every pair of network
