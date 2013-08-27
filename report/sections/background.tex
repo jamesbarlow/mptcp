@@ -117,15 +117,19 @@ Devices with multiple network interfaces are common. Many consumer smart phones
 have both WiFi and 3G interfaces, and data centres networks are often deployed
 so that equipment racks are connected through multiple paths. Data centres
 themselves are often multihomed to improve reliability, meaning that they have
-several points of access to the wider internet. Multipath TCP is an extension to
-TCP currently being standardised by the IETF, which aims to improve redundancy
-and throughput by taking advantage of multiple paths for a single TCP flow. In
-order to achieve this, Multipath TCP adds additional ``subflows'' to a TCP
-connection so that data flows between every pair of network interfaces of each
-host, taking advantage of potentially independent paths.
+several points of access to the wider internet. Multipath TCP\footnote{RFC 6824
+ - TCP Extensions for Multipath Operation with Multiple Addresses.} is an
+extension to TCP currently being standardised by the IETF, which aims to improve
+redundancy and throughput by taking advantage of multiple paths for a single
+TCP flow. In order to achieve this, Multipath TCP adds additional ``subflows''
+to a TCP connection so that data flows between every pair of network
+interfaces of each host, taking advantage of potentially independent paths.
 
 % Reference RFC 6182
-The authors of Multipath TCP give three main goals for the protocol:
+% ** I think these are actually specified in 6356! **
+
+The authors of Multipath TCP give three main goals for the protocol\footnote{RFC 
+6356 - Coupled Congestion Control for Multipath Transport Protocols.}:
 
 \begin{description}
   \item[improve throughput] A Multipath TCP flow should perform at least as well
