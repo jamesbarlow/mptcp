@@ -1,16 +1,36 @@
-This report evaluates the effect of WiFi interference on Multipath TCP. 
-The results presented in this report show that there can be a performance gain 
+This report evaluates the effect of WiFi interference on Multipath TCP. The 
+problem considered in this report and the conclusions drawn from it have been 
+based on results from several wireless experiments ran using different settings 
+and layouts. The results presented show that there can be a performance gain 
 in using Multipath TCP exclusively with WiFi for both the downlink and uplink.
 
 Both cases show that on two idle paths Multipath TCP can attain an aggregate
-throughput which is equal to the sum of both links. 
-However, while the downlink contending traffic results show that the aggregate 
-throughput is reduced to the capacity of the best single link, thus making its 
-behaviour fair to contending flows, the uplink behaves quite differently.
+throughput which is equal to the sum of both links. However, while the downlink 
+contending traffic results show that the aggregate throughput is reduced to the 
+capacity of the best single link, thus making its behaviour fair to contending 
+flows, the uplink behaves quite differently.
 Uplink results show that the aggregate throughput is generally more than that of 
 the best link and only in some cases equal to the sum of both links. This 
 behaviour shows that Multipath TCP on the uplink is unfair to other flows on the 
 medium as it gets a larger share in total. This contradicts the second rule of 
-its default congestion control algorithm; the Coupled congestion control which 
-states "do no harm".
+its default congestion control algorithm which states "do no harm", and raises 
+questions regarding how well Multipath TCP behaves with WiFi.
+
+This report aims to evaluate how Multipath TCP compares to a single-path TCP 
+connection when facing interference in a wireless environment, and how this 
+might affect its behaviour.
+
+Multipath TCP was designed for wired environments and even though some of the 
+concepts and issues discussed in this report have been addressed before, there 
+has been no further investigation towards how Multipath TCP might work in a 
+wireless environment, hence our interest in this project. We believe that by 
+further evaluating Multipath TCP in a setting and a view that has not been taken 
+before, we will be able to create more opportunities for it to be improved and 
+become even more widespread. This would be benefitial not only for the industry 
+but also for the common user of the Internet. By widespreading the use of 
+Multipath TCP in wireless environments a great number of new opportunities open 
+up to what can be done with it, thus trying to better understand and improve it 
+might prove to be invaluable. (Maybe this contribution bit should go to intro?)
+
+
 % vim:textwidth=80:colorcolumn=80:spell:
