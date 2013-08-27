@@ -52,6 +52,9 @@ graphs/%.tex graphs/%.eps: graphs/%.plot
 	@# see http://tex.stackexchange.com/questions/10574/includegraphics-dots-in-filename
 	@sed -i 's/\(\\put(0,0){\\includegraphics{\)\(graphs\/.*\.[^p].*\)}}/\1{\2}.pdf}}/' "graphs/$*.tex"
 
+	@# Make graph fonts smaller
+	@sed -i 's/\\makebox(0,0)\(.*\){\\strut{}\([^}]*\)}}%/\\makebox(0,0)\1{\\strut{}\\scriptsize{\2}}}%/' "graphs/$*.tex"
+
 clean:
 	rm -f report.{aux,log,out,pdf,toc}
 	rm -f graphs/*.{tex,pdf,tmp,eps}
