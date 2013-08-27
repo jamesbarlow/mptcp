@@ -12,7 +12,9 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	@# Run thrice to fix table of contents
 	@echo "Parsing .tex file yet again to build table of contents"
 	@pdflatex -halt-on-error report.tex \
-		| sed -n '/^ (\.\/report\.out)/,$$p' \
+		| sed -n '/(\.\/report\.aux$$/,$$p' \
+		| grep -v "^\[Loading" \
+		| grep -v "^\*geometry\*" \
 		| grep -v "./report.out" \
 		| grep -v "\`h' float specifier changed to" \
 		| grep -v "sections/" \
