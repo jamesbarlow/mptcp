@@ -141,42 +141,6 @@ At the time of these experiments, both the servers and client laptops were
 running the most recent version of the Multipath TCP kernel, version 0.87, which
 is based on Linux 3.10.
 
-\subsection{Metrics}
-\label{sec:met:metrics}
-To understand our results, it is important to know where the data comes from.
-During each test, the script \texttt{mp-stats} was run every 500ms and it is the
-primary source of data for every plot. The most interesting metrics are
-discussed below:
-
-\begin{description}
-  \item[throughput]
-    This is calculated using the difference in the number of bytes sent on each
-    interface (as reported by \texttt{/proc\-/net/\-dev}) and dividing it by the
-    time since the last run of \texttt{mp-stats}.
-  \item[congestion window]
-    Retrieved from the command \texttt{ss -inot} which shows TCP socket
-    information. The congestion window size is reported in number of packets,
-    and so we multiply it by the MSS to get the real congestion window size.
-  \item[roundtrip time]
-    TCP's RTT estimate is also extracted from the output of \texttt{ss}.
-  \item[send queue size]
-    Printed by \texttt{ss}. This includes the size of any packets sent, but not
-    yet ACKed by TCP.
-  \item[TCP retransmissions]
-    This statistic is provided in \texttt{/proc\-/net/\-netstat} across all
-    interfaces in a machine.
-\end{description}
-
-In order to make multiple metrics easier to plot on a single graph, many of the
-graphs shown in this section are drawn using our \texttt{mp-plot} script, which
-scales values to keep them in the range $[0,100]$. This scaling is important to
-understand in order to interpret the results correctly. For example, throughput
-is measured in Mbps; utilization is a measure of what percentage of total
-throughput is sent through each interface and is displayed so that 80 is 0\% and
-100 is 100\%; and congestion window and send queue are both plotted in 10s of
-kilobytes. The CDF graphs were drawn using the \texttt{mp-cdf} script which is
-detailed in \S\ref{sec:met:scripts}.
-
 \subsection{Scripts}
 \label{sec:met:scripts}
 In order to automate common tasks such as running tests and analysing data, we
@@ -262,4 +226,40 @@ one of them as an indicator of which server should be used for tests.
     test sets in all its arguments, and merge them, optionally using the
     normalization feature.
 \end{description}
+
+\subsection{Metrics}
+\label{sec:met:metrics}
+To understand our results, it is important to know where the data comes from.
+During each test, the script \texttt{mp-stats} was run every 500ms and it is the
+primary source of data for every plot. The most interesting metrics are
+discussed below:
+
+\begin{description}
+  \item[throughput]
+    This is calculated using the difference in the number of bytes sent on each
+    interface (as reported by \texttt{/proc\-/net/\-dev}) and dividing it by the
+    time since the last run of \texttt{mp-stats}.
+  \item[congestion window]
+    Retrieved from the command \texttt{ss -inot} which shows TCP socket
+    information. The congestion window size is reported in number of packets,
+    and so we multiply it by the MSS to get the real congestion window size.
+  \item[roundtrip time]
+    TCP's RTT estimate is also extracted from the output of \texttt{ss}.
+  \item[send queue size]
+    Printed by \texttt{ss}. This includes the size of any packets sent, but not
+    yet ACKed by TCP.
+  \item[TCP retransmissions]
+    This statistic is provided in \texttt{/proc\-/net/\-netstat} across all
+    interfaces in a machine.
+\end{description}
+
+In order to make multiple metrics easier to plot on a single graph, many of the
+graphs shown in this section are drawn using our \texttt{mp-plot} script, which
+scales values to keep them in the range $[0,100]$. This scaling is important to
+understand in order to interpret the results correctly. For example, throughput
+is measured in Mbps; utilization is a measure of what percentage of total
+throughput is sent through each interface and is displayed so that 80 is 0\% and
+100 is 100\%; and congestion window and send queue are both plotted in 10s of
+kilobytes. The CDF graphs were drawn using the \texttt{mp-cdf} script which is
+detailed in \S\ref{sec:met:scripts}.
 % vim:textwidth=80:colorcolumn=80:spell:
