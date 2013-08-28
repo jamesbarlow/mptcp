@@ -215,9 +215,9 @@ one of them as an indicator of which server should be used for tests.
     NetPerf server and running the NetPerf client on one of the server machines.
   \item[mp-stats]
     Collects the majority of statistics during a test. By default it samples
-    data once every second. It logs statistics from the wireless interfaces
-    (signal strength, bit rate, retransmit failures), IP (bytes and packets
-    sent) and TCP (queue sizes, RTT estimates, retransmits)
+    data every 500ms. It logs statistics from the wireless interfaces (signal
+    strength, bit rate, retransmit failures), IP (bytes and packets sent) and
+    TCP (queue sizes, RTT estimates, retransmits)
   \item[mp-int]
     Works much the same as mp-run, but instead of running TCP sessions with
     NetPerf on all connected interfaces, it runs a UDP\_STREAM benchmark

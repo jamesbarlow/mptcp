@@ -1,5 +1,5 @@
 #!/bin/bash
-interval=2s
+interval=.5s
 if [[ ! -z $1 ]]; then
   interval=$1
 fi
