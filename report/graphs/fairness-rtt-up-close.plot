@@ -4,7 +4,7 @@ set xlabel 'seconds'
 set grid
 set xrange [-3.631181:124.670578]
 set yrange [-5:105]
-set key center center
+set key center right
 set title 'mptcp-up'
 
 set style line 1 lt 1 lc rgb "red"
