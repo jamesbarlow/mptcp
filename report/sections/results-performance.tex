@@ -27,17 +27,16 @@ timing difference between the parallel and Coupled tests, getting the exact same
 throughput is unlikely, but we would be surprised to see a consistent difference 
 in throughput between parallel and Coupled at this point.
 
-% TODO: Maybe use merged results here? Have to be careful to only include
-% non-simultaneous results 
-% TODO: Rewrite this if results show something different
-The graphs in figure FIG show the downlink results for the aforementioned
-experiments, and we can see that Coupled is undoubtedly following the
-performance profile of the independent interfaces. This implies that Coupled is
-in fact allowing Multipath TCP to eventually get a total throughput equal to the
-sum of what TCP New Reno would get on each flow individually when there are no
-competing flows. 
-(Which graphs do we want? The early ones or the simultaneous ones? Because from 
-the description it seems like we want the early graphs from when we only had 2 
-clients... If we're using simultaneous tests I guess we could use ni-coupled-
-down-2 from the  2013-08-14 folder)
+\begin{figure}[h]
+ \centering
+ \input{graphs/coupled-performance.tex}
+ \caption{Coupled downlink performance, idle links}\label{graph:coupled-performance}
+\end{figure}
+
+The graphs in Figure~\ref{graph:coupled-performance} show the downlink results
+for the aforementioned experiments, and we can see that Coupled is undoubtedly
+following the performance profile of the independent interfaces. This implies
+that Coupled is in fact allowing Multipath TCP to eventually get a total
+throughput equal to the sum of what TCP New Reno would get on each flow
+individually when there are no competing flows.
 % vim:textwidth=80:colorcolumn=80:spell:
