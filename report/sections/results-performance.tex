@@ -1,6 +1,6 @@
 \S\ref{sec:results-interference} showed us that there is a performance
 gain when using multiple wireless networks if the two networks are somewhat 
-separated in the frequency domain. From \S\ref{sec:results-mptcp} we know that 
+separated in the frequency domain. From \S\ref{sec:results-mptcp}, we know that 
 Multipath TCP has the potential to fully saturate both of these links if given 
 the chance. Our uplink experiments in \S\ref{sec:results-fairness} suggest that 
 Coupled will, if it thinks it is not inconveniencing any other flow, gladly fill 
@@ -10,20 +10,22 @@ are no other clients on the network at the same time.
 
 For the uplink case, we already know that Coupled will eventually use the
 capacity of the link. Because of the lack of congestion feedback discussed in
-\S\ref{sec:results-fairness}, the congestion window will grow large,
+\S\ref{sec:results-fairness}, the congestion window will grow too large,
 meaning there will always be packets waiting in the send queue, and thus the
 only limiting factor is MAC layer fairness. If no other clients are competing
 for access, the MAC will give 100\% capacity to the Coupled flow, and thus it
 will saturate the link. Until this lack of feedback is somehow resolved, the 
-results from experiments with Coupled on the uplink are uninteresting. %TODO (Is 
-% uninteresting the right word?)
+results from experiments with Coupled on the uplink are not particularly
+interesting.
+%TODO (Is uninteresting the right word?)
+% Changed it ^
 
 When Coupled is running for a downlink connection, however, congestion feedback
 \textbf{is} given, and so its behaviour when there are no competing flows is 
-difficult to predict. To address this issue, we performed a series of 
+interesting. To address this, we performed a series of 
 experiments where a parallel test was run and then immediately followed by a 
 test where one host was connected to both hosts and running Coupled. Due to the 
-timing difference between the parallel and Coupled tests, getting the exact same 
+timing difference between the parallel and Coupled tests, getting identical 
 throughput is unlikely, but we would be surprised to see a consistent difference 
 in throughput between parallel and Coupled at this point.
 

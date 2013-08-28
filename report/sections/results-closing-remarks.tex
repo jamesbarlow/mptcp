@@ -2,65 +2,68 @@ Throughout our experiments, we have come across several rather odd results,
 correlations and trends that we could not immediately explain. Some of these
 turned out to be glitches, but many made complete sense after some hard
 thinking. This section aims to explain most of the oddities that can be observed
-in some of the graphs given above.
+in some of the graphs given in this report.
 
-\subsubsection{Curing inflated congestion windows}
-The issue observer in \S\ref{sec:results-fairness} is one that will affect any
+\subsubsection{Inflated congestion windows}
+The issue observed in \S\ref{sec:results-fairness} is one that will affect any
 connection where the bottleneck link is the immediate link a client is connected
 to, and as mentioned, it will affect both TCP and Multipath TCP, albeit with
-differing effects. In both cases, the congestion window rarely be cut in half,
+different effects. In both cases, the congestion window will rarely be halved,
 and thus will grow indefinitely beyond the ``correct'' value of the paths
 bandwidth delay product.
 
-When the congestion window grows too large, TCP and Multipath TCP alike will
+When the congestion window grows too large, both TCP and Multipath TCP will
 continue to assume that they are being fair by continuing to put packets onto
 the send queue, even though these packets are drained slower than they are being
 put in. This is what is causing the bloated queue we saw in the graphs. For TCP,
 this is not a problem beyond adding delay for any other flows on the host as
 their packets will be queued behind an abnormally large amount of packets from
-the bloated TCP flow. For Multipath TCP on the other hand, this is a problem as
-Multipath TCP will then never yield the link voluntarily (because it will always
-have a packet in the queue to send).
+the bloated TCP flow. For Multipath TCP, however, this is problematic - because
+it will always have a packet in the queue to send, it will never yield the link
+voluntarily.
 
 TCP Small Queues, which is the currently applied ``fix'' in the Linux kernel
 does not address the underlying problem, as it simply bounds the number of
 packets any given TCP flow can have in the queue at any given point in time to a
-rather arbitrary number, which has the (desired) side-effect of reducing the
+rather arbitrary number. This does have the desired side-effect of reducing the
 amount of latency that a misbehaving TCP flow could potentially introduce for
-other flows on the same host. Without tuning the TSQ limit, the latency will
-still not be reduced to the "correct" levels, and even if a more conservative
-static limit is sent, this will also be incorrect for links with differing
+other flows on the same host. Without tuning the maximum queue size, however,
+the latency will
+still not be reduced to the \emph{correct} levels, and even if a very conservative
+limit is set, this will also be incorrect for links with differing
 speeds and RTTs.
 
-We believe that the real way of overcoming this must be to modify TCP so that it
-realizes that there is congestion (or that it is hitting the capacity of a link)
-without relying solely on packet loss. Altering TCP is something that should not
-be done lightly, and the larger ring effects of any change need to be examined
-on a large scale before they are put into production use; that said, we have
-come up with a modification to TCP that could potentially solve this issue once
-and for all. The intuition behind it is that the growing size of the local queue
+We believe that the correct way of overcoming this must be to modify TCP so that it
+reacts to congestion without relying solely on packet loss. Altering TCP is naturally
+something which should not
+be done lightly, and the effects of any change would need to be examined
+on a large scale before they are put into production use. That said, we will suggest
+a modification which could potentially solve this issue.
+
+The intuition behind our change is that the growing size of the local queue
 could be used as a signal to TCP that there is congestion somewhere without
 there being packet loss.
-
-Our observation is that the amount of packets for a particular TCP connection in
-the send queue should usually be around 0, but may occasionally grow slightly if
+% Somewhere? On the local host, right?
+We have observed that the number of packets in the send queue for a normal
+TCP connection should usually be around 0, but may occasionally grow slightly if
 the immediate link is temporarily busy. To determine if the queue is growing
 when it should not be, we need a way to determine how large it is reasonable
-that it might grow to. Our thinking is that the queue is unlikely to grow much
-larger than the amount of bytes that could be transferred on the bottleneck link
-in one variance of the RTT.\@ For cases when the bottleneck link is the
-immediate link, we believe this should reflect a maximum value for how much we
-should have to wait for the immediate link to become available:
+that it might grow to. We believe that the queue is unlikely to grow much
+larger than the number of bytes which could be transferred on the bottleneck link
+in one variance of the RTT.\@ We will use this value $QL$ as an upper bound for
+the queue size, in bytes. For cases when the bottleneck link is the
+immediate link, this should reflect a maximum value for how long we
+should have to wait for the immediate link to become available.
 
 \begin{align}
   QL = \frac{var \cdot cwnd}{RTT}\label{eq:ql}
 \end{align}
 
-Where $QL$ is the expected limit of the send queue, and $var$ is the RTT
+As mentioned, $QL$ is the expected upper bound of the send queue, and $var$ is the RTT
 variance measured by TCP.\@ For links where the bottleneck is not our immediate
 link, however, equation~\ref{eq:ql} may not behave as desired; as the sending
 host will now attempt to balance its local queue according to the queue of the
-bottleneck link, potentially occasionally leaving the bottleneck link without
+bottleneck link, potentially leaving the bottleneck link without
 data to send, which would be bad for throughput. This may be overcome by
 measuring the send delay variance of the immediate link directly and
 substituting that for $var$ in equation~\ref{eq:ql}.
@@ -76,7 +79,7 @@ bloated in the first place), and thus we think making this check once per RTT
 should be appropriate.
 
 To make it easier to integrate this with TCP, one could also implement this as a
-``once per ACK'' operation just like how New Reno increases the congestion
+``once per ACK'' similarly to how New Reno increases the congestion
 window. We want one RTT worth of ACKs to decrease $cwnd$ by half, and so:
 
 \begin{align*}
@@ -101,8 +104,8 @@ issue we've seen with Multipath TCP over feedback-less links as the congestion
 windows would now be correct again.
 
 Due to time constraints, we have not been able to implement nor test this
-solution, and thus it is presented solely as a starting point for future work
-trying to fix TCP when used in conjunction with wireless networks.
+solution, and thus it is presented solely as a suggestion for future work
+if this problem is revisited.
 
 \subsubsection{Reliability of wireless experiments}
 Running every test many times has proven very important throughout this project.
