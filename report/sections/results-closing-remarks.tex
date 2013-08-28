@@ -79,10 +79,10 @@ To make it easier to integrate this with TCP, one could also implement this as a
 ``once per ACK'' operation just like how New Reno increases the congestion
 window. We want one RTT worth of ACKs to decrease $cwnd$ by half, and so:
 
-\begin{align}
+\begin{align*}
   \frac{cwnd}{MSS} \cdot step = \frac{cwnd_i}{2} \\
   step = \frac{MSS}{2} \cdot \frac{cwnd_i}{cwnd}
-\end{align}
+\end{align*}
 
 Where $cwnd_i$ is set to $cwnd$ any time the send queue is smaller than $QL$.
 Thus, if we do the following on every received ACK:
