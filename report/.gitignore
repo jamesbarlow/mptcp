@@ -1,6 +1,6 @@
-report.aux
-report.dvi
-report.log
-report.out
-report.pdf
-report.toc
+*.aux
+*.dvi
+*.log
+*.out
+*.pdf
+*.toc

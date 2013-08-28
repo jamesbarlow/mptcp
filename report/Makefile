@@ -3,6 +3,28 @@ REAL_GRAPHS := $(GRAPHS:.plot=.tex) $(GRAPHS:.plot=.pdf)
 
 .PHONY : clean show
 
+all: executive-summary.pdf report.pdf
+
+executive-summary.pdf: executive-summary.tex
+	@echo "Parsing executive summary"
+	@pdflatex -halt-on-error executive-summary.tex \
+		| sed -n '/hyperref\/hpdftex\.def$$/,$$p' \
+		| (cat \
+		| grep -v "^\[Loading" \
+		| grep -v "^\*geometry\*" \
+		| grep -v "./report.out" \
+		| grep -v "\`h' float specifier changed to" \
+		| grep -v '^\[[0-9]' \
+		| grep -v "^ )$$" \
+		| awk '/see the transcript/{i++} /Output/{i--} (i-1)' \
+		| grep -v "/usr/share/texmf-dist" \
+		| grep -v ".pfb" \
+		| grep -v "Transcript" \
+		| grep -v '^$$'; :) # Because grep returns 1 on no matches...
+
+exec: executive-summary.pdf
+	@xdg-open "$<" &
+
 report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	@echo "Parsing .tex file - first pass"
 	@-pdflatex -halt-on-error report.tex > /dev/null 2> /dev/null
@@ -29,7 +51,7 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 		| grep -v '^$$'; :) # Because grep returns 1 on no matches...
 
 show: report.pdf
-	xdg-open report.pdf &
+	@xdg-open "$<" &
 
 graphs/%.pdf: graphs/%.eps
 	@echo "Generating $@ from EPS"
