@@ -238,7 +238,8 @@ discussed below:
   \item[throughput]
     This is calculated using the difference in the number of bytes sent on each
     interface (as reported by \texttt{/proc\-/net/\-dev}) and dividing it by the
-    time since the last run of \texttt{mp-stats}.
+    time since the last run of \texttt{mp-stats} using timestamps logged by
+    \texttt{date +\%s.\%N}.
   \item[congestion window]
     Retrieved from the command \texttt{ss -inot} which shows TCP socket
     information. The congestion window size is reported in number of packets,
