@@ -197,8 +197,6 @@ phenomenon that occurred in a number of experiments. Here, we see a curious
 correlation between throughput and the congestion window size. Other tests also
 show a correlation between then two, but it is particularly evident in this one
 as the throughput looks like it is actually bounded by the congestion window.
-This struck us as very odd since the congestion window is plotted in 10s of
-kilobytes, whereas the throughput is plotted in Mbit/s.
 
 To determine why this was happening, we first tried to find commonalities
 between the graphs that were showing this peculiar trend. It turns out that we
@@ -213,33 +211,4 @@ congestion window; whenever the congestion window grows, the throughput
 increases because TCP is allowed to put more packets on the wire. If the
 congestion window is halved, TCP stops sending packets almost immediately, and
 the throughput drops.
-
-This still does not explain why we see close to a 1:1 correspondence between the 
-congestion window and the throughput in the 100 ms RTT test. After
-investigation, we determined that this happens because of a curious case of two
-different scales accidentally lining up. Remember that the congestion window is
-plotted as 10s of kilobytes, and thus we plot $c(x)$ as
-
-\begin{align*}
-  c(x) = cw_x \text{\ (B)}
-       = \frac{cw_x}{1024} \text{\ (kB)}
-       = \frac{cw_x}{10 \cdot 1024} \text{\ (10 kB)}
-\end{align*}
-
-Now, consider the throughput $t'(cw)$ allowed by a congestion window of size
-$cw$ over a link with RTT $\approx 100ms$:
-
-\begin{align*}
-  t'(cw) &= \frac{cw}{0.100}                       &&\text{(Bps)} \\
-         &= \frac{cw}{0.100 \cdot 10 \cdot 1024}
-          = \frac{cw}{1024}                        &&\text{(MBps)} \\
-         &= \frac{cw}{8 \cdot 1024}                &&\text{(Mbps)}
-\end{align*}
-
-Since the congestion window is not allowed to grow to the bandwidth delay
-product as explained above, we expect the real throughput $t(x)$ to be
-approximately limited by $t'(cw_x)$. It is clear from the above that $t'(cw) =
-0.8 c(x)$, and so in this particular setup, we would expect to see the
-throughput follow the congestion window closely at these particular scales
-because $t(x) \approx 0.8 c(x)$.
 % vim:textwidth=80:colorcolumn=80:spell:
