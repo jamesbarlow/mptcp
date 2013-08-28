@@ -19,18 +19,18 @@ downlink first, and then move on to the uplink.
  \caption{Traffic distribution, downlink, non-overlapping 2.4 GHz}\label{graph:down-fair}
 \end{figure}
 
-In the downlink case, the Coupled algorithm on clients with only a single 
-interface acts like regular TCP New Reno. Since they will only use one subflow 
-each, Coupled will not try to limit how aggressively it sends data. However for 
-the client with multiple interfaces, the Coupled algorithm should limit the 
+In the downlink case, the Coupled algorithm on clients with only a single
+interface acts like regular TCP New Reno. Since they will only use one subflow
+each, Coupled will not try to limit how aggressively it sends data. However for
+the client with multiple interfaces, the Coupled algorithm should limit the
 aggregate throughput to be as good as the throughput of the best link
-available.\@ Figure~\ref{graph:down-fair} shows that Coupled is indeed limiting 
-one subflow and choosing to transmit most of the traffic on the other. 
-Additionally, although the sum is not identical to the throughput of either 
-parallel link, it is close enough that we can consider Coupled to be performing 
-fairly with regard to the other flows; that is, the client with multiple 
-interfaces is only taking a third of the total network capacity, as opposed to 
-half in the case of New Reno.
+available\footnote{See \S\ref{sec:bg:mptcp}}.\@ Figure~\ref{graph:down-fair}
+shows that Coupled is indeed limiting one subflow and choosing to transmit most
+of the traffic on the other.  Additionally, although the sum is not identical to
+the throughput of either parallel link, it is close enough that we can consider
+Coupled to be performing fairly with regard to the other flows; that is, the
+client with multiple interfaces is only taking a third of the total network
+capacity, as opposed to half in the case of New Reno.
 
 % Don't show send queue?
 
