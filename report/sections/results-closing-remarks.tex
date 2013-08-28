@@ -104,19 +104,19 @@ Due to time constraints, we have not been able to implement nor test this
 solution, and thus it is presented solely as a starting point for future work
 trying to fix TCP when used in conjunction with wireless networks.
 
-\subsubsection{Wireless experiments}
+\subsubsection{Reliability of wireless experiments}
 Running every test many times has proven very important throughout this project.
-For the uplink New Reno 2.4 GHz tests for example, we initially suspected that
-Multipath TCP was consistently seeing slightly lower throughput compared to
-parallel, and we surmised that this might be because two WiFi interfaces
-connected to one machine might somehow lead to more cross-interface interference
-than with the same interfaces connected to different machines equally far apart.
-After running more experiments to confirm, however, we quickly got contradicting
-results where Multipath TCP was consistently faster than parallel. On balance,
-we consider the results to pretty much even out across many tests. The slight
-discrepancies of some links in those figures are simply due to WiFi interfaces
-being extremely sensitive to their exact positioning, and average out over a
-larger set of tests.
+Considering the uplink New Reno 2.4 GHz tests as an example, we initially 
+suspected that Multipath TCP was consistently seeing slightly lower 
+throughput compared to parallel, and we surmised that this might be because two 
+WiFi interfaces connected to one machine might somehow lead to more 
+cross-interface interference than with the same interfaces connected to 
+different machines equally far apart. After running more experiments to confirm, 
+however, we quickly got contradicting results where Multipath TCP was 
+consistently faster than parallel. On balance, we consider the results to pretty 
+much even out across many tests. The slight discrepancies of some links in those 
+figures are often due to WiFi interfaces being extremely sensitive to their 
+exact positioning, and average out over a larger set of tests.
 
 \subsubsection{Inflated RTT}
 Many of our results show very high RTTs of around 600 ms despite the network
@@ -147,20 +147,19 @@ saw-tooth. To understand why this is happening, it is necessary to look closer
 at how the congestion window is increased.
 
 The congestion control mechanisms used by Multipath TCP and regular TCP try to
-increase the congestion window by one MSS per RTT.\@ It does this by increasing
+increase the congestion window by one MSS per RTT.\@ They do this by increasing
 the congestion window by approximately $\sfrac{1}{cwnd}$ per received ACK.\@
-This works well in the assumed case where increasing the congestion window will
+This works well in the expected case where increasing the congestion window will
 cause you to send more packets, and thus receive more ACKs per RTT, but is not
 correct when the link layer masks loss.
 
-What happens when TCP does not see loss, as discussed in 
-\S\ref{sec:results-fairness}, is %TODO: set correction section reference 
-that the congestion window usually grows larger than what the network interface 
-can handle, and so increasing it will not cause any more packets to be sent. 
-The number of ACKs received in an RTT will therefore remain constant. The 
-$\sfrac{1}{cwnd}$ term will grow smaller, and so the growth of the congestion 
-window relative to the congestion window size per RTT will decrease, leading to 
-the logarithmic growth seen in the results.
+What happens when TCP does not see loss, as discussed in \S\ref{sec:results-fairness}, 
+is that the congestion window usually grows larger than what the network 
+interface can handle, and so increasing it will not cause any more packets to be 
+sent. The number of ACKs received in an RTT will therefore remain constant. The 
+$\sfrac{1}{cwnd}$ term will however grow smaller, and so the growth of the 
+congestion window relative to the congestion window size per RTT will decrease, 
+leading to the logarithmic growth seen in the results.
 
 \subsubsection{Congestion window and the send queue}
 \label{sec:closing:sendq}
@@ -196,8 +195,8 @@ following the congestion window when loss was occurring.
 In Figure~\ref{graph:fairness-rtt-up-close}, we can observe another very strange
 phenomenon that occurred in a number of experiments. Here, we see a curious
 correlation between throughput and the congestion window size. Other tests also
-show a correlation between then two, but it is particularly evident in this one
-as the throughput looks like it is actually bounded by the congestion window.
+show a correlation between the two, but it is particularly evident here as it 
+seems like the throughput is bounded by the congestion window.
 
 To determine why this was happening, we first tried to find commonalities
 between the graphs that were showing this peculiar trend. It turns out that we
