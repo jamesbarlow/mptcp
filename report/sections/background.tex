@@ -18,8 +18,8 @@ more packets than strictly necessary.
 
 To avoid overloading the network or the receiving host, TCP uses two rate
 control mechanisms: flow control and congestion control. Flow control is used to
-avoid sending data at a faster rate than the receiving host is able to process.
-Every packet a host sends out contains an indication of the amount of free
+avoid sending data at a faster rate than the receiving host is able to process;
+every packet a host sends out contains an indication of the amount of free
 buffer space available at the host, and the sending host must ensure that it
 does not transmit data that the receiver does not have room for. This is
 implemented using a sliding window algorithm where each host limits the number
@@ -27,7 +27,7 @@ of packets in flight at any given time, making sure to never put more data on
 the network than the receiver says it can handle.
 
 Congestion control aims to prevent a TCP flow from sending faster than the
-network can handle. Upon receiving packets, routers and other devices in a
+network can support. Upon receiving packets, routers and other devices in a
 network must assign some buffer space for these incoming packets to process them
 before forwarding along the path and to deal with any temporary slow-down of the
 next link. If a device in the network receives packets faster than it can
@@ -42,32 +42,32 @@ which specifies the number of packets which may be in flight concurrently
 without overloading the network. The sender must respect both the receive and
 congestion windows when deciding whether or not it may send a packet.
 
-TCP New Reno flows begin in a slow start phase. An initial small congestion
-window is chosen, and this is increased by one MSS for each received packet
-acknowledgement received (also known as an ACK). This has the effect of
-increasing the congestion window size exponentially until a congestion event
-occurs. A congestion event is anything that indicates that a loss has occurred.
-This is typically either a timeout waiting for an ACK, or the receipt of
-multiple duplicate ACKs.
+New Reno flows begin in a slow start phase. An initial small congestion window
+is chosen, and this is increased by one MSS for each packet acknowledgement
+received (also known as an ACK). This has the effect of increasing the
+congestion window size exponentially until a congestion event occurs. A
+congestion event is anything that indicates that a loss has occurred.  This is
+typically either a timeout while waiting for an ACK, or the receipt of multiple
+duplicate ACKs.
 
-TCP New Reno implements two mechanisms for backing off when congestion is
-detected. In the case of a missed ACK, the algorithm returns the congestion
-window to its small initial size and begins slow start again. Since the timeout
-in TCP must be fairly long to cater for high-latency links, a fast
-recovery mechanism is also implemented. When three duplicate ACKs are received,
-TCP considers this an indication of congestion, and will halve its congestion
-window. This is called a fast retransmit since it is intended to prevent TCP
-from having to wait for a timeout and re-enter slow start. After fast
-retransmits, New Reno runs in additive-increase mode, where each the congestion
-window is increased by one packet every round-trip time (RTT).
+It implements two mechanisms for backing off when congestion is detected. In the
+case of a missed ACK, the algorithm returns the congestion window to its small
+initial size and begins slow start again. Since the timeout in TCP must be
+fairly long to cater for high-latency links, a fast recovery mechanism is also
+implemented. When three duplicate ACKs are received, TCP considers this an
+indication of congestion, and will halve its congestion window. This is called a
+fast retransmit since it is intended to prevent TCP from having to wait for a
+timeout and re-enter slow start. After fast retransmits, New Reno runs in
+additive-increase mode, where the congestion window is increased by one MSS
+every round-trip time (RTT).
 
 The repeated behaviour of probing for available capacity and then reducing the
-window size when congestion occurs produces a distinctive saw-tooth of the
-congestion window size.
+window size when congestion occurs produces a distinctive saw-tooth pattern of
+the congestion window size.
 
 \subsection{WiFi and Interference}
 \label{sec:bg:wifi}
-The 802.11 standards are a set of physical layer and MAC specifications for
+The 802.11 standards are a set of physical and MAC layer and specifications for
 implementing WiFi networks. 802.11 networks commonly operate on frequencies in
 the 2.4 GHz and 5 GHz bands, which are divided into a number of overlapping
 sub-bands, commonly known as channels. For example, the 802.11g channels in
@@ -85,13 +85,13 @@ drastically from one location to another, and from one minute to the next.
 A typical WiFi deployment consists of several ``stations'' usually connected to
 the network via an access point (AP). A station in 802.11 is typically a single
 wireless network interface card (or NIC), and a single machine can have multiple
-NICs, and would thus appear as multiple stations to the AP.\@ The greater the
-number of stations connected to an AP, the higher the probability that the
+such NICs, and would thus appear as multiple stations to the AP.\@ The greater
+the number of stations connected to an AP, the higher the probability that the
 stations would interfere with each other as they contend for the access to the
-medium in order to transmit data. If multiple stations transmit simultaneously
-on interfering channels is undesirable as it leads to corrupted packets, causing
-backoff and retransmits, thus lowering network utilization and consequently
-throughput.
+medium in order to transmit data. Multiple stations transmitting simultaneously
+on interfering channels is undesirable, as it leads to corrupted packets,
+causing backoffs and retransmits, thus lowering network utilization and
+consequently throughput.
 
 In order to prevent stations transmitting at the same time on the same channel,
 or a nearby channel, 802.11 implements carrier sense and random back-off. Before
@@ -105,6 +105,12 @@ fairness. Ideally, stations should not carrier sense, and thus defer to, other
 stations transmitting on independent channels as this would prevent stations
 that could transmit simultaneously from doing so.
 
+Carrier sense will eventually allow a single station to transmit while the
+others are waiting, but which station this will be is effectively random. All
+stations that have data to send have an equal chance of being allowed to use the
+medium. This is what leads to 802.11 fairly distributing the access to the
+wireless medium per station.
+
 The 802.11 MAC layer also implements its own packet acknowledgements in addition
 to those provided by TCP.\@ Acknowledgement packets are sent immediately after
 each data frame is successfully received in a reserved time slot where no station
@@ -113,23 +119,25 @@ without receiving acknowledgement before dropping a packet.
 
 \subsection{Multipath TCP}
 \label{sec:bg:mptcp}
-Devices with multiple network interfaces are common. Many consumer smart phones
-have both WiFi and 3G interfaces, and data centres networks are often deployed
-so that equipment racks are connected through multiple paths. Data centres
-themselves are often multihomed to improve reliability, meaning that they have
-several points of access to the wider internet. Multipath TCP\footnote{RFC 6824
- - TCP Extensions for Multipath Operation with Multiple Addresses.} is an
-extension to TCP recently standardised by the IETF, which aims to improve
-redundancy and throughput by taking advantage of multiple paths for a single
-TCP flow. In order to achieve this, Multipath TCP adds additional ``subflows''
-to a TCP connection so that data flows between every pair of network
-interfaces of each host, taking advantage of potentially independent paths.
+Devices with multiple network interfaces are becoming more common. Many consumer
+smart phones have both WiFi and 3G interfaces, and data centres networks are
+often deployed so that equipment racks are connected through multiple paths.
+Data centres themselves are often multihomed to improve reliability, meaning
+that they have several points of access to the wider internet. Multipath
+TCP\footnote{RFC 6824 - TCP Extensions for Multipath Operation with Multiple
+Addresses.} is an extension to TCP recently standardised by the IETF, which aims
+to improve redundancy and throughput by taking advantage of multiple paths for a
+single TCP flow. In order to achieve this, Multipath TCP adds additional
+``subflows'' to a TCP connection so that data flows between every pair of
+network interfaces of each host, taking advantage of potentially independent
+paths.
 
 % Reference RFC 6182
 % ** I think these are actually specified in 6356! **
 
-The authors of Multipath TCP give three main goals for the protocol\footnote{RFC 
-6356 - Coupled Congestion Control for Multipath Transport Protocols.}:
+The authors of Multipath TCP give three main design goals when discussing
+Coupled congestion control\footnote{RFC 6356 - Coupled Congestion Control for
+Multipath Transport Protocols.}:
 
 \begin{description}
   \item[improve throughput] A Multipath TCP flow should perform at least as well
@@ -141,12 +149,13 @@ The authors of Multipath TCP give three main goals for the protocol\footnote{RFC
     traffic away from the most congested paths.
 \end{description}
 
-To achieve this, the Coupled congestion control algorithm was designed, which
-aims to behave fairly when links are shared by other TCP or Multipath TCP flows.
-More specifically, a set of Coupled flows should not gain more throughput than a
-competing TCP flow simply because it has multiple subflows. However, the Coupled
-algorithm also aims to utilise the available links fully when they would
-otherwise be idle, meaning no other competing flows are sending.
+Coupled thus attempts to behave fairly when links are shared by other TCP or
+Multipath TCP flows. More specifically, a set of Coupled flows should not gain
+more throughput than a competing TCP flow simply because it has multiple
+subflows. However, the Coupled algorithm also aims to utilise the available
+links fully when they would otherwise be idle, meaning no other competing flows
+are sending. This is the case where Coupled can lead to improved throughput over
+regular TCP.
 
 The Coupled algorithm maintains a separate congestion window for each subflow
 and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
@@ -164,14 +173,14 @@ acknowledgement received on subflow $i$, the congestion window is increased by:
 \end{align*}
 
 Alpha is a parameter which controls how aggressive the connection should be in
-increasing its total send rate. Alpha is chosen such that the aggregate
-throughput across all subflows is equal to the throughput a TCP New Reno flow
-would gain on the best of the paths available. This ensures fairness with
-competing TCP flows, where there may be a shared bottleneck at some point in the
-network path. Additionally, the algorithm forces the congestion window of more
-congested links to increase at a slower rate than less congested links. This has
-the effect of shifting traffic onto less congested paths, which helps to balance
-congestion in the network.
+increasing its total send rate, and is chosen such that the aggregate throughput
+across all subflows is equal to the throughput a TCP New Reno flow would gain on
+the best of the paths available. This ensures fairness with competing TCP flows,
+where there may be a shared bottleneck at some point in the network path.
+Additionally, the algorithm forces the congestion window of more congested links
+to increase at a slower rate than less congested links. This has the effect of
+shifting traffic onto less congested paths, which helps to balance congestion in
+the network.
 
 If the available links are idle then the Coupled algorithm will allow each
 subflow to use the full capacity available to it. For example, with two idle
@@ -189,13 +198,13 @@ gradually filling the pipe, but it will do so very slowly. This means that
 should any other flow appear with a growth rate closer to that of New Reno, its
 window will grow faster than the Coupled flow's window. When a congestion event
 eventually occurs, the window size of both the competing flow and the Coupled
-flow will be halved the same way, but since the competing flow is speeding up
-faster, it will eat up some of the window previously held by the Coupled flow,
-continuing to do so until Coupled detects that it needs to push back so it
-does not violate its rule of not performing worse than TCP.
-
-Note that Coupled does not guarantee perfect resource pooling;
-% Not sure how to finish this?
+flow will be halved the same way. Since the competing flow is speeding up
+faster, it will eat up some of the window previously held by the Coupled flow.
+This process will continue to happen until Coupled detects that it is at risk of
+performing worse than TCP, at which point it will go back to increasing its
+congestion window as aggressively as TCP.\@ When this happens, the flows will
+reach an equilibrium where they both increase their congestion windows equally
+fast, and thus end up sharing the link evenly.
 
 \subsection{Motivation}
 \label{sec:bg:motivation}
@@ -203,7 +212,7 @@ Multipath TCP is without question a useful extension to vanilla TCP, but it was
 primarily designed for wired networks in which links are usually independent.
 The nature of wireless means that wireless interfaces can interfere with each
 other, something Multipath TCP was not designed to deal with. Even networks on
-different WiFi channels have been known to interfere, and so if Multipath TCP is
+different WiFi channels have been known to interfere, and so if Multipath TCP
 tries to use multiple interfaces at the same time, the self-interference might
 prove sufficiently strong that the benefits of Multipath TCP are effectively
 negated.
@@ -211,9 +220,6 @@ negated.
 In this paper, we aim to investigate the extent to which wireless networks
 interfere with each other, and how Multipath TCP behaves when it encounters
 non-independent interfaces. To explore this, we will analyse its behaviour in a
-series of wireless experiments. Our results are presented in the next section.
-If the available links are idle then the Coupled algorithm will allow each
-subflow to use the full capacity available to it. For example, with two idle
-links the aggregate throughput of an MPTCP flow will be the capacity of both
-links combined.
+series of wireless experiments. Our results are presented in
+\S\ref{sec:results}.
 % vim:textwidth=80:colorcolumn=80:spell:
