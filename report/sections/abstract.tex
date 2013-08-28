@@ -1,23 +1,14 @@
-This report evaluates the effect of WiFi interference on Multipath TCP. The 
-problem considered in this report and the conclusions drawn from it have been 
-based on results from several wireless experiments ran using different settings 
-and layouts. The results presented show that there can be a performance gain 
-in using Multipath TCP exclusively with WiFi for both the downlink and uplink.
+In this report we evaluate the behaviour of Multipath TCP when using multiple
+WiFi interfaces on a single host; especially with regards to how
+self-interference affects its ability to provide reliability and improved
+throughput. We also explore other differences between wired and wireless
+networks, in particular how wireless networks may cause Multipath TCP to not
+behave fairly to competing flows, even with Coupled congestion control.
 
-Both cases show that on two idle paths Multipath TCP can attain an aggregate
-throughput which is equal to the sum of both links. However, while the downlink 
-contending traffic results show that the aggregate throughput is reduced to the 
-capacity of the best single link, thus making its behaviour fair to contending 
-flows, the uplink behaves quite differently.
-Uplink results show that the aggregate throughput is generally more than that of 
-the best link and only in some cases equal to the sum of both links. This 
-behaviour shows that Multipath TCP on the uplink is unfair to other flows on the 
-medium as it gets a larger share in total. This contradicts the second rule of 
-its default congestion control algorithm which states "do no harm", and raises 
-questions regarding how well Multipath TCP behaves with WiFi.
-
-This report aims to evaluate how Multipath TCP compares to a single-path TCP 
-connection when facing interference in a wireless environment, and how this 
-might affect its behaviour.
-
+Our results show that Multipath TCP can improve both reliability and throughput
+when using multiple WiFi links for both downlink and uplink traffic. In both
+cases, we show that on two idle wireless networks, Multipath TCP can achieve an
+aggregate throughput equal to the sum of both links. We go on to show how
+Multipath TCP behaves unfairly on the uplink when competing flows are present on
+any of the wireless networks.
 % vim:textwidth=80:colorcolumn=80:spell:
