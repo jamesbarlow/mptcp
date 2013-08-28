@@ -1,8 +1,8 @@
 
 set xlabel 'seconds'
 set grid
-set xrange [0:301]
-set yrange [0:100]
+set xrange [-5:305]
+set yrange [-5:105]
 set offset graph 0.02
 set key right center
 set title '2.4-2.4-i-i-up'

@@ -1,8 +1,8 @@
 set xlabel 'Throughput (Mbps)'
 set ylabel 'CDF'
 set grid
-set xrange [0:30]
-set yrange [0:100]
+set xrange [-1:31]
+set yrange [-5:105]
 set key right bottom
 set title 'CDF i-reno-simultaneous-2'
 
