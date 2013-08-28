@@ -119,13 +119,13 @@ being extremely sensitive to their exact positioning, and average out over a
 larger set of tests.
 
 \subsubsection{Congestion window and the send queue}
-Most of the time plots above show the send queue size tracing the congestion
-window size through the entire test. Since we were seeing very  little loss in
-many of our tests, and thus the congestion window was clearly growing larger
-than it should be, we initially reasoned that most of the bytes of the
-congestion window were likely to be in the host's send queue. In this case, we
-would expect the send queue to closely follow the congestion window, with a
-small gap between them representing the packets actually in flight.
+Figure~\ref{graph:fairness-up-close} shows the send queue size tracing the
+congestion window size through the entire test. Since we were seeing very
+little loss in many of our tests, and thus the congestion window was clearly
+growing larger than it should be, we initially reasoned that most of the bytes
+of the congestion window were likely to be in the host's send queue. In this
+case, we would expect the send queue to closely follow the congestion window,
+with a small gap between them representing the packets actually in flight.
 
 However, we then noticed that we were seeing the send queue following the
 congestion window also when we \textbf{were} seeing loss and the congestion
