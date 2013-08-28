@@ -5,12 +5,12 @@ thinking. This section aims to explain most of the oddities that can be observed
 in some of the graphs given above.
 
 \subsubsection{Curing inflated congestion windows}
-The issue observer in section~\ref{sec:results-fairness} is one that will affect
-any connection where the bottleneck link is the immediate link a client is
-connected to, and as mentioned, it will affect both TCP and Multipath TCP,
-albeit with differing effects. In both cases, the congestion window rarely be
-cut in half, and thus will grow indefinitely beyond the ``correct'' value of the
-paths bandwidth delay product.
+The issue observer in \S\ref{sec:results-fairness} is one that will affect any
+connection where the bottleneck link is the immediate link a client is connected
+to, and as mentioned, it will affect both TCP and Multipath TCP, albeit with
+differing effects. In both cases, the congestion window rarely be cut in half,
+and thus will grow indefinitely beyond the ``correct'' value of the paths
+bandwidth delay product.
 
 When the congestion window grows too large, TCP and Multipath TCP alike will
 continue to assume that they are being fair by continuing to put packets onto
