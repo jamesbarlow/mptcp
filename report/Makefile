@@ -12,7 +12,7 @@ executive-summary.pdf: executive-summary.tex
 		| (cat \
 		| grep -v "^\[Loading" \
 		| grep -v "^\*geometry\*" \
-		| grep -v "./report.out" \
+		| grep -v "./executive-summary.out" \
 		| grep -v "\`h' float specifier changed to" \
 		| grep -v '^\[[0-9]' \
 		| grep -v "^ )$$" \
