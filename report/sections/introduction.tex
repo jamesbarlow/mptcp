@@ -1,4 +1,4 @@
-Transport Control Protocol has been one the Internet's core technologies almost
+The Transport Control Protocol has been one the Internet's core technologies almost
 since its inception, providing reliable delivery of packets across unreliable
 networks. However, TCP was only designed to support flows going from a single
 interface on one host to a single interface on another host, meaning it cannot
@@ -18,14 +18,14 @@ not severely impact other networks.
 In this report, we evaluate the behaviour of Multipath TCP when using multiple
 WiFi interfaces on a single host; specifically with regard to how
 self-interference affects its ability to provide reliability and improved
-throughput. We also discuss how fair it is to other clients on the WiFi networks
-it uses, as this is a major design goal of Multipath TCP's Coupled congestion
-control.
+throughput. We also discuss how fair the protocol is to other clients on the WiFi
+networks it uses, as this is a major design goal of Multipath TCP's Coupled
+congestion control.
 
 We first give some background information about TCP, WiFi networks and Multipath
 TCP in \S\ref{sec:bg}, followed by an explanation of how we performed our
 experiments in \S\ref{sec:met}. The main body of the report is in
 \S\ref{sec:results}, where we present our results and discuss their implications
 for Multipath TCP.\@ Finally, \S\ref{sec:conclusion} discusses our findings as a
-whole, as well as point out interesting areas for future work.
+whole, as well as points out interesting areas for future work.
 % vim:textwidth=80:colorcolumn=80:spell:
