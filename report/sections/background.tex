@@ -90,7 +90,7 @@ wireless network interface card (or NIC), and a single machine can have multiple
 such NICs, and would thus appear as multiple stations to the AP.\@ The greater
 the number of stations connected to an AP, the higher the probability that the
 stations would interfere with each other as they contend for the access to the
-medium in order to transmit data. Multiple stations transmitting simultaneously
+medium. Multiple stations transmitting simultaneously
 on interfering channels is undesirable, as it leads to corrupted packets,
 causing retransmissions, thus lowering network utilization and
 consequently throughput.
@@ -113,7 +113,7 @@ wireless medium per station.
 
 The 802.11 MAC layer also implements its own packet acknowledgements in addition
 to those provided by TCP.\@ Acknowledgement packets are sent immediately after
-each data frame is successfully received in a reserved time slot where no station
+each data frame is successfully received, in a reserved time slot where no station
 may transmit. A station will generally retry transmitting a fixed number of times
 without receiving acknowledgement before dropping a packet.
 
