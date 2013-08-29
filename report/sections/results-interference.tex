@@ -1,6 +1,6 @@
-Before evaluating the performance of Multipath TCP on wireless links, it is
-would like to explore whether the nature of wireless permits transmitting
-concurrently across multiple wireless links at all. In particular, we want
+Before evaluating the performance of Multipath TCP on wireless links, we
+explored whether the nature of wireless permits transmitting
+concurrently across multiple wireless links at all. In particular, we wanted
 to determine:
 
 \begin{enumerate}
@@ -31,14 +31,14 @@ test.
 Figure~\ref{graph:cc-interference} shows a UDP test as described in 
 \S\ref{sec:met:setups:intudp}.
 The interference pattern observed here is quite interesting, as the
-utilization measurement show completely fair sharing of aggregate
-throughput between the two networks when both interfaces are active. The
+utilization measurement shows completely fair sharing of transmit time
+between the two networks when both interfaces are active. The
 wireless cards also report very few 802.11 retransmit failures.
 
 As the two networks are operating at opposite ends of the 2.4 GHz spectrum, we
-would expect both interfaces to transmit concurrently without colliding
-and the aggregate throughput to reach approximately the sum of the capacity of
-both links. The reason why this behaviour is expected is that due to the networks being on opposite ends of the 2.4 GHz spectrum, they should not interfere with each other, and
+would expect both interfaces to transmit concurrently without colliding,
+and the aggregate throughput should reach approximately the sum of the capacity of
+both links. The reason why this behaviour is expected is that as the networks being at opposite ends of the 2.4 GHz spectrum, they should not interfere with each other, and
 should be capable of transmitting without collisions. The perfect split of utilisation between the two networks implies that carrier sense is being used between the interfaces.
 However, looking at the sum throughput, it is clear that some performance gain is
 achieved, but the aggregate throughput is closer to 150\% of that of a single
@@ -52,17 +52,16 @@ interface than the 200\% one would expect from completely independent channels.
 
 Figure~\ref{graph:sc-interference} shows a similar test performed with both
 networks operating on the same channel in the 2.4 GHz band. The results here are
-perhaps even more surprising, as carrier sense should enforce a fairly strict
+perhaps even more surprising, as carrier sense should enforce fairly strict
 time multiplexing between two networks on the same channel. We would therefore
-expect that the total throughput should remain unaffected, regardless of
+expect the total throughput to remain unaffected, regardless of
 whether one or two interfaces are active. However, these results show that the
-\textbf{total} throughput decreases to almost 60\% of that of a single link when
+\emph{total} throughput decreases to almost 60\% of that of a single link when
 both interfaces are active.
 
-In both the cases above, it seems as though carrier sense is not working quite
+In both of the cases above, it seems as though carrier sense is not working quite
 as anticipated. We would generally expect few back-offs due to carrier sense between
-two networks on non-overlapping channels, but clearly this is not the case. Carrier sense is causing a significant number of back-offs, and a drop in throughput is also evident as previously mentioned. This shows that the non-overlapping channels are experiencing significant interference,
-which is unexpected.
+two networks on non-overlapping channels, but clearly this is not the case. Carrier sense is causing a significant number of back-offs, and a drop in throughput is also evident, as previously mentioned. This shows that the non-overlapping channels are experiencing significant interference.
 Conversely, for networks on the same channel, we would expect carrier sense to
 time-multiplex fairly between the clients. The tests show a high number of 
 link layer transmit failures, suggesting that carrier sense is often failing 
@@ -105,11 +104,11 @@ GHz parallel throughput to be higher or equal to that of the single.
 % A test at the same time would be nice?
 
 Figure~\ref{graph:cb-interference-down} shows a similar test to the above, but
-run on the downlink. We see the same lack of interference between the
-interfaces, with the throughput on one interface being unrelated to whether the
-other band is in use. This plot also shows a case where the 2.4 GHz
+run on the downlink. The same lack of interference between the interfaces
+is shown, with the throughput on one interface being unrelated to whether the
+other band is in use. This graph also shows a case where the 2.4 GHz
 parallel is in fact performing better than its single counterpart. As mentioned
-above, we put this down to the background traffic on other networkss changing
+above, we put this down to varying background traffic on other networks
 between the times of the two tests.
 
 These results indicate that there should be no performance penalty to using
