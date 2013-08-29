@@ -120,8 +120,8 @@ without receiving acknowledgement before dropping a packet.
 \subsection{Multipath TCP}
 \label{sec:bg:mptcp}
 Devices with multiple network interfaces are becoming increasingly common. Many consumer
-smart phones have both WiFi and 3G interfaces, and data centres networks are
-often deployed so that equipment racks are connected through multiple paths.
+smart phones have both WiFi and 3G interfaces, and data centre networks are
+often deployed such that equipment racks are connected through multiple paths.
 Data centres themselves are often multihomed to improve reliability, meaning
 that they have several points of access to the wider internet. Multipath
 TCP\footnote{RFC 6824 - TCP Extensions for Multipath Operation with Multiple
@@ -141,10 +141,10 @@ Multipath Transport Protocols.}:
 
 \begin{description}
   \item[improve throughput] A Multipath TCP flow should perform at least as well
-    as a single-path TCP connection would perform
+    as a single-path TCP connection would perform.
   \item[do no harm to other network users] A Multipath TCP flow should not take
     up more capacity on any one path than if it was a single path flow using
-    only that route -- this is particularly relevant for shared bottlenecks
+    only that route -- this is particularly relevant for shared bottlenecks.
   \item[balance network resources] A Multipath TCP flow should balance congestion by moving
     traffic away from the most congested paths.
 \end{description}
@@ -182,14 +182,13 @@ to increase at a slower rate than less congested links. This has the effect of
 shifting traffic onto less congested paths, which helps to balance congestion in
 the network.
 
-If the available links are idle, the Coupled algorithm will allow each
-subflow to use the full capacity available to it. For example, with two idle
-links the aggregate throughput of a Multipath TCP flow should be the capacity of
-both links combined.
+If the available links are idle, the Coupled algorithm will allow each subflow to
+use the full capacity available to it. For example, with two idle links the aggregate
+throughput of a Multipath TCP flow should be the capacity of both links combined.
 
 Understanding the intuition behind \textit{why} Coupled works can be difficult
 solely using the equation above. We will therefore try to give a less formal
- explanation of what Coupled is doing: As the throughput of a Coupled
+ explanation of what Coupled is doing. As the throughput of a Coupled
 flow approaches the throughput a New Reno flow would get on the best link
 available to it, Coupled gradually decreases the aggressiveness ($\alpha$)
 of all subflows. Doing so effectively decreases the growth rate of each flow's
@@ -200,9 +199,9 @@ window will grow faster than the Coupled flow's window. When a congestion event
 occurs, the window size of both the competing flow and the Coupled
 flow will be halved, but since the competing flow is increasing it's window size faster,
 it will gain some of the available capacity previously held by the Coupled flow.
-This process will continue to happen until Coupled detects that it is at risk of
-performing worse than TCP, at which point it will go back to increasing its
-congestion window as regular aggressively as New Reno.\@ When this happens, the flows will
+This process will continue until Coupled detects that it is at risk of
+performing worse than regular TCP, at which point it will go back to increasing its
+congestion window as aggressively as New Reno.\@ When this happens, the flows will
 reach an equilibrium where they both increase their congestion windows equally
 fast, and thus end up sharing the link evenly.
 
