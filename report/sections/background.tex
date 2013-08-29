@@ -160,17 +160,18 @@ regular TCP.
 The Coupled algorithm maintains a separate congestion window for each subflow
 and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
 additive increase across all subflows to ensure fairness. For each packet
-acknowledgement received on subflow $i$, the congestion window is increased by:
+acknowledgement received on subflow $i$, the congestion window is increased as
+shown in Equation~\ref{eq:mptcp}.
 
 % Reference RFC here
-\begin{align*}
+\begin{align}
   cwnd_i &= cwnd_i +
-    \min\left(\frac{\alpha}{cwnd_\text{total}}, \frac{1}{cwnd_i}\right) \\
+    \min\left(\frac{\alpha}{cwnd_\text{total}}, \frac{1}{cwnd_i}\right)\label{eq:mptcp} \\
   \intertext{where}
   \alpha &=
     \frac{cwnd_\text{total} \cdot \max_i\left(\frac{cwnd_i}{rtt_i^2}\right)}
          {(\sum_i \frac{cwnd_i}{rtt_i})^2}
-\end{align*}
+\end{align}
 
 $\alpha$ controls how aggressive Coupled should be when
 increasing its total send rate, and is chosen such that the aggregate throughput
