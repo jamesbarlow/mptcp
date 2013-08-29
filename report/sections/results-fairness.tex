@@ -6,7 +6,7 @@ competing flow on each network. One of the goals of Coupled congestion
 control is bottleneck fairness; more specifically, a 
 Multipath TCP flow should not take more of the bottleneck capacity than any 
 other flow. The following section evaluates to what extent Multipath TCP with 
-Coupled congestion control ensures fairness on wireless networks.
+Coupled congestion control achieves fairness on wireless networks.
 
 As in the previous section, we will evaluate Multipath TCP's behaviour on the
 downlink first, and then on the uplink.
@@ -19,16 +19,16 @@ downlink first, and then on the uplink.
  \caption{Traffic distribution, downlink, non-overlapping 2.4 GHz}\label{graph:down-fair}
 \end{figure}
 
-In the downlink case, the Coupled algorithm on clients with only a single
+On the downlink, the Coupled algorithm on clients with only a single
 interface acts like regular TCP New Reno. Since they will only use one subflow
 each, Coupled will not try to limit how aggressively it sends data. However, for
 the client with multiple interfaces, the Coupled algorithm should limit the
 aggregate throughput to be as good as the throughput of the best link
-available\footnote{See \S\ref{sec:bg:mptcp}}.\@ Figure~\ref{graph:down-fair}
+available, as explained in \S\ref{sec:bg:mptcp}.\@ Figure~\ref{graph:down-fair}
 shows that Coupled is indeed limiting one subflow and choosing to transmit most
 of the traffic on the other.  Additionally, although the sum is not identical to
 the throughput of either parallel link, it is close enough that we can consider
-Coupled to be fair with regard to the other flows; that is, the
+Coupled to be fair with regard to the other flows, since the
 client with multiple interfaces is only taking a third of the total network
 capacity, as opposed to half in the case of New Reno.
 
@@ -71,7 +71,7 @@ single-flow clients as seen with TCP New Reno in \S\ref{sec:results-mptcp}.
  \caption{Congestion window size for Multipath TCP uplink connection}\label{graph:fairness-up-close}
 \end{figure}
 
-After seeing similar results for same-channel, non-overlapping and cross-band  
+After seeing this result in same-channel, non-overlapping and cross-band  
 tests, we reasoned that the problem had to be related somehow to the 
 behaviour of WiFi on the uplink in general. Figure~\ref{graph:fairness-up-close} 
 shows the congestion window as a function of time for one of the subflows in one 
@@ -83,7 +83,7 @@ when the network was idle, so it was doubled for this calculation. This gives
 $20\text{ms} \cdot 10\text{Mbits} \approx 25\text{kB}$. The congestion window of
 the link is not expected to surpass this for any significant period of time, yet
 the graph clearly shows the congestion window is consistently much greater than
-this value.
+this.
 
 Since Coupled uses the congestion window size to determine how aggressive it
 should be, an inflated congestion window will make it more aggressive than the 
@@ -99,19 +99,21 @@ the current congestion window, and only then will it pass the packet to the
 send queue. The NIC then takes packets  from the send queue in FIFO order to
 transmit them on the medium.
 
-Ignoring the advertised receive window, the two limits to how fast a TCP flow
+Ignoring the advertised receive window, the only two limiting factors to how
+quickly a TCP flow
 can send are therefore the congestion window and the link speed of the NIC.\@ If
 TCP passes packets into the queue faster than the NIC can transmit them, the
-send queue will simply grow, but not drop packets. TCP counts the
-packet as having been sent, but the packet will be kept in the send queue until
+send queue will simply grow, but not drop packets. TCP will consider the
+packet as sent, but the packet will be kept in the IP send queue until
 the NIC is ready to transmit it. The relevant effect of this is that TCP will
 count the time a packet is queued locally in its estimate of the RTT.
 
-This is not common, as a TCP flow will start seeing loss when it overflows a
+This behaviour is not evident on all wireless networks. A TCP flow
+will usually start experiencing loss when it overflows a
 buffer at a bottleneck, and this is generally not the immediate link.
 The flow will eventually limit the number of packets it sends based on the
 speed of the bottleneck, and since the speed of the immediate link is not
-the bottleneck the NIC should be able to send at least as fast as TCP passes
+the bottleneck, the NIC should be able to send at least as fast as TCP passes
 packets into the queue.
 
 A mismatch of assumptions happens when the immediate link \textbf{is} the 
@@ -121,12 +123,13 @@ packet. It will, however, very rarely actually drop a packet because it usually
 succeeds in sending the packet before reaching its retry limit. Since TCP does 
 not see any loss, it will assume that the path is not congested, and so it will 
 continue to grow its congestion window.  In fact, the loss that TCP does see 
-will likely \textbf{not} be related to congestion, causing it to back off its 
-congestion window incorrectly. % WHY??
+will likely \textbf{not} be related to congestion, such as faulty links or devices.
+This will cause it to back off its 
+congestion window incorrectly.
 
 % TODO: mention MAC layer fairness?
-For regular TCP flows, since the NIC always
-has packets to send, the throughput will be limited by the link speed, and the
+Since the NIC always
+has packets to send the throughput will be limited by the link speed, and the
 MAC layer will ensure fairness between clients. It will, however, still fill the
 send queue with packets that the NIC is unable to send. This is a problem because any
 packets sent by other flows on the same host will now be queued behind these
@@ -134,15 +137,15 @@ packets, increasing delay significantly for these packets, which is a problem
 for flows where
 latency is more important than throughput such as VoIP.\@ To mitigate this 
 problem, TCP Small Queues has been implemented in the Linux kernel, effectively 
-hard capping the amount of bytes any TCP flow can keep in the IP send queue at 
+hard capping the amount of bytes a TCP flow can keep in the IP send queue at 
 any given point in time. Although this will not solve the underlying problem, it 
 will limit the amount of delay a misbehaving TCP flow can inflict on other flows.
 
 For Multipath TCP with Coupled congestion control, however, this becomes a
-problem. As explained in \S\ref{sec:bg:mptcp}, Coupled tries to not be too 
+substantial problem. As explained in \S\ref{sec:bg:mptcp}, Coupled tries to not be too 
 aggressive on any one link by throttling the growth of the congestion window.
 This works correctly if the congestion window directly impacts how often the NIC 
-puts packets on the network as throttling the growth of the congestion window 
+puts packets on the network, as throttling the growth of the congestion window 
 will effectively lead to other clients on the network getting a larger share of 
 the network capacity. However, when the congestion window is sufficiently large 
 that the NIC always has packets to send, this throttling has no effect at all. 
@@ -153,9 +156,9 @@ up behaving exactly like New Reno, which is unfair when multiple subflows are
 used.
 
 This problem is not related to the amount of interference between the different
-wireless networks, but rather to the feedback (or rather lack thereof) given on
+wireless networks, but rather to the lack of feedback given on
 wireless networks when the link capacity is reached. It is also only experienced
-when the immediate link is congested as any bottleneck further along the network
+when the immediate link is congested, as any bottleneck further along the network
 path is likely to have a queue which will overflow, drop a packet, and thus
 signal to TCP that it should back off. In fact, this is precisely what we see in
 the downlink case where the queue in the AP effectively conveys how congested
@@ -182,12 +185,11 @@ artificially increased by 100ms, by adding delay at the IP queue level on the
 test server. In this case, we would not expect the higher RTT to significantly
 affect overall throughput, but rather to lower the rate of growth of the
 congestion window during slow-start. The CDF, however, shows that throughput is
-drastically reduced and is lower than that of the parallel clients.
+drastically reduced.
 
 In particular, consider the time plot of one of the Multipath
-TCP flows in Figure~\ref{graph:fairness-rtt-up-close}. The ``Bandwidth delay
-product'' line shows the bandwidth delay product (and thus the target congestion
-window size) of the real RTT + 100ms times the throughput observed without an
+TCP flows in Figure~\ref{graph:fairness-rtt-up-close}. The bandwidth delay product line shows
+the product of the real RTT + 100ms and the throughput observed without an
 inflated RTT.\@ Clearly, the congestion window is never approaching this value.
 The same is the case for the other subflow and the two parallel flows. By
 looking at the number of transmission failures reported by the NIC, we can see
@@ -197,8 +199,8 @@ and New Reno to continuously halve their congestion windows, and with the higher
 RTT, the additive increase is too slow to bring the congestion window up to the
 bandwidth delay product before the next packet loss, after which the congestion 
 window is halved again. Since TCP is now putting packets into the send queue 
-much slower than the NIC can transmit them, the throughput is now limited by the 
-congestion window, and since the window is too small, the throughput suffers.
+much slower than the NIC can transmit them, the throughput is limited by the 
+congestion window. Since the window is too small, the throughput suffers.
 
 Coupled also suffers noticeably more from this problem than New Reno. This is
 because Coupled is trying to behave fairly to other flows, but is reacting to

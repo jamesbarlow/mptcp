@@ -13,7 +13,7 @@ capacity of the link. Because of the lack of congestion feedback discussed in
 \S\ref{sec:results-fairness}, the congestion window will grow too large,
 meaning there will always be packets waiting in the send queue, and thus the
 only limiting factor is MAC layer fairness. If no other clients are competing
-for access, the MAC will give 100\% capacity to the Coupled flow, and thus it
+for access, the Coupled flow will gain all fo the capacity, and thus it
 will saturate the link. Until this lack of feedback is somehow resolved, the 
 results from experiments with Coupled on the uplink are not particularly
 interesting.
@@ -40,5 +40,6 @@ for the aforementioned experiments, and we can see that Coupled is undoubtedly
 following the performance profile of the independent interfaces. This implies
 that Coupled is in fact allowing Multipath TCP to eventually get a total
 throughput equal to the sum of what TCP New Reno would get on each flow
-individually when there are no competing flows.
+individually when there are no competing flows. This means that it also works as
+expected on wireless networks.
 % vim:textwidth=80:colorcolumn=80:spell:

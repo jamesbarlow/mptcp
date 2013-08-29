@@ -1,19 +1,18 @@
-In this paper we have presented a number of wireless experiments showing that
+In this paper, we have presented a number of wireless experiments showing that
 multiplexing across multiple wireless interfaces on a single host may indeed
-provide advantages over single interface hosts for certain network
+provide advantages over regular TCP for certain network
 configurations both in terms of reliability and throughput.
-
 
 Further, we have shown that Multipath TCP works quite well when traffic is
 primarily downlink, which is often the case on wireless networks today, as 
 traffic is balanced between the available wireless networks and each host only 
 uses a fair share of the total network capacity. We have also shown that 
-Multipath TCP does not behave fairly with uplink traffic due to a combination of 
+it behaves unfairly with uplink traffic due to a combination of 
 802.11 retransmissions and effectively unbounded buffering in the network stack.
 
 Finally, we have discussed how the uplink problems experienced by Multipath TCP
 are not unique to wireless links, and that they manifest also for regular TCP
-connections as bloated buffers. Unfortunately due to time constraints, we have 
+connections as bloated buffers. Unfortunately, due to time constraints, we have 
 not been able to test our suggestion for a solution to this problem, and so the 
 question of how to properly limit queue sizes without the presence of loss 
 remains an open problem.
@@ -26,37 +25,32 @@ making it difficult to obtain consistent results. To verify the behaviour we
 have observed, repeating the experiments in more controlled environments may be 
 an appropriate next step.
 
-Most of our experiments were also conducted with only two, static APs, and two 
+Most of our experiments were also conducted with two static APs, and either two 
 or three wireless clients each with a maximum of two interfaces. Investigating 
 how Multipath TCP behaves when more networks are available, or with different 
-physical distributions of APs may yield significantly different results. 
+physical distributions of APs, may yield significantly different results. 
 As 5~GHz networks become more prevalent, testing the amount of interference 
 between 5~GHz channels could also be of value. 
 
 Additionally, we have shown that Multipath TCP experiences varying level of 
 interference based on the underlying network. We see that there is no 
-interference across the 2.4GHz and 5GHz bands while the interference patterns 
+interference across the 2.4 GHz and 5 GHz bands, while the interference patterns 
 observed in \S\ref{sec:results-interference} suggest that some further research 
 on how Carrier Sense works across channels could be warranted.
 
-It should be noted that Multipath TCP does work sufficiently well for wired 
-networks as seen in [FIND PAPER TO REFERENCE], and most of the issues observed 
-in this report are in relation with its behaviour with WiFi. Problems such as 
-reduced  throughput for flows on the same channel, bloated buffers and an unfair 
-share of  the aggregate throughput on uplink connections makes its usage in the 
-wireless environment far from desirable.
+It should be noted that Multipath TCP works well for wired 
+networks as seen in [!! FIND PAPER TO REFERENCE !!], and most of the issues identified
+in this report are in relation to its interaction with WiFi. Reduced throughput
+for flows on the same channel, inflated buffers and unfair behaviour for uplink
+traffic makes its deployment in wireless networks problematic. To be useful in a
+wireless setting, Multipath TCP will need to be modified to correct these issues.
+We have discussed one such improvement in
+\S\ref{sec:closing:inflated:cwnd}.
 
-It is evident that Multipath TCP has to be improved to better serve devices in a
-wireless environment. We have discussed one of such improvements in 
-\S\ref{sec:closing:inflated:cwnd}. Furthermore, to mitigate the effect of 
-same-channel interference, Multipath TCP can implement a mechanism where by 
-interfaces on the same channel defer transmitting data on that channel 
-simultaneously.
-
-In general, Multipath TCP is an exciting technology that has the potential to 
-provide more robust network connections between hosts and we believe that with 
-further research on its interaction with WiFi, its widespread deployment is 
-inevitable.
+Multipath TCP is an exciting technology that we believe has the potential to 
+provide greater reliability and improved throughput to wireless hosts. With
+further research on its interaction with WiFi, it could greatly improve the
+experience of using the internet on mobile devices.
 
 % Notes from our meeting with Mark about the report:
 % - Important: Conclusions - how well does MPTCP works, when does it
