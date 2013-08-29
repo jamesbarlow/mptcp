@@ -5,15 +5,15 @@ to determine:
 
 \begin{enumerate}
   \item Are there any inherent performance penalties to transmitting on two
-    interfaces concurrently on the uplink?
+    interfaces concurrently?
   \item Can any performance benefit be gained when transmitting on two
-    interfaces concurrently on the uplink?
+    interfaces concurrently?
   \item To what degree is the downlink performance affected by multiple clients
     using different networks simultaneously?
 \end{enumerate}
 
-To answer these questions, we ran several experiments using the UDP and TCP New 
-Reno protocols, with the different setups outlined in \S\ref{sec:met:setups}.      % TODO: fix section reference
+To answer these questions, we ran several experiments using UDP and TCP New 
+Reno, with the different setups outlined in \S\ref{sec:met:setups}.      % TODO: fix section reference
 The channel frequencies of the two networks were varied between experiments. One
 network was generally kept on channel 1 in the 2.4 GHz band, whilst the other
 was switched between channel 1 for same-channel tests, channel 5 or 11 for
@@ -38,8 +38,7 @@ wireless cards also report very few 802.11 retransmit failures.
 As the two networks are operating at opposite ends of the 2.4 GHz spectrum, we
 would expect both interfaces to transmit concurrently without colliding
 and the aggregate throughput should be approximately the sum of the capacity of
-both links. However, this perfect split of utilisation between the two networks
-implies that carrier sense is being used between the interfaces.
+both links. The reason why this behaviour is expected is simple, due to the networks being on opposite ends of the 2.4 GHz spectrum, they should not interfere with each other,hence transmitting without collisions. However, this perfect split of utilisation between the two networks implies that carrier sense is being used between the interfaces.
 
 Looking at the sum throughput, it is clear that some performance gain is
 achieved, but the aggregate throughput is closer to 150\% of that of a single
@@ -55,17 +54,17 @@ Figure~\ref{graph:sc-interference} shows a similar test performed with both
 networks operating on the same channel in the 2.4 GHz band. The results here are
 perhaps even more surprising, as carrier sense should enforce a fairly strict
 time multiplexing between two networks on the same channel. We would therefore
-expect that the total throughput should remain almost the same, regardless of
+expect that the total throughput should remain unaffected, regardless of
 whether one or two interfaces are active. However, these results show that the
 \textbf{total} throughput decreases to almost 60\% of that of a single link when
 both interfaces are active.
 
 In both the cases above, it seems as though carrier sense is not working quite
 as expected. We would generally expect few backoffs due to carrier sense between
-two networks on non-overlapping channels, but clearly this is not the case.
-Conversely, for networks on the same channel we would expect carrier sense to
-time-multiplex fairly between the clients. These tests show a high number of 
-link layer transmit failures, suggesting that carrier sense if often failing 
+two networks on non-overlapping channels, but clearly this is not the case. In here carrier sense is in fact seeing a significant number of backoffs and a drop in throughput is also visible as previously mentioned; this shows that the non-overlapping channels are experiencing significant interference which in theory should not be happening.
+Conversely, for networks on the same channel, we would expect carrier sense to
+time-multiplex fairly between the clients. The tests show a high number of 
+link layer transmit failures, suggesting that carrier sense is often failing 
 to prevent collisions.
 % How many? Need to quantify this? J
 
@@ -73,7 +72,7 @@ These results lead us to believe that using multiple wireless networks at the
 same time may in fact lead to a performance penalty, as compared to using a
 single interface, in the case where the networks are operating on the same 2.4
 GHz channel. In the case where the networks are operating on non-overlapping 2.4
-GHz channels a performance benefit seems possible, although the gain may be less
+GHz channels, a performance benefit seems possible, although the gain may be less
 than one would reasonably expect.
 
 % TODO: 2.4 down test?
@@ -93,8 +92,8 @@ than one would reasonably expect.
 \end{figure}
 
 As expected, the experiments we performed with one network operating on the 2.4
-GHz band and one network on the 5 GHz band showed little interference between
-the interfaces.  Figure~\ref{graph:cb-interference-up} shows the CDF of the
+GHz band and one network on the 5 GHz band showed no interference between
+the networks.  Figure~\ref{graph:cb-interference-up} shows the CDF of the
 throughputs for an uplink test with three of the tests described in 
 \S\ref{sec:met:setups:seqtcp}, namely the parallel test and the two single tests.
  We see that the throughputs are almost identical in the parallel case and in 

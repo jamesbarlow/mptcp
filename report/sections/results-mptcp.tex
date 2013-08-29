@@ -5,8 +5,7 @@ congestion window of each subflow to grow as if it were an independent TCP flow,
 and is known to use an unfair share of the total available bandwidth [1]. These
 results may therefore seem unnecessary, however we believe it is useful to show
 the subtle difference between running two wireless clients in parallel and one
-client with multiple wireless interfaces. New Reno allows us to evaluate this
-separately from the load balancing performed by the Coupled algorithm.
+client with multiple wireless interfaces. Using New Reno allows us to evaluate this separately from the load balancing performed by the Coupled algorithm.
 
 % [1] Coupled Congestion Control RFC.
 
@@ -33,7 +32,7 @@ On the downlink, we would expect each Multipath TCP subflow to get an equal
 share of the total throughput as a regular TCP flow, as there should be no
 difference in interference when running both WiFi interfaces on the same machine
 compared to on separate machines, when each interface is only transmitting ACKs.
-This is shown in Figure~\ref{graph:reno-down}.
+This can be seen in figures 5(a) through to 5(c) in Figure~\ref{graph:reno-down}. The discrepancies in 5(b) can be attributed to the unstable nature of wireless environments.
 
 The per-subflow fairness in the downlink case is achieved in two steps. Firstly,
 the wireless medium should be shared equally between the two APs (assuming they
@@ -41,15 +40,12 @@ both have data to send and their channels are equally busy) due to carrier
 sense. Additionally, because TCP New Reno does not try to balance the load on
 each flow, the sender would continuously try to push as much data as it can get
 on the link and this is only limited by the finite buffer at the AP. The effect
-of this is that the APs drop further incoming packets as soon as the buffers are
-full and this notifies the sender to adapt its rate. However this does not mean
-that TCP New Reno would reduce its aggressiveness, it just reduces the amount of
-packets it has in flight at a given time. This value still grows as aggressively
-as before hence the buffers at the AP are always full. The full buffers ensure
+of this is that the APs drop further incoming packets as soon as their buffers are full, and this notifies the sender to adapt its rate. However, this does not mean that TCP New Reno would reduce its aggressiveness, it just reduces the amount of packets it has in flight at a given time. This value still grows as aggressively as before hence the buffers at the AP are always full. The full buffers ensure
 that the AP's always have data to send on behalf of each flow when it gets its
 fair share of the medium as determined by carrier sense. Hence this should lead
 to the flows sharing the available bandwidth fairly as they have roughly the
-same amount of access to the medium.
+same amount of access to the medium. 
+Although, the flows have a fair share of the bandwidth this does not mean TCP New Reno is fair, in fact it is not. As previously explained, this fairness is achieved due to the AP buffers overflowing; this causes the sender to adapt its rate but, TCP New Reno maintains its aggressiveness. In reality, if the AP buffers did not overflow and hence limited the amount of packets in flight, TCP New Reno would continue to grow aggressively and cause its flows to have different amounts of access to the medium. This would lead a flow to take more than its fair share of the bandwidth, displaying then an unfair behaviour.  
 
 \subsubsection{Uplink}
 \label{sec:results-mptcp-up}
@@ -75,10 +71,10 @@ traffic, obtaining consistent results for these tests was a time consuming
 process. The general trend we observe in Figure~\ref{graph:reno-up} is the
 same seen on the downlink; each Multipath TCP subflow gets an equal
 share of the total throughput to every other flow on that link. This also makes
-sense conceptually, as in the uplink case the 802.11 MAC provides fairness
-\textbf{per 802.11 client} using carrier sense, and in the downlink case
+sense conceptually; on the uplink case, the 802.11 MAC provides fairness
+\textbf{per 802.11 station} using carrier sense, and on the downlink case
 fairness is provided by carrier sense \textbf{and} the APs. Since Multipath TCP
-acts as one client on each network, one would expect each subflow to get half
+acts as one station on each network, one would expect each subflow to get half
 the available capacity on each network when using New Reno.
 
 The equal distribution above gives Multipath TCP an aggregate throughput equal
@@ -87,18 +83,6 @@ penalty is incurred by running both interfaces on the same client rather than on
 different clients. We can also reason from this that Multipath TCP with Coupled
 congestion control should theoretically be able to eventually reach the same
 throughput as parallel clients if no other flows are competing on the network; 
-this would be looked at in \S\ref{sec:results-performance}.
+this will be looked at in \S\ref{sec:results-performance}.
 
-When the two interfaces are running on different bands, as in
-Figure~\ref{graph:cb-reno-up}, we see a curious effect where Multipath TCP
-lowers its send rate on the 2.4 GHz network. This was unexpected with New Reno
-as Multipath TCP should not be trying to be fair to other flows, but rather try
-to maximize the throughput on each path. It turns out that there is a connection
-between flows when running Multipath TCP regardless of what congestion control
-is in use. If Multipath TCP detects that a faster flow is forced to wait for
-ACKs on the slower flow, it will…
-[the graph refernced above doesnt actaully show lower send rate on 2.4GHz
-do we have a graph that shows this?? consider removing the paragraph ]
-% TODO: We have to confirm that this is the case
-% TODO: finish this when confirmed
 % vim:textwidth=80:colorcolumn=80:spell:
