@@ -32,7 +32,10 @@ On the downlink, we would expect each Multipath TCP subflow to have an equal
 share of the total throughput as a regular TCP flow, as there should be no
 difference in interference when running both WiFi interfaces on the same machine
 compared to on separate machines when each interface is only transmitting ACKs.
-This can be seen in figures 5(a) through to 5(c) in Figure~\ref{graph:reno-down}. The discrepancies in 5(b) can be attributed to the unstable nature of wireless environments.
+This can be seen in \subref{graph:sc-reno-down} through
+\subref{graph:cb-reno-down} in Figure~\ref{graph:reno-down}. Again, we attribute
+the discrepancies in \subref{graph:cc-reno-down} to the unstable nature of
+wireless networks.
 
 The per-subflow fairness in the downlink case is achieved in two steps. Firstly,
 the wireless medium should be shared equally between the two APs (assuming they
