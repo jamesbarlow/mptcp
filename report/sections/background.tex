@@ -170,10 +170,11 @@ shown in Equation~\ref{eq:mptcp}.
   \intertext{where}
   \alpha &=
     \frac{cwnd_\text{total} \cdot \max_i\left(\frac{cwnd_i}{rtt_i^2}\right)}
-         {(\sum_i \frac{cwnd_i}{rtt_i})^2}
+         {(\sum_i \frac{cwnd_i}{rtt_i})^2}\label{eq:alpha}
 \end{align}
 
-$\alpha$ controls how aggressive Coupled should be when
+The parameter $\alpha$ specified in Equation~\ref{qe:alpha} controls how aggressive
+Coupled should be when
 increasing its total send rate, and is chosen such that the aggregate throughput
 across all subflows is equal to the throughput a TCP New Reno flow would gain on
 the best of the paths available. This ensures fairness with competing TCP flows,
