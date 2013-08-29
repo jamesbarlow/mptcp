@@ -4,109 +4,6 @@ turned out to be glitches, but many made complete sense after some hard
 thinking. This section aims to explain most of the oddities that can be osbserved
 in some of the graphs given in this report.
 
-\subsubsection{Inflated congestion windows}
-\label{sec:closing:inflated:cwnd}
-The issue identified in \S\ref{sec:results-fairness} is one that will affect any
-connection where the bottleneck link is the immediate link a client is connected
-to, and as mentioned, it will affect both TCP and Multipath TCP, albeit with
-different effects. In both cases, the congestion window will rarely be halved,
-and thus will grow indefinitely beyond the ``correct'' value of the paths'
-bandwidth delay product.
-
-When the congestion window grows too large, both TCP and Multipath TCP will
-continue to assume that they are being fair by continuing to put packets onto
-the send queue, even though these packets are drained slower than they are being
-put in. This is what is causing the bloated queue we saw in the graphs. For TCP,
-this is not a problem beyond adding delay for any other flows on the host as
-their packets will be queued behind an abnormally large amount of packets from
-the bloated TCP flow. For Multipath TCP, however, this is problematic - because
-it will always have a packet in the queue to send, it will never yield the link
-voluntarily.
-
-TCP Small Queues, which is the currently applied ``fix'' in the Linux kernel
-does not address the underlying problem, as it simply bounds the number of
-packets any given TCP flow can have in the queue at any given point in time to a
-rather arbitrary number. This does have the desired side-effect of reducing the
-amount of latency that a misbehaving TCP flow could potentially inflict on
-other flows on the same host, but without tuning the maximum queue size. However,
-the latency will
-still be somewhat inflated. Even if a very conservative
-limit is set, this will also be incorrect for links with other
-speeds and RTTs.
-
-We believe that the correct way of overcoming this must be to modify TCP so that it
-reacts to congestion which does not manifest as packet loss. Altering TCP is naturally
-something which should not
-be done lightly, and the effects of any change would need to be examined
-on a large scale before they are put into production use. That said, we will suggest
-a modification which we believe could solve this issue.
-
-The intuition behind our change is that the growing size of the local queue
-could be used as a signal to TCP that there is congestion somewhere without
-there being packet loss.
-% Somewhere? On the local host, right?
-We have observed that the number of packets in the send queue for a normal
-TCP connection should usually be around 0, but may occasionally grow slightly if
-the immediate link is temporarily busy. To determine if the queue is growing
-when it should not be, we need a way to determine how large it is reasonable
-that it might grow to.
-
-We base our suggestion on the observation that that the queue is unlikely to grow much
-larger than the number of bytes which could be transferred on the bottleneck link
-in one variance of the RTT.\@ For cases when the bottleneck link is the
-immediate link, we believe that this should reflect a maximum value for how long we
-should have to wait for the immediate link to become available. This limit $QL$ is
-calculated as shown in Equation~\ref{eq:ql}.
-
-\begin{align}
-  QL = \frac{var \cdot cwnd}{RTT}\label{eq:ql}
-\end{align}
-
-$QL$ is the expected upper bound of the send queue, and $var$ is the RTT
-variance measured by TCP.\@ For links where the bottleneck is not our immediate
-link, equation~\ref{eq:ql} may not behave as desired; the sending
-host will now attempt to balance its local queue according to the queue of the
-bottleneck link, potentially leaving the bottleneck link without
-data to send, which would be bad for throughput. This may be overcome by
-measuring the send delay variance of the immediate link directly and
-substituting that for $var$ in equation~\ref{eq:ql}.
-
-Building on the intuition that $QL$ would represent the maximum expected send
-queue size, we believe it would be appropriate to consider the send queue
-exceeding that limit as a congestion event, and thus halve TCP's congestion
-window. We hope that this will bring back balance to TCP congestion window.
-In theory, a single RTT should be enough to drain the send queue, and so
-we expect that adjusting the congestion window at most once per RTT should
-be appropriate.
-
-To make it easier to integrate this with TCP, one could also implement this as a
-``once per ACK'' similarly to how New Reno increases the congestion
-window. We want one RTT worth of ACKs to decrease $cwnd$ by half, and so:
-
-\begin{align*}
-  step = \frac{MSS}{2} \cdot \frac{cwnd_i}{cwnd}
-\end{align*}
-
-Where $cwnd_i$ is set to $cwnd$ any time the send queue is smaller than $QL$.
-Thus, we update the congestion window on every received ACK:
-
-\begin{verbatim}
-  if length(send queue) > QL
-    cwnd -= step
-  else
-    cwnd_i = cwnd
-\end{verbatim}
-
-We believe this might correct TCP's congestion window size, bringing it back to
-the point where the send queue hovers around 0. Being dynamic, it would also be
-a superior solution to TCP Small Queues. It would possibly also fix the fairness
-issue we have seen with Multipath TCP over lossless links, as the congestion
-windows would now be correct.
-
-Due to time constraints, we have not been able to implement nor test this
-solution, and thus it is presented solely as a suggestion for future work
-if this problem is revisited.
-
 \subsubsection{Reliability of wireless experiments}
 Running every test many times has proven very important throughout this project.
 Considering the uplink New Reno 2.4 GHz tests as an example, we initially 
@@ -133,13 +30,6 @@ the RTT estimate will include the time a packet spent in the queue. Since the
 queue is growing, so will the RTT.
 
 \subsubsection{Logarithmic growth of congestion window}
-
-\begin{figure}[h]
- \centering
- \input{graphs/logarithmic.tex}
- \caption{Unbounded congestion window growth}\label{graph:logarithmic}
-\end{figure}
-
 Figure~\ref{graph:logarithmic} shows the congestion window size plotted over
 time for one test we ran in which we were seeing very little loss. It clearly
 shows something resembling logarithmic growth rather than the familiar linear
