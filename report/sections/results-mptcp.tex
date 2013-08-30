@@ -5,9 +5,10 @@ use an unfair share of the available capacity with Multipath TCP, as it
 allows the congestion window of each subflow to grow as if it were an
 independent TCP flow\footnote{RFC 6356 - Coupled Congestion Control for
 Multipath Transport Protocols.}. These
-results may seem unnecessary, but we believe it is useful to show
+results may seem unnecessary, but we believe they are useful to show
 the subtle difference between running two wireless clients in parallel and one
-client with multiple wireless interfaces. Using New Reno allows us to evaluate this separately from the load balancing performed by the Coupled algorithm.
+client with multiple wireless interfaces. Using New Reno allowed us to evaluate
+this separately from the load balancing performed by the Coupled algorithm.
 
 % [1] Coupled Congestion Control RFC.
 
@@ -39,12 +40,12 @@ This can be seen in \subref{graph:sc-reno-down} through
 the discrepancies in \subref{graph:cc-reno-down} to the unstable nature of
 wireless networks.
 
-The per-subflow fairness in the downlink case is achieved in two steps. Firstly,
+The per-subflow fairness in the downlink case is achieved in two ways. Firstly,
 the wireless medium should be shared equally between the two APs (assuming they
 both have data to send and their channels are equally busy) due to carrier
 sense. Additionally, two flows going through an AP should get an equal share of 
-its airtime. Since TCP New Reno does not try to balance the load on each flow, 
-the sender would continuously try to push as much data as it can get on the link 
+its airtime. Since TCP New Reno does not try to balance the load on each subflow, 
+the sender should continuously try to push as much data as it can get on the link,
 and this is only limited by the finite buffer at the AP. The effect of this is 
 that the APs drop further incoming packets as soon as their buffers are full, 
 and this notifies the sender to adapt its rate. At this point, both flows have 
@@ -53,7 +54,7 @@ in transmitting each flows' data, thereby effectively sharing the airtime of the
 AP.
 
 Note that although the flows have a fair share of the bandwidth, this does not 
-mean TCP New Reno is fair as it maintains its agressinveness even after adapting 
+mean TCP New Reno is fair as it maintains its aggressiveness even after adapting 
 its send rate. In reality, if the AP buffers did not overflow and hence limited 
 the amount of packets in flight, TCP New Reno would continue to grow 
 aggressively and cause its flows to have different amounts of access to the 
@@ -82,7 +83,7 @@ bandwidth, displaying then an unfair behaviour.
 Due to the unpredictable nature of wireless and varying levels of background
 traffic, obtaining consistent results for these tests was a time consuming
 process. The general trend we observe in Figure~\ref{graph:reno-up} is the
-same seen on the downlink; each Multipath TCP subflow gets an equal
+same as was seen on the downlink; each Multipath TCP subflow gets an equal
 share of the total throughput to every other flow on that link. This also makes
 sense conceptually; on the uplink, the 802.11 MAC provides fairness
 \emph{per 802.11 station} using carrier sense as explained in
@@ -91,10 +92,10 @@ sense conceptually; on the uplink, the 802.11 MAC provides fairness
 we would expect each subflow to get half the available capacity on each network
 when using New Reno.
 
-The equal distribution above gives Multipath TCP an aggregate throughput equal
+This equal distribution of transmit time gives Multipath TCP an aggregate throughput equal
 to the sum of half of each links' capacity, and suggests that no additional interference
-penalty is incurred by running both interfaces on the same client rather than on
-different clients. We can also reason from this that Multipath TCP with Coupled
+penalty is incurred by running both interfaces on the same client rather than
+separate clients. We can also reason from this that Multipath TCP with Coupled
 congestion control should theoretically be able to eventually reach the same
 throughput as parallel clients if no other flows are competing on the network; 
 this will be examined at in \S\ref{sec:results-performance}.
