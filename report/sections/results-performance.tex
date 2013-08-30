@@ -1,9 +1,9 @@
-\S\ref{sec:results-interference} showed us that there is a performance
-gain when using multiple wireless networks if the two networks are somewhat 
+In \S\ref{sec:results-interference}, we showed that a performance gain is
+possible when using multiple wireless networks if the two networks are somewhat 
 separated in the frequency domain. From \S\ref{sec:results-mptcp}, we know that 
-Multipath TCP has the potential to fully saturate both of these links if given 
-the chance. Our uplink experiments in \S\ref{sec:results-fairness} suggest that 
-Coupled will, if it thinks it is not inconveniencing any other flow, gladly fill 
+Multipath TCP has the potential to fully saturate both of these links and
+our uplink experiments in \S\ref{sec:results-fairness} suggest that 
+Coupled will, if it believes it will not impact any other flow, gladly fill 
 its entire MAC layer share of the network capacity. This section will attempt to 
 determine whether Coupled will eventually fill both its wireless links if there 
 are no other clients on the network at the same time.
@@ -25,7 +25,7 @@ When Coupled is running for a downlink connection, however, congestion feedback
 interesting. To address this, we performed a series of 
 experiments where a parallel test was run and then immediately followed by a 
 test where one host was connected to both hosts and running Coupled. Due to the 
-timing difference between the parallel and Coupled tests, getting identical 
+timing difference between the parallel and Coupled tests, seeing identical 
 throughput is unlikely, but we would be surprised to see a consistent difference 
 in throughput between parallel and Coupled at this point.
 
@@ -38,7 +38,7 @@ in throughput between parallel and Coupled at this point.
 The graphs in Figure~\ref{graph:coupled-performance} show the downlink results
 for the aforementioned experiments, and we can see that Coupled is undoubtedly
 following the performance profile of the independent interfaces. This implies
-that Coupled is in fact allowing Multipath TCP to eventually get a total
+that Coupled is in fact allowing Multipath TCP to eventually use a total
 throughput equal to the sum of what TCP New Reno would get on each flow
 individually when there are no competing flows. This means that it also works as
 expected on wireless networks.
