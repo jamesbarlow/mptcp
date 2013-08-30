@@ -22,6 +22,6 @@ set style line 13 lt 13 lc rgb "dark-gray"
 
 plot \
   '~/Dropbox/MPTCP/data/2013-08-27/mobility/ni-coupled-down-10/mptcp-down/wlan1.dat' using ($1-1377609181.589148):(80+$14/5) title 'Utilization network A' with lines ls 1, \
-  '~/Dropbox/MPTCP/data/2013-08-27/mobility/ni-coupled-down-10/mptcp-down/wlan1.dat' using ($1-1377609181.589148):(8*$16/1000000) title 'Throughput network A' with lines ls 3, \
   '~/Dropbox/MPTCP/data/2013-08-27/mobility/ni-coupled-down-10/mptcp-down/wlan5.dat' using ($1-1377609181.589148):(80+$14/5) title 'Utilization network B' with lines ls 2, \
+  '~/Dropbox/MPTCP/data/2013-08-27/mobility/ni-coupled-down-10/mptcp-down/wlan1.dat' using ($1-1377609181.589148):(8*$16/1000000) title 'Throughput network A' with lines ls 3, \
   '~/Dropbox/MPTCP/data/2013-08-27/mobility/ni-coupled-down-10/mptcp-down/wlan5.dat' using ($1-1377609181.589148):(8*$16/1000000) title 'Throughput network B' with lines ls 4
