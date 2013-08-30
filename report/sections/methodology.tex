@@ -56,14 +56,15 @@ time constraints and as a consequence of this, we did not perform any tests usin
 multiple channels in the 5 GHz band only.
 
 \subsubsection{Physical layout}
-In all the static tests, the wireless clients were placed next to each other
-approximately 60cm apart. The APs were located 2-3 metres away, separated by
+In all of the static tests, the wireless clients were placed next to each other
+approximately 60cm apart. The APs were located 2-3 metres away, and separated by
 about 30cm.
 
-All tests were run in the Computer Science department building. The environment
-contains with glass/plaster walls and concrete floors, and several other wireless
+All tests were run in the Computer Science department building at UCL. The building
+environment consists mainly of glass or plaster walls and concrete floors, and
+several other wireless
 networks were present. Other wireless experiments were
-also being coducted elsewhere in the building, but we believe these did not severely
+also being conducted elsewhere in the building, but we do not believe these significantly
 affect our results.
 
 \subsubsection{Sequential TCP tests}
@@ -78,7 +79,7 @@ were as follows:
 \begin{enumerate}
   \item Machine A connected to network A.
   \item Machine B connected to network B.
-  \item Machine A connected to network A and machine B connected to network B.
+  \item Machine A connected to network A, and machine B connected to network B in parallel.
   \item Machine A connected to network A and network B.
   \item Machine B connected to network A and network B.
 \end{enumerate}
@@ -91,25 +92,26 @@ when transmitting simultaneously on each network. This was done in order to
 measure how well Multipath TCP utilized the two networks as compared to two
 entirely separate, regular TCP clients.
 
-The fourth and fifth tests used a single machine connected to both networks at
-the same time, and was performed in order to gauge how well Multipath TCP behaves
+The fourth and fifth tests using multipath flows were performed with a single machine
+connected to both networks at
+the same time. These tests allowed us to determine how well Multipath TCP behaves
 with multiple wireless links.
 
 Running this last configuration on both machines may seem unnecessary,
-but it was vital to allow us to compare the parallel performance on a
+but it was vital to allow us to compare the performance of a parallel test on a
 given channel to the Multipath TCP performance on the same channel. The reason
 for this is that wireless performance can vary greatly between different machines and
 locations. Running the dual-network test on both machines allowed us to compare
-the use of network A for single, parallel and Multipath TCP without worrying
-about machine discrepancies. Note that a side-effect of this is that the
-Multipath TCP lines in a graph are \textbf{not} from the same test, and thus
+the use of network A for single-flow, parallel-flow and Multipath TCP without worrying
+about these machine discrepancies. Note that a side-effect of this is that the
+Multipath TCP lines in a graph are \textbf{not} produced from the same test, and thus
 would not be expected to match up entirely. That said, we usually observed
 similar behaviour for Multipath TCP for the last two tests.
 
 Because of this discrepancy, all of the results presented in this report which
 include Multipath TCP are
 from the simultaneous TCP test setup described in the following section, with
-the exception of in \S\ref{sec:results-performance}.
+the exception of \S\ref{sec:results-performance}.
 
 \subsubsection{Simultaneous TCP tests}
 \label{sec:met:setups:simtcp}
@@ -136,8 +138,8 @@ interfaces.  The other interface was alternated between being in idle and active
 mode for fixed time slots of 30 seconds during the experiment.
 
 The idea behind alternating the active periods for one of the interfaces is
-that, ideally, if there is no interference between these networks, there would
-be nearly no loss of throughput for the always-on interface when the alternating
+that, ideally, if there is no interference between these networks, there should
+be almost no loss of throughput for the always-on interface when the alternating
 interface is active. If there is interference, such as with networks on the same
 2.4 GHz channel, the throughput of the always-on interface should drop
 significantly while the other interface is active.
@@ -163,13 +165,13 @@ enough time to adapt to the changing environment.
 
 \subsection{Equipment and software}
 \label{sec:met:equip}
-The WiFi interfaces used in our experiments were 2.4 GHz Element 14 Wi-Pi dongles,
+The WiFi interfaces used in our experiments were 2.4 GHz Wi-Pi dongles,
 commonly found in Raspberry Pi devices. For the 5 GHz tests, a
 Tenda W522U was used. These dongles proved somewhat unreliable and would
 occasionally drop substantial amounts of packets or fail altogether during a
 test, particularly on the uplink. For some experiments we were therefore forced
 to use the built-in wireless interfaces on our laptops to perform the
-experiments.  These exhibited more stable loss rates and generally did not fail
+tests. These exhibited more stable loss rates and generally did not fail
 during experiments, but also made comparing results across tests more difficult.
 
 Our APs were two 2.4 GHz Netgear ProSafe WG103, as well as a Netgear N600 which
