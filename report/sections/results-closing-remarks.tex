@@ -14,11 +14,10 @@ WiFi interfaces connected to one machine might somehow lead to more
 cross-interface interference than with the same interfaces connected to 
 different machines equally far apart. After running more experiments to confirm this, 
 however, we quickly saw contradicting results where Multipath TCP was 
-consistently faster than the parallel case. On balance, we consider the results to
-even out across many tests. The slight discrepancies of some links in those 
-figures are often due to WiFi interfaces being extremely sensitive to their 
-exact positioning, and average out over a larger set of tests.
-Due to the susceptibility of WiFi interfaces to interference, running experiments was therefore very challenging, giving us completely different set of results. Due to this we had to repeat most of our experiments, in order to have enough results to be able to establish which of those were displaying the real WiFi behaviour from those that were just a variability of WiFi. 
+consistently faster than the parallel case. These kind of discrepancies were
+present in many of our tests, and are due to WiFi being extremely sensitive to
+positioning and timing. We therefore had to repeat many experiments to obtain
+consistent results. 
 
 \subsubsection{Inflated RTT}
 A number of our tests experienced very high RTTs of around 600 ms despite the network

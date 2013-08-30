@@ -39,15 +39,14 @@ downlink case is provided to the sender by the AP dropping packets if they
 arrive at a faster rate than they can be sent out out on the wireless channel. The
 Coupled algorithm uses this feedback to correctly reduce its aggressiveness and 
 thus avoid using an unfair share of the overall capacity.
+Similar results are seen when the two wireless links are operating on separate
+bands, as seen in Figure~\ref{graph:cb-fairness-down}.
 
 \begin{figure}[h]
  \centering
  \input{graphs/cb-fairness-down.tex}
  \caption{Cross-band downlink test with Coupled}\label{graph:cb-fairness-down}
 \end{figure}
-
-Similar results are seen when the two wireless links are operating on separate
-bands, as seen in Figure~\ref{graph:cb-fairness-down}.
 
 \subsubsection{Uplink fairness}
 
@@ -111,7 +110,7 @@ This behaviour is not evident on all wireless networks. A TCP flow
 will usually start experiencing loss when it overflows a
 buffer at a bottleneck, and this is generally not the immediate link.
 The flow will eventually limit the number of packets it sends based on the
-speed of the bottleneck, and since the speed of the immediate link is not
+capacity of the bottleneck, and since the speed of the immediate link is not
 the bottleneck, the NIC should be able to send at least as fast as TCP passes
 packets into the queue.
 
@@ -125,9 +124,18 @@ continue to grow its congestion window.  In fact, the loss that TCP does see
 will likely \textbf{not} be related to congestion, but rather to faulty links or interfaces.
 This will cause it to back off its congestion window incorrectly.
 
-Since the immediate link is not the bottleneck of the path, TCP does not see any loss and the NIC always has packets to send, meaning that the MAC layer will ensure fairness between clients and limit the throughput.
-However, TCP will still manage to fill the send queue with packets that the NIC is unable to send. This becomes an issue, because any packets sent by other flows on the same host will now be queued behind these, increasing their delay significantly and negatively impacting applications such as
-VoIP, where latency is more important than throughput. To mitigate this problem, TCP Small Queues has been implemented in the Linux kernel, effectively hard capping the number of bytes a TCP flow can keep in the IP send queue at any given point in time. Although this does not solve the underlying problem, it will limit the amount of delay a misbehaving TCP flow can inflict on other flows.
+Since the immediate link is the bottleneck of the path, TCP does not see any loss and the NIC always has packets to send, meaning that the MAC layer will ensure fairness between clients and limit the throughput.
+However, TCP will still manage to fill the send queue with packets that the NIC
+is unable to send. This becomes an issue, because any packets sent by other
+flows on the same host will now be queued behind these, increasing their delay
+significantly and negatively impacting applications such as VoIP, where latency
+is more important than throughput.
+
+To mitigate this problem, TCP Small Queues has been implemented in the Linux
+kernel, effectively hard capping the number of bytes a TCP flow can keep in the
+IP send queue at any given point in time.  Although this does not solve the
+underlying problem, it will limit the amount of delay a misbehaving TCP flow can
+inflict on other flows.
 
 For Multipath TCP with Coupled congestion control, however, this becomes a
 substantial problem. As explained in \S\ref{sec:bg:mptcp}, Coupled tries to not be too 
