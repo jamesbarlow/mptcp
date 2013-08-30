@@ -1,20 +1,21 @@
 Throughout our experiments, we have come across several rather odd results,
 correlations and trends that we could not immediately explain. Some of these
 turned out to be glitches, but many made complete sense after some hard
-thinking. This section aims to explain most of the oddities that can be osbserved
+thinking. This section aims to explain most of the oddities that can be observed
 in some of the graphs given in this report.
 
 \subsubsection{Reliability of wireless experiments}
-Running every test many times has proven very important throughout this project.
+Running each test many times has proven very important throughout this project.
 Considering the uplink New Reno 2.4 GHz tests as an example, we initially 
 suspected that Multipath TCP was consistently seeing slightly lower 
-throughput compared to parallel, and we surmised that this might be because two 
+throughput compared to two separate flows in parallel, and we surmised that
+this might be because two 
 WiFi interfaces connected to one machine might somehow lead to more 
 cross-interface interference than with the same interfaces connected to 
-different machines equally far apart. After running more experiments to confirm, 
-however, we quickly got contradicting results where Multipath TCP was 
-consistently faster than parallel. On balance, we consider the results to pretty 
-much even out across many tests. The slight discrepancies of some links in those 
+different machines equally far apart. After running more experiments to confirm this, 
+however, we quickly saw contradicting results where Multipath TCP was 
+consistently faster than the parallel case. On balance, we consider the results to
+even out across many tests. The slight discrepancies of some links in those 
 figures are often due to WiFi interfaces being extremely sensitive to their 
 exact positioning, and average out over a larger set of tests.
 Due to the susceptibility of WiFi interfaces to interference, running experiments was therefore very challenging, giving us completely different set of results. Due to this we had to repeat most of our experiments, in order to have enough results to be able to establish which of those were displaying the real WiFi behaviour from those that were just a variability of WiFi. 
@@ -23,9 +24,9 @@ Due to the susceptibility of WiFi interfaces to interference, running experiment
 A number of our tests experienced very high RTTs of around 600 ms despite the network
 being relatively fast (i.e.\ we see an RTT of $\approx 7$ ms with \texttt{ping}).
 The RTT also seemed to increase and decrease with the size of the send queue. As 
-observed in \S\ref{sec:results-fairness}, the lack of loss causes 
-unbounded growth of the congestion window, but with most of the packets stuck in 
-the send queue. Since TCP estimates RTT based on when the packet was put into 
+discussed in \S\ref{sec:results-fairness}, the lack of packet loss causes 
+unbounded growth of the congestion window, but with most of the packets actually being
+the local send queue. Since TCP estimates RTT based on when the packet was put into 
 the send queue, \emph{not} when it is actually sent by the network interface, 
 the RTT estimate will include the time a packet spent in the queue. Since the 
 queue is growing, so will the RTT.
