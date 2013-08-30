@@ -31,7 +31,7 @@ network can support. Upon receiving packets, routers and other devices in a
 network must assign some buffer space for these incoming packets to process them
 before forwarding along the path, and to deal with any temporary slow-down of the
 next link. If a device in the network receives packets faster than it can
-retransmit them, the buffer will fill up, and eventually packets are dropped
+retransmit them, this buffer will fill up, and eventually packets are dropped
 when the buffer is full. This packet loss indicates congestion, and TCP
 attempts to limit itself so that it does not congest any network device along
 the path, whilst using an equal, fair share of the available capacity.
@@ -149,7 +149,7 @@ Multipath Transport Protocols.}:
 \end{description}
 
 Coupled thus attempts to behave fairly when links are shared by other TCP or
-Multipath TCP flows. In particular, a set of Coupled sub-flows should not gain
+Multipath TCP flows. In particular, a set of Coupled subflows should not gain
 more throughput than a competing TCP flow. However, the Coupled algorithm also
 aims to utilise the available
 links fully when they would otherwise be idle, meaning no other competing flows
@@ -175,7 +175,7 @@ The parameter $\alpha$ specified in Equation~\ref{eq:alpha} controls how
 aggressive Coupled should be when increasing its total send rate, and is chosen
 such that the aggregate throughput across all subflows is equal to the
 throughput a TCP New Reno flow would gain on the best of the paths available.
-This ensures fairness with competing TCP flows, when there is a shared
+This ensures fairness with competing TCP flows when there is a shared
 bottleneck in the network.  Additionally, the algorithm forces the congestion
 window of more congested links to increase at a slower rate than less congested
 links. This has the effect of shifting traffic onto less congested paths, which
@@ -200,7 +200,7 @@ flow will be halved, but since the competing flow is increasing it's window size
 it will gain some of the available capacity previously held by the Coupled flow.
 This process will continue until Coupled detects that it is at risk of
 performing worse than regular TCP, at which point it will go back to increasing its
-congestion window as aggressively as New Reno.\@ When this happens, the flows will
+congestion window as aggressively as New Reno.\@ As this happens, the flows
 reach an equilibrium where they both increase their congestion windows equally
 fast, and thus end up sharing the link evenly.
 

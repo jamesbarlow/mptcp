@@ -19,19 +19,19 @@ Since the early days of the modern Internet, the Transport Control Protocol, or
 TCP, has been one of its core technologies, providing reliable delivery of
 packets across unreliable networks. However, TCP was only designed to support
 flows going from a single interface on one host to a single interface on another
-host, and thus it cannot effectively utilize these additional links. Although
-one could build applications that open multiple TCP connections to another host
-and multiplexes data across these itself, this would be a major undertaking, and
-would likely encounter be difficult to get right.
+host, and thus cannot effectively utilize these additional links. Although one
+could build applications that open multiple TCP connections to another host and
+multiplexes data across these itself, this would be a major undertaking, and
+would likely be difficult to get right.
 
 Multipath TCP is a recently standardised technology that attempts to solve this
 problem. It extends TCP so that a single TCP connection can be distributed
-across any number of distinct physical links, allowing it to both provide load
-balancing, fail-over, and in some cases, an increase in throughput. It allows,
-for example, an application to continue working seamlessly as a device leaves a
-WiFi network and goes back to a 3G-only connection. It has been tested
-extensively on wired networks and on hosts with WiFi and 3G interfaces, and in
-these deployments it has been shown to work very well.
+across any number of distinct physical links, allowing it to provide load
+balancing, fail-over, and in some cases, increased throughput. It allows, for
+example, an application to continue working seamlessly as a device leaves a WiFi
+network and goes back to a 3G-only connection. It has been tested extensively on
+wired networks and on hosts with WiFi and 3G interfaces, and in these
+deployments it has been shown to work very well.
 
 With the proliferation of WiFi networks, however, a new source of connectivity
 is becoming relevant. If a device has more than one WiFi interface, it could
@@ -44,7 +44,7 @@ counter-productive, as it might cause so much self-interference that any
 potential benefits are negated.
 
 The purpose of this report is to evaluate the behaviour of Multipath TCP when
-using multiple WiFi interfaces on a single host; specifically with regard to
+using multiple WiFi interfaces on a single host, specifically with regard to
 how self-interference affects its ability to provide reliability and improved
 throughput. We will also explore other differences between wired and wireless
 networks, in particular how wireless networks may cause Multipath TCP to not
@@ -52,7 +52,7 @@ behave fairly to competing flows, even with Coupled congestion control.
 
 Our results show that Multipath TCP can improve both reliability and throughput
 when using multiple WiFi links for both downlink and uplink traffic. In both
-cases, we show that on two idle wireless networks, Multipath TCP can achieve an
+cases we show that, on two idle wireless networks, Multipath TCP can achieve an
 aggregate throughput equal to the sum of both links. We also demonstrate how
 Multipath TCP behaves unfairly on the uplink when competing flows are present on
 any of the wireless networks.
@@ -60,7 +60,7 @@ any of the wireless networks.
 Experiments with uplink traffic show that the Coupled congestion control
 algorithm effectively behaves like regular TCP's New Reno due to a lack of
 congestion feedback from the wireless interfaces. We discuss why this might be
-the case, revealing that the underlying issue also affects normal TCP traffic,
+the case, revealing that the underlying issue also affects regular TCP traffic,
 and present a possible solution that applies to both regular TCP and Multipath
 TCP.
 

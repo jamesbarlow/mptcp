@@ -26,7 +26,7 @@ The RTT also seemed to increase and decrease with the size of the send queue. As
 discussed in \S\ref{sec:results-fairness}, the lack of packet loss causes 
 unbounded growth of the congestion window, but with most of the packets actually being
 the local send queue. Since TCP estimates RTT based on when the packet was put into 
-the send queue, \emph{not} when it is actually sent by the network interface, 
+the send queue, \textbf{not} when it is actually sent by the network interface, 
 the RTT estimate will include the time a packet spent in the queue. Since the 
 queue is growing, so will the RTT.
 
@@ -64,8 +64,8 @@ follow the congestion window, with a small gap between them representing the
 packets actually in flight.
 
 However, we then noticed that we were seeing the send queue following the
-congestion window also when we \emph{were} seeing loss and the congestion
-window was \emph{not} inflated. In these cases, there should not be many
+congestion window also when we \textbf{were} seeing loss and the congestion
+window was \textbf{not} inflated. In these cases, there should not be many
 packets in the send queue at all; they should mostly all be in flight.
 
 It turned out that the reason for this is surprisingly simple; the send queue
@@ -73,7 +73,7 @@ size reported by the kernel includes \textit{unacked packets}. TCP keeps packets
 after sending in case they must be re-transmitted, so until they have been
 ACKed, they will continue to take up space in the queue. This explains both why
 we were not seeing a gap between the send queue size and the congestion window
-in the no-loss experiments, \emph{and} why the send queue was seemingly
+in the no-loss experiments, \textbf{and} why the send queue was seemingly
 following the congestion window when loss was occurring.
 
 \subsubsection{Congestion window and throughput}
