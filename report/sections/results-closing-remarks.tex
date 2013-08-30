@@ -1,5 +1,5 @@
-Throughout our experiments, we have come across several rather odd results,
-correlations and trends that we could not immediately explain. Some of these
+Throughout our experiments, we have come across several odd results,
+correlations and trends which we could not immediately explain. Some of these
 turned out to be glitches, but many made complete sense after some hard
 thinking. This section aims to explain most of the oddities that can be observed
 in some of the graphs given in this report.
@@ -37,11 +37,11 @@ shows something resembling logarithmic growth rather than the familiar linear
 saw-tooth. To understand why this is happening, it is necessary to look closer
 at how the congestion window is increased.
 
-The congestion control mechanisms used by Multipath TCP and regular TCP try to
+The congestion control mechanisms used by Multipath TCP and regular TCP
 increase the congestion window by one MSS per RTT.\@ They do this by increasing
 the congestion window by approximately $\sfrac{1}{cwnd}$ per received ACK.\@
 This works well in the expected case where increasing the congestion window will
-cause you to send more packets, and thus receive more ACKs per RTT, but is not
+cause more packets to be sent, and thus receive more ACKs per RTT, but is not
 correct when the link layer masks loss.
 
 What happens when TCP does not see loss, as discussed in \S\ref{sec:results-fairness}, 
@@ -84,12 +84,12 @@ correlation between throughput and the congestion window size. Other tests also
 show a correlation between the two, but it is particularly evident here as it 
 seems like the throughput is bounded by the congestion window.
 
-To determine why this was happening, we first tried to find commonalities
+To determine why this was happening, we first tried to find similarities
 between the graphs that were showing this peculiar trend. It turns out that we
 were only seeing this in tests which showed either a high RTT with constant loss
 rates, or a high amount of loss. These cases both share the feature that the
 congestion window is constrained from growing to the full bandwidth delay
-product of the path, and thus no queues are expected to build up anywhere in the
+product of the path, and so no queues are expected to build up anywhere in the
 network. The limiting factor for the throughput is thus the congestion window not
 allowing TCP to add more packets to the send queue, even though the link is
 ready to send. The net effect of this is that the throughput is limited by the
