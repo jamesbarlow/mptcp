@@ -166,7 +166,6 @@ shown in Equation~\ref{eq:mptcp}.
 \begin{align}
   cwnd_i &= cwnd_i +
     \min\left(\frac{\alpha}{cwnd_\text{total}}, \frac{1}{cwnd_i}\right)\label{eq:mptcp} \\
-  \intertext{where}
   \alpha &=
     \frac{cwnd_\text{total} \cdot \max_i\left(\frac{cwnd_i}{rtt_i^2}\right)}
          {(\sum_i \frac{cwnd_i}{rtt_i})^2}\label{eq:alpha}
