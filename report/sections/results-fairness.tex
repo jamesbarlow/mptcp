@@ -59,7 +59,7 @@ Initially, we expected Multipath TCP with Coupled congestion control to perform
 similarly in both the uplink and downlink cases. However, we soon found
 that this was not the case. Most of the time plots and CDF graphs showed 
 Multipath TCP performing as well as parallel on \textbf{both} links as seen in
-Figure~\ref{graph:up-fair}, showing that the client with multiple interfaces was
+Figure~\ref{graph:up-fair}, indicating that the client with multiple interfaces was
 not behaving fairly. Instead, the aggregrate throughput of both its links were taking more of the capacity than any of the single-flow clients as seen with TCP New Reno in \S\ref{sec:results-mptcp}.
 
 \begin{figure}[h]
@@ -80,14 +80,14 @@ when the network was idle, so it was doubled for this calculation. This gives
 $20\text{ms} \cdot 10\text{Mbits} \approx 25\text{kB}$. The congestion window of
 the link is not expected to surpass this for any significant period of time, yet
 the graph clearly shows the congestion window is consistently much greater than
-this.
+this size.
 
 Since Coupled uses the congestion window size to determine how aggressive it
 should be, an inflated congestion window will make it more aggressive than the 
 environment would suggest, resulting in exactly the behaviour we see in
 Figure~\ref{graph:up-fair}.
 
-To understand what is going on here, some background knowledge about how TCP
+To understand what is happening here, some background knowledge about how TCP
 works in Linux, and how the Linux kernel manages network queues is needed. Linux
 maintains the IP send queue as a list of pointers to data in the socket buffer. 
 This list is allowed to grow very large, and so in practice will never overflow.
@@ -113,7 +113,7 @@ capacity of the bottleneck, and since the speed of the immediate link is not
 the bottleneck, the NIC should be able to send at least as fast as TCP passes
 packets into the queue.
 
-A mismatch of assumptions happens when the immediate link \textbf{is} the 
+A mismatch of assumptions occurs when the immediate link \textbf{is} the 
 bottleneck of the path. The NIC will take a packet from the queue, use carrier 
 sense and potentially retry some number of times before actually sending the 
 packet. It will, however, very rarely actually drop a packet because it usually 
