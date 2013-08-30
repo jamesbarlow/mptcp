@@ -83,9 +83,9 @@ process. The general trend we observe in Figure~\ref{graph:reno-up} is the
 same seen on the downlink; each Multipath TCP subflow gets an equal
 share of the total throughput to every other flow on that link. This also makes
 sense conceptually; on the uplink, the 802.11 MAC provides fairness
-\textbf{per 802.11 station} using carrier sense as explained in
+\emph{per 802.11 station} using carrier sense as explained in
 \S\ref{sec:bg:wifi}. On the downlink fairness is provided by carrier sense
-\textbf{and} the APs. Since Multipath TCP acts as one station on each network,
+\emph{and} the APs. Since Multipath TCP acts as one station on each network,
 we would expect each subflow to get half the available capacity on each network
 when using New Reno.
 
