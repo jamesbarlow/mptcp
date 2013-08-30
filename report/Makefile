@@ -34,16 +34,18 @@ report.pdf: report.tex $(REAL_GRAPHS) sections/*.tex
 	@# Run thrice to fix table of contents
 	@echo "Parsing .tex file yet again to build table of contents"
 	@pdflatex -halt-on-error report.tex \
-		| sed -n '/hyperref\/hpdftex\.def$$/,$$p' \
+		| sed -n '/^\*geometry\* detected driver: pdftex$$/,$$p' \
 		| (cat \
 		| grep -v "^\[Loading" \
 		| grep -v "^\*geometry\*" \
 		| grep -v "./report.out" \
+		| grep -v "\relax" \
 		| grep -v "\`h' float specifier changed to" \
-		| grep -v "sections/" \
 		| grep -v "graphs/" \
+		| grep -v "<to be read again>" \
 		| grep -v '^\[[0-9]' \
-		| grep -v "^ )$$" \
+		| grep -vP '^(\s*\[[0-9]\])*$$' \
+		| grep -v ' same identifier (name{page.' \
 		| awk '/see the transcript/{i++} /Output/{i--} (i-1)' \
 		| grep -v "/usr/share/texmf-dist" \
 		| grep -v ".pfb" \
