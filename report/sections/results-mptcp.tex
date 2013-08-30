@@ -40,15 +40,23 @@ wireless networks.
 The per-subflow fairness in the downlink case is achieved in two steps. Firstly,
 the wireless medium should be shared equally between the two APs (assuming they
 both have data to send and their channels are equally busy) due to carrier
-sense. Additionally, because TCP New Reno does not try to balance the load on
-each flow, the sender would continuously try to push as much data as it can get
-on the link and this is only limited by the finite buffer at the AP. The effect
-of this is that the APs drop further incoming packets as soon as their buffers are full, and this notifies the sender to adapt its rate. However, this does not mean that TCP New Reno would reduce its aggressiveness, it just reduces the amount of packets it has in flight at a given time. This value still grows as aggressively as before hence the buffers at the AP are always full. The full buffers ensure
-that the AP's always have data to send on behalf of each flow when it gets its
-fair share of the medium as determined by carrier sense. Hence this should lead
-to the flows sharing the available bandwidth fairly as they have roughly the
-same amount of access to the medium. 
-Although, the flows have a fair share of the bandwidth this does not mean TCP New Reno is fair, in fact it is not. As previously explained, this fairness is achieved due to the AP buffers overflowing; this causes the sender to adapt its rate but, TCP New Reno maintains its aggressiveness. In reality, if the AP buffers did not overflow and hence limited the amount of packets in flight, TCP New Reno would continue to grow aggressively and cause its flows to have different amounts of access to the medium. This would lead a flow to take more than its fair share of the bandwidth, displaying then an unfair behaviour.  
+sense. Additionally, two flows going through an AP should get an equal share of 
+its airtime. Since TCP New Reno does not try to balance the load on each flow, 
+the sender would continuously try to push as much data as it can get on the link 
+and this is only limited by the finite buffer at the AP. The effect of this is 
+that the APs drop further incoming packets as soon as their buffers are full, 
+and this notifies the sender to adapt its rate. At this point, both flows have 
+the same amount of data in the APs' buffer; hence, it uses about the same time 
+in transmitting each flows' data, thereby effectively sharing the airtime of the 
+AP.
+
+Note that although the flows have a fair share of the bandwidth, this does not 
+mean TCP New Reno is fair as it maintains its agressinveness even after adapting 
+its send rate. In reality, if the AP buffers did not overflow and hence limited 
+the amount of packets in flight, TCP New Reno would continue to grow 
+aggressively and cause its flows to have different amounts of access to the 
+medium. This would lead a flow to take more than its fair share of the 
+bandwidth, displaying then an unfair behaviour.  
 
 \subsubsection{Uplink}
 \label{sec:results-mptcp-up}

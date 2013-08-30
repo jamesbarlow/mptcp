@@ -62,8 +62,7 @@ similarly in both the uplink and downlink cases. However, we soon found
 that this was not the case. Most of the time plots and CDF graphs showed 
 Multipath TCP performing as well as parallel on \textbf{both} links as seen in
 Figure~\ref{graph:up-fair}, showing that the client with multiple interfaces was
-not behaving fairly. Instead, it was taking more of the  capacity than the other
-single-flow clients as seen with TCP New Reno in \S\ref{sec:results-mptcp}.
+not behaving fairly. Instead, the aggregrate throughput of both its links were taking more of the capacity than any of the single-flow clients as seen with TCP New Reno in \S\ref{sec:results-mptcp}.
 
 \begin{figure}[h]
  \centering
@@ -124,22 +123,11 @@ succeeds in sending the packet before reaching its retry limit. Since TCP does
 not see any loss, it will assume that the path is not congested, and so it will 
 continue to grow its congestion window.  In fact, the loss that TCP does see 
 will likely \textbf{not} be related to congestion, such as faulty links or devices.
-This will cause it to back off its 
-congestion window incorrectly.
+This will cause it to back off its congestion window incorrectly.
 
 % TODO: mention MAC layer fairness?
-Since the NIC always
-has packets to send the throughput will be limited by the link speed, and the
-MAC layer will ensure fairness between clients. It will, however, still fill the
-send queue with packets that the NIC is unable to send. This is a problem because any
-packets sent by other flows on the same host will now be queued behind these
-packets, increasing delay significantly for these packets, which is a problem
-for flows where
-latency is more important than throughput such as VoIP.\@ To mitigate this 
-problem, TCP Small Queues has been implemented in the Linux kernel, effectively 
-hard capping the amount of bytes a TCP flow can keep in the IP send queue at 
-any given point in time. Although this will not solve the underlying problem, it 
-will limit the amount of delay a misbehaving TCP flow can inflict on other flows.
+Since the immediate link is not the bottleneck of the path, TCP does not see any loss and the NIC always has packets to send, this means that the MAC layer will ensure fairness between clients and limit the throughput.
+However, TCP will still manage to fill the send queue with packets that the NIC is unable to send. This becomes an issue, because any packets sent by other flows on the same host will now be queued behind the TCP ones, increasing the delay significantly and negatively impacting flows where latency is more important than throughput such as VoIP.\@ To mitigate this problem, TCP Small Queues has been implemented in the Linux kernel, effectively hard capping the amount of bytes a TCP flow can keep in the IP send queue at any given point in time. Although this will not solve the underlying problem, it will limit the amount of delay a misbehaving TCP flow can inflict on other flows.
 
 For Multipath TCP with Coupled congestion control, however, this becomes a
 substantial problem. As explained in \S\ref{sec:bg:mptcp}, Coupled tries to not be too 
