@@ -188,7 +188,7 @@ RTT, the additive increase is too slow to bring the congestion window up to the
 bandwidth delay product before the next packet loss, after which the congestion 
 window is halved again. Since TCP is now putting packets into the send queue at a
 much lower rate than the NIC can transmit them, the throughput is limited by the 
-congestion window. The the window is too small, and so the throughput suffers.
+size of the congestion window. Since the window is too small, the throughput suffers.
 
 Coupled also suffers noticeably more from this problem than New Reno. This is
 because Coupled is attempting to behave fairly to other flows, but is reacting to
