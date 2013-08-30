@@ -57,7 +57,7 @@ we should have to wait for the immediate link to become available.
   QL = \frac{var \cdot cwnd}{RTT}\label{eq:ql}
 \end{align}
 
-$QL$ is the expected upper bound of the send queue in bytes, and $var$ is the RTT
+$QL$ is the maximum expected send queue size in bytes, and $var$ is the RTT
 variance as measured by TCP.\@ For links where the bottleneck is not our immediate
 link, equation~\ref{eq:ql} may not behave as desired; the sending host will now
 attempt to balance its local queue according to the queue of the bottleneck
@@ -69,7 +69,7 @@ equation~\ref{eq:ql}.
 Building on the intuition that $QL$ would represent the maximum expected send
 queue size, we believe it would be appropriate to consider the send queue
 exceeding that limit as a congestion event, and thus halve TCP's congestion
-window. We hope that this will bring back balance to TCP congestion window.  In
+window. We hope that this will bring back balance to TCP congestion window. In
 theory, a single RTT should be enough to drain the send queue, and so we expect
 that adjusting the congestion window at most once per RTT should be appropriate.
 
