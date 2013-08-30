@@ -4,7 +4,7 @@
  \caption{Unbounded congestion window growth}\label{graph:logarithmic}
 \end{figure}
 
-The issue identified in \S\ref{sec:results-fairness} is one that will affect any
+The issue identified in \S\ref{sec:results-fairness} will affect any
 connection where the bottleneck link is the immediate link a client is connected
 to, and as mentioned, it will affect both TCP and Multipath TCP, albeit with
 different effects. In both cases, the congestion window will rarely be halved,
@@ -41,7 +41,7 @@ solve this issue.
 The intuition behind our change is that the growing size of the local queue
 could be used as a signal to TCP that there is congestion without there being
 packet loss. We have observed that the number of packets in the send queue for a
-normal TCP connection should usually be around 0, but may occasionally grow
+normal TCP connection should usually be around empty, but may occasionally grow
 slightly if the immediate link is temporarily busy. To determine if the queue is
 growing when it should not be, we need a way to determine how large it is
 reasonable that it might grow to.
