@@ -2,19 +2,19 @@
 \label{sec:bg:tcp}
 The Transmission Control Protocol (TCP) is one of the core internet protocols.
 It provides reliable, in-order delivery of data between two
-systems, and operates in full-duplex. This means that it allows simultaneous
-transmission in both directions. It is a packet-based
+systems, and operates in full-duplex, meaning it allows data to flow
+in both directions simultaneously. TCP is a packet-based
 protocol, and uses positive acknowledgement of packets to signal successful
-delivery. TCP also provides flow and congestion
+delivery. It also provides flow and congestion
 control, which will be explained later in this section.
 
 After establishing a connection between two communicating parties, TCP allows
-each host to pass data to it, which is split into packets and sent over the
+each host to pass data to it, which is then split into packets and sent over the
 network to the other host. The Maximum Segment Size (MSS) of a connection limits
 how much data TCP is allowed to put into a single packet, and TCP generally
 tries to ensure that every packet is exactly one MSS large to avoid sending
-more packets than strictly necessary. To avoid overloading the network, or
-the receiving host, TCP uses two rate
+more packets than strictly necessary. To avoid overloading the receiving host or
+the network, TCP uses two rate
 control mechanisms: flow control and congestion control.
 
 Flow control is used to
@@ -34,7 +34,8 @@ next link. If a device in the network receives packets faster than it can
 retransmit them, this buffer will fill up, and eventually packets are dropped
 when the buffer is full. This packet loss indicates congestion, and TCP
 attempts to limit itself so that it does not congest any network device along
-the path, whilst using an equal, fair share of the available capacity.
+the path, whilst using an equal, fair share of the available capacity compared
+to other competing flows.
 
 The canonical congestion control algorithm is TCP New Reno\footnote{RFC 6582 -
 The NewReno Modification to TCP's Fast Recovery Algorithm}. This algorithm
@@ -61,7 +62,11 @@ indication of congestion, and will halve its congestion window. This is called a
 fast retransmit, since it is intended to prevent TCP from having to wait for a
 timeout and re-enter slow start. After a fast retransmit, New Reno runs in
 additive-increase mode, where the congestion window is increased by one MSS
-every round-trip time (RTT). As TCP probes for available capacity and backs off
+every round-trip time (RTT). This is implemented by the congestion window being
+increased by $\sfrac{1}{cwnd}$ for every received ACK, making it self-clocking.
+That is, TCP will not send data faster than the speed at which packets go
+through the bottleneck link in the path.
+As TCP probes for available capacity and backs off
 when it encounters congestion, a distinctive saw-tooth pattern of the congestion
 window size is typically produced.
 
@@ -88,15 +93,16 @@ drastically from one location to another, and from one minute to the next.
 A typical WiFi deployment consists of several ``stations'' connected to
 the network via an access point (AP). A station in 802.11 is typically a single
 wireless network interface card (or NIC), and a single machine can have multiple
-such NICs, and would thus appear as multiple stations to the AP.\@ The greater
+such NICs, and would thus appear as multiple stations to the AP.
+
+The greater
 the number of stations connected to an AP, the higher the probability that the
 stations would interfere with each other as they contend for the access to the
 medium. Multiple stations transmitting simultaneously
 on interfering channels is undesirable, as it leads to corrupted packets,
-causing retransmissions, thus lowering network utilization and
+and thus retransmissions; lowering network utilization and
 consequently throughput.
-
-In order to prevent this, 802.11 implements carrier sense and random back-off. Before
+To prevent this, 802.11 implements carrier sense and random back-off. Before
 transmitting, a station will first listen to determine if another transmission is already
 in progress. If the medium is busy, the station will defer for a
 random period of time and retry. This behaviour is also used when multiple
@@ -117,6 +123,11 @@ to those provided by TCP.\@ Acknowledgement packets are sent immediately after
 each data frame is successfully received, in a reserved time slot where no station
 may transmit. A station will generally retry transmitting a fixed number of times
 without receiving acknowledgement before dropping a packet.
+
+This is implemented because WiFi links typically see a high loss rate unrelated
+to congestion. If this loss was not hidden from TCP, it would be treated
+as indication of congestion, and thus trigger TCP's congestion avoidance
+mechanisms, significantly reducing throughput.
 
 \clearpage
 \subsection{Multipath TCP}
@@ -159,34 +170,37 @@ regular TCP.
 The Coupled algorithm maintains a separate congestion window for each subflow
 and uses the same congestion avoidance mechanisms as TCP New Reno, but links the
 additive increase across all subflows to ensure fairness. For each packet
-acknowledgement received on subflow $i$, the congestion window is increased as
+acknowledgement received on subflow $i$, the congestion window for that subflow is increased as
 shown in Equation~\ref{eq:mptcp}.
 
 % Reference RFC here
 \begin{align}
   cwnd_i &= cwnd_i +
     \min\left(\frac{\alpha}{cwnd_\text{total}}, \frac{1}{cwnd_i}\right)\label{eq:mptcp} \\
+\end{align}
+\begin{align}
   \alpha &=
     \frac{cwnd_\text{total} \cdot \max_i\left(\frac{cwnd_i}{rtt_i^2}\right)}
          {(\sum_i \frac{cwnd_i}{rtt_i})^2}\label{eq:alpha}
 \end{align}
 
-The parameter $\alpha$ specified in Equation~\ref{eq:alpha} controls how
-aggressive Coupled should be when increasing its total send rate, and is chosen
+The parameter $\alpha$ specified in Equation~\ref{eq:mptcp} is calculated as
+shown in Equation~\ref{eq:alpha}, and controls how
+aggressive Coupled should be when increasing its total send rate. It is chosen
 such that the aggregate throughput across all subflows is equal to the
 throughput a TCP New Reno flow would gain on the best of the paths available.
 This ensures fairness with competing TCP flows when there is a shared
 bottleneck in the network.  Additionally, the algorithm forces the congestion
 window of more congested links to increase at a slower rate than less congested
-links. This has the effect of shifting traffic onto less congested paths, which
-helps to balance congestion in the network.
+links, which has the effect of shifting traffic onto less congested paths;
+effectively balancing congestion in the network.
 
 If the available links are idle, the Coupled algorithm will allow each subflow to
 use the full capacity available to it. For example, with two idle links the aggregate
 throughput of a Multipath TCP flow should be the capacity of both links combined.
 
 Understanding the intuition behind \textit{why} Coupled works can be difficult
-solely using the equation above. We will therefore try to give a less formal
+solely from looking at the equation above. We will therefore try to give a less formal
  explanation of what Coupled is doing. As the throughput of a Coupled
 flow approaches the throughput a New Reno flow would get on the best link
 available to it, Coupled gradually decreases the aggressiveness ($\alpha$)

@@ -33,15 +33,15 @@ Figure~\ref{graph:cc-interference} shows a UDP test as described in
 The interference pattern observed here is quite interesting, as the
 utilization measurements show completely fair sharing of transmit time
 between the two networks when both interfaces are active. The
-wireless cards also report very few 802.11 retransmit failures.
+wireless cards also report very few 802.11 retransmit failures (not shown).
 
 As the two networks are operating at opposite ends of the 2.4 GHz spectrum, we
-would expect both interfaces to transmit concurrently without colliding,
-and the aggregate throughput should reach approximately the sum of the capacity of
-both links. The reason why this behaviour is expected is that as the networks are at opposite ends of the 2.4 GHz spectrum, they should not interfere with each other, and
-should be capable of transmitting without collisions. This perfect split of
+would expect both interfaces to transmit without colliding,
+and the aggregate throughput to reach approximately the sum of the capacity of
+both links. The reason why this behaviour is expected is that as the networks are non-overlapping, they should not interfere with each other, and
+should be capable of transmitting concurrently. However, this perfect split of
 utilisation between the two networks implies that carrier sense is being used between the interfaces.
-However, looking at the sum throughput, it is clear that although some performance gain is
+Looking at the sum throughput, it is clear that although some performance gain is
 achieved, the aggregate throughput is closer to 150\% of that of a single
 interface than the 200\% one would expect from completely independent channels.
 
@@ -62,14 +62,14 @@ both interfaces are active.
 
 In both of the cases above, it seems as though carrier sense is not working quite
 as anticipated. We would generally expect few back-offs due to carrier sense between
-two networks on non-overlapping channels, but clearly this is not the case. Carrier sense is causing a significant number of back-offs, and a drop in throughput is also evident, as previously mentioned. This shows that the non-overlapping channels are experiencing significant interference.
+networks on non-overlapping channels, but clearly this is not the case; carrier sense is causing a significant number of back-offs, which shows that the non-overlapping channels are experiencing significant interference.
 Conversely, for networks on the same channel, we would expect carrier sense to
-time-multiplex fairly between the clients. The tests show a high number of 
+time-multiplex fairly between the clients. Here, however, the tests show a high number of 
 link layer transmit failures, suggesting that carrier sense is often failing 
 to prevent collisions.
 % How many? Need to quantify this? J
 
-These results lead us to believe that using multiple wireless networks on the same 2.4 GHz channel may in fact lead to a performance penalty, as compared to using a
+These results lead us to believe that using multiple wireless networks on the same 2.4 GHz channel may in fact lead to a performance penalty, as compared to using only a
 single interface. In the case where the networks are operating on non-overlapping 2.4
 GHz channels, a performance benefit seems possible, although the gain may be less
 than one would reasonably expect.
@@ -98,13 +98,13 @@ throughputs for an uplink test with three of the tests described in
  We see that the throughput in both cases is almost identical,
 implying that the networks on these two bands are indeed 
 operating independently. The throughput of the 2.4 GHz parallel test is 
-marginally lower than in the single test. We attribute this simply to the tests 
+marginally lower than in the single test, but we attribute this to the tests 
 not being run at the same time. Other tests using the same setup show the 2.4 
-GHz parallel throughput to be higher or equal to that of the single.
+GHz parallel throughput to be equal to that of the single on balance.
 
 % A test at the same time would be nice?
 
-Figure~\ref{graph:cb-interference-down} shows a similar test to the above, but
+Figure~\ref{graph:cb-interference-down} shows a similar test, but
 run on the downlink. The same lack of interference between the interfaces
 is evident, with the throughput of one interface being unrelated to whether the
 other band is in use. This graph also shows a case where the 2.4 GHz

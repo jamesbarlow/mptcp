@@ -1,9 +1,9 @@
 In this paper, we have presented a number of wireless experiments showing that
 multiplexing across multiple wireless interfaces on a single host may indeed
-provide advantages over regular TCP for certain network
+provide advantages for certain network
 configurations both in terms of reliability and throughput.
 
-Further, we have shown that Multipath TCP works well when traffic is
+Furthermore, we have shown that Multipath TCP works well when traffic is
 primarily downlink, which is often the case on wireless networks today, as 
 traffic is balanced between the available wireless networks and each host
 uses a fair share of the total network capacity. We have also shown that 
@@ -17,7 +17,7 @@ not been able to test our suggested solution to this problem, and so the
 question of how to properly limit queue sizes without the presence of packet loss 
 remains an open problem.
 
-Due to widespread deployment and high diversity in wireless networks, there
+Unfortunately, there
 are many potentially interesting experiments we have not been able to perform due to
 the limited time of the project. First and foremost, all of our experiments were 
 performed in a building where several other wireless networks were present, 
@@ -38,21 +38,24 @@ interference between the 2.4 GHz and 5 GHz bands, while the interference pattern
 observed in \S\ref{sec:results-interference} suggest that some further research 
 on how Carrier Sense works across channels could be warranted.
 
-It should be noted that Multipath TCP works has been demonstrated to perform
+Reduced throughput
+for flows on the same channel, inflated buffers and unfair behaviour for uplink
+traffic makes the deployment of Multipath TCP for wireless clients problematic. To be useful in a
+wireless setting, Multipath TCP will need to be modified to correct these issues.
+Our proposeal for one such improvement in
+\S\ref{sec:results-inflated}
+couled be all that is needed, but further research on this topic is needed.
+
+It should be noted that Multipath TCP has been demonstrated to perform
 well on wired networks\footnote{C. Raiciu, S. Barre, C. Pluntke, A. Greenhalgh, 
 D. Wischik and M. Handley. Improving Datacenter Performance and Robustness with 
 Multipath TCP, \textit{ACM Sigcomm 2011}}, and most of the issues identified
-in this report are in relation to its interaction with WiFi. Reduced throughput
-for flows on the same channel, inflated buffers and unfair behaviour for uplink
-traffic makes its deployment in wireless networks problematic. To be useful in a
-wireless setting, Multipath TCP will need to be modified to correct these issues.
-We have discussed one such improvement in
-\S\ref{sec:results-inflated}.
+in this report are in relation to its interaction with WiFi.
 
 Multipath TCP is an exciting technology, which we believe has the potential to 
 provide greater reliability and improved throughput to wireless hosts. With
-further research on its interaction with WiFi, it could greatly improve the
-experience of using the internet on mobile devices.
+further research on its interaction with WiFi, we believe it could greatly improve the
+experience of using the Internet on mobile devices.
 
 % Notes from our meeting with Mark about the report:
 % - Important: Conclusions - how well does MPTCP works, when does it

@@ -24,5 +24,4 @@ set style line 13 lt 13 lc rgb "dark-gray"
 plot \
   25.6 title 'Bandwidth delay product', \
   '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/mptcp-up/wlp0s20u4.dat' using ($1-1375968487.239514):(1428*$12/1024) title 'Congestion window' with lines ls (2+5), \
-  '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/mptcp-up/wlp0s20u4.dat' using ($1-1375968487.239514):($9/1024) title 'Send queue size' with lines ls (2+7), \
   '~/Dropbox/MPTCP/data/2013-08-08/5-coupled-simultaneous-1/mptcp-up/wlp0s20u4.dat' using ($1-1375968487.239514):4 title 'NIC TX failures' with lines ls (3)

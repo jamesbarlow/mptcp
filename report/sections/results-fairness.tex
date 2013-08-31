@@ -19,13 +19,13 @@ downlink first, and then on the uplink.
  \caption{Traffic distribution, downlink, non-overlapping 2.4 GHz}\label{graph:down-fair}
 \end{figure}
 
-On the downlink, the Coupled algorithm on clients with only a single
-interface acts like regular TCP New Reno. Since they will only use one subflow
+On the downlink, the Coupled algorithm acts like regular TCP New Reno on clients with only a single
+interface; since they only use one subflow
 each, Coupled will not try to limit how aggressively it sends data. For the
 client with multiple interfaces, the Coupled algorithm should limit the
-aggregate throughput to a fair share of the best link, as explained in
+aggregate throughput to as explained in
 \S\ref{sec:bg:mptcp}.\@ Figure~\ref{graph:down-fair} shows that Coupled is
-indeed limiting one of its subflows and transmits most of its traffic on the
+indeed limiting one of its subflows and transmitting most of its traffic on the
 other. Additionally, its total throughput is close enough to that of the
 parallel flows that we can consider Coupled to be behaving fairly; the client
 with multiple interfaces is correctly taking only a third of the total network
@@ -39,7 +39,8 @@ arrive at a faster rate than they can be sent out out on the wireless channel. T
 Coupled algorithm uses this feedback to correctly reduce its aggressiveness and 
 thus avoid using an unfair share of the overall capacity.
 Similar results are seen when the two wireless links are operating on separate
-bands, as seen in Figure~\ref{graph:cb-fairness-down}.
+bands, as seen in Figure~\ref{graph:cb-fairness-down} where Coupled is again
+limiting itself to the throughput of the best available link.
 
 \begin{figure}[h]
  \centering
@@ -48,6 +49,7 @@ bands, as seen in Figure~\ref{graph:cb-fairness-down}.
 \end{figure}
 
 \subsubsection{Uplink fairness}
+\label{sec:results-fairness:up}
 
 \begin{figure}[h]
  \centering
@@ -56,11 +58,16 @@ bands, as seen in Figure~\ref{graph:cb-fairness-down}.
 \end{figure}
 
 Initially, we expected Multipath TCP with Coupled congestion control to perform
-similarly in both the uplink and downlink cases. However, we soon found
+similarly with both uplink and downlink traffic. However, we soon found
 that this was not the case. Most of the time plots and CDF graphs showed 
-Multipath TCP performing as well as parallel on \textbf{both} links as seen in
+that each subflow was performing as well as parallel on \textbf{both} links as seen in
 Figure~\ref{graph:up-fair}, indicating that the client with multiple interfaces was
-not behaving fairly. Instead, the aggregrate throughput of both its links were taking more of the capacity than any of the single-flow clients as seen with TCP New Reno in \S\ref{sec:results-mptcp}.
+not behaving fairly. Instead, its subflows were taking more of the capacity in total than any of the single-flow clients as seen with TCP New Reno in \S\ref{sec:results-mptcp}.
+After seeing this result in same-channel, non-overlapping and cross-band  
+tests, we reasoned that the problem had to be related somehow to the 
+behaviour of WiFi with uplink traffic in general.
+To investigate this, we looked for common elements in time plots of several
+tests where Coupled was behaving unfairly.
 
 \begin{figure}[h]
  \centering
@@ -68,9 +75,7 @@ not behaving fairly. Instead, the aggregrate throughput of both its links were t
  \caption{Congestion window size for Multipath TCP uplink connection}\label{graph:fairness-up-close}
 \end{figure}
 
-After seeing this result in same-channel, non-overlapping and cross-band  
-tests, we reasoned that the problem had to be related somehow to the 
-behaviour of WiFi on the uplink in general. Figure~\ref{graph:fairness-up-close} 
+Figure~\ref{graph:fairness-up-close} 
 shows the congestion window as a function of time for one of the subflows in one 
 such test. In particular, the bandwidth delay product shows the approximate number of packets
 we expect the interface to have in flight at any given point in time. This was
@@ -90,7 +95,7 @@ Figure~\ref{graph:up-fair}.
 To understand what is happening here, some background knowledge about how TCP
 works in Linux, and how the Linux kernel manages network queues is needed. Linux
 maintains the IP send queue as a list of pointers to data in the socket buffer. 
-This list is allowed to grow very large, and so in practice will never overflow.
+This list is allowed to grow very large, and so it will never overflow in practice.
 When TCP tries to send a packet, it will first check that there is room in
 the current receive and congestion windows, and only then will it pass the packet to the
 send queue. The NIC then takes packets  from the send queue in FIFO order to
@@ -98,34 +103,39 @@ transmit them onto the medium.
 
 Ignoring the advertised receive window, the only two limiting factors to how
 quickly a TCP flow
-can send are therefore the congestion window and the link speed of the NIC.\@ If
+can send data are therefore the congestion window and the link speed of the NIC.\@ If
 TCP passes packets into the queue faster than the NIC can transmit them, the
 send queue will simply grow, but not drop packets. TCP will consider the
 packet as sent, but the packet will be kept in the IP send queue until
 the NIC is ready to transmit it. The relevant effect of this is that TCP will
 include the time a packet is queued locally in its estimate of the RTT.
 
-This behaviour is not evident on all wireless networks. A TCP flow
+This behaviour is not evident on all wireless networks, however. A TCP flow
 will usually start experiencing loss when it overflows a
-buffer at a bottleneck, and this is generally not the immediate link.
+buffer at a bottleneck, and this is usually not the immediate link as WiFi is
+generally faster than a user's Internet speed.
 The flow will eventually limit the number of packets it sends based on the
-capacity of the bottleneck, and since the speed of the immediate link is not
-the bottleneck, the NIC should be able to send at least as fast as TCP passes
+capacity of the bottleneck, and since the capacity of the immediate link is
+higher than that of the bottleneck, the NIC should be able to send at least as fast as TCP passes
 packets into the queue.
 
-A mismatch of assumptions occurs when the immediate link \textbf{is} the 
-bottleneck of the path. The NIC will take a packet from the queue, use carrier 
+A mismatch of assumptions occurs when the WiFi link \textbf{is} the 
+bottleneck of the path, such as for local connections or when the user has a
+very fast connection to the Internet.
+With the WiFi link as the bottleneck, no loss is expected to occur elsewhere on
+the path.
+The NIC will take a packet from the queue, use carrier 
 sense and potentially retry some number of times before actually sending the 
 packet. It will, however, very rarely actually drop a packet because it usually 
 succeeds in sending the packet before reaching its retry limit. Since TCP does 
 not see any loss, it will assume that the path is not congested, and so it will 
 continue to grow its congestion window.  In fact, the loss that TCP does see 
-will likely \textbf{not} be related to congestion, but rather to faulty links or interfaces.
-This will cause it to back off its congestion window incorrectly.
+will likely \textbf{not} be related to congestion, but rather to faulty links or interfaces,
+which would cause it to back off its congestion window incorrectly.
 
-Since the immediate link is the bottleneck of the path, TCP does not see any loss and the NIC always has packets to send, meaning that the MAC layer will ensure fairness between clients and limit the throughput.
-However, TCP will still manage to fill the send queue with packets that the NIC
-is unable to send. This becomes an issue, because any packets sent by other
+With an every-increasing congestion window, TCP will continue to put data in the
+send queue faster than the NIC can send it causing the queue to become bloated.
+This becomes an issue because any packets sent by other
 flows on the same host will now be queued behind these, increasing their delay
 significantly and negatively impacting applications such as VoIP, where latency
 is more important than throughput.
@@ -142,7 +152,7 @@ aggressive on any one link by throttling the growth of the congestion window.
 This works correctly if the congestion window directly impacts how often the NIC 
 puts packets on the network, as throttling the growth of the congestion window 
 will effectively lead to other clients on the network getting a larger share of 
-the network capacity. However, when the congestion window is sufficiently large 
+the network's capacity. However, when the congestion window is sufficiently large 
 that the NIC always has packets to send, this throttling has no effect at all. 
 The NIC is always able to send, regardless of how quickly the congestion window grows 
 beyond that point, which means that each \textbf{subflow} is only limited by the 
@@ -153,7 +163,7 @@ used.
 This problem is not related to the amount of interference between the different
 wireless networks, but rather to the lack of feedback given on
 wireless networks when the link capacity is reached. It is also only experienced
-when the immediate link is congested, as any bottleneck further along the network
+when the WiFi link is the bottleneck, as any bottleneck further along the network
 path is likely to have a queue which will overflow, drop a packet, and thus
 signal to TCP that it should back off. In fact, this is precisely what we see in
 the downlink case where the queue in the AP effectively conveys how congested
@@ -174,24 +184,26 @@ the wireless link is to the sender.
 \end{figure}
 
 \subsubsection{Uplink fairness on high latency links}
+\label{sec:fairness:latency}
 
 Figure~\ref{graph:fairness-rtt-up} shows a test in which the RTT was
 artificially increased by 100ms, by adding delay at the IP queue level on the
 test server. In this case, we would not expect the higher RTT to significantly
-affect overall throughput, but rather to lower the rate of growth of the
+affect overall throughput, only to lower the rate of growth of the
 congestion window during slow-start. The CDF, however, shows that throughput is
-drastically reduced.
+drastically reduced for all flows.
 
 In particular, consider the time plot of one of the Multipath
 TCP flows in Figure~\ref{graph:fairness-rtt-up-close}. The bandwidth delay product shows
 the product of the real RTT + 100ms and the throughput observed without an
 inflated RTT.\@ Clearly, the congestion window is never approaching this value.
-The same is the case for the other subflow and the two parallel flows. By
-examining the number of transmission failures reported by the NIC, we can see
+The same is the case for the other subflow and the two parallel flows.
+
+By examining the number of transmission failures reported by the NIC, we can see
 that the number of dropped packets is similar to that observed in tests
 without an artificially high RTT.\@ This kind of constant loss causes both Coupled
-and New Reno to continuously halve their congestion windows, and with a higher
-RTT, the additive increase is too slow to bring the congestion window up to the
+and New Reno to continuously halve their congestion windows. With a higher
+RTT, the additive increase is now too slow to bring the congestion window up to the
 bandwidth delay product before the next packet loss, after which the congestion 
 window is halved again. Since TCP is now putting packets into the send queue at a
 much lower rate than the NIC can transmit them, the throughput is limited by the 
@@ -199,7 +211,7 @@ size of the congestion window. Since the window is too small, the throughput suf
 
 Coupled also suffers noticeably more from this problem than New Reno. This is
 because Coupled is attempting to behave fairly to other flows, but is reacting to
-the wrong inputs.  Coupled reduces its aggressiveness if it detects that there
+misleading signals.  Coupled reduces its aggressiveness if it detects that there
 are competing flows, and this is again deduced from the loss rate. Since the
 loss rate is close to constant, Coupled believes that there are other competing
 flows, and thus reduces its aggressiveness. This further limits the growth of

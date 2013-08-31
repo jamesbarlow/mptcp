@@ -1,9 +1,7 @@
 In this report we evaluate the behaviour of Multipath TCP when using multiple
-WiFi interfaces on a single host; especially with regards to how
+WiFi interfaces on a single host; specifically with regard to how
 self-interference affects its ability to provide reliability and improved
-throughput. We also explore other differences between wired and wireless
-networks, in particular how wireless networks may cause Multipath TCP to not
-behave fairly to competing flows, even with Coupled congestion control.
+throughput.
 
 Our results show that Multipath TCP can improve both reliability and throughput
 when using multiple WiFi links for both downlink and uplink traffic. In both
@@ -11,4 +9,6 @@ cases, we show that on two idle wireless networks, Multipath TCP can achieve an
 aggregate throughput equal to the sum of both links. We also demonstrate how
 Multipath TCP behaves unfairly on the uplink when competing flows are present on
 any of the wireless networks.
+
+% TODO: Should we discuss the inflated buffer problem with TCP here?
 % vim:textwidth=80:colorcolumn=80:spell:
