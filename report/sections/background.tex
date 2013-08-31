@@ -222,11 +222,16 @@ fast, and thus end up sharing the link evenly.
 \subsection{Motivation}
 \label{sec:bg:motivation}
 Multipath TCP is undoubtedly a useful extension to regular TCP, but it was
-primarily designed for wired networks in which links are independent.
+primarily designed for wired networks, in which links are independent, and
+has been demonstrated to perform
+well\footnote{C. Raiciu, S. Barre, C. Pluntke, A. Greenhalgh, 
+D. Wischik and M. Handley. Improving Datacenter Performance and Robustness with 
+Multipath TCP, \textit{ACM Sigcomm 2011}}
+
 The nature of wireless means that interfaces can interfere with each
 other, which is something that Multipath TCP was not designed to handle.
 If Multipath TCP
-tries to use multiple interfaces at the same time, the self-interference may
+tries to use multiple interfaces at the same time, this self-interference may
 prove sufficiently strong that the benefits of Multipath TCP are effectively
 negated.
 
