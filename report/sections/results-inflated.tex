@@ -74,7 +74,7 @@ equation~\ref{eq:ql}.
 Building on the intuition that $QL$ would represent the maximum expected send
 queue size, we believe it would be appropriate to consider the send queue
 exceeding that limit as a congestion event, and consequently halve TCP's congestion
-window when it happens. We hope that this will bring back balance to TCP congestion window. In
+window when it happens. In
 theory, a single RTT should be enough to drain the send queue, and so we expect
 that adjusting the congestion window at most once per RTT should be sufficient.
 
