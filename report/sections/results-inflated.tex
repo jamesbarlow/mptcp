@@ -60,14 +60,14 @@ we should have to buffer up in order to always be able to send when the link bec
   QL = \frac{var \cdot cwnd}{RTT}\label{eq:ql}
 \end{align}
 
-$var$ is here the RTT
-variance as measured by TCP.\@ For links where the immediate link is not
+The value of $var$ here is the RTT
+variance as measured by TCP.\@ We note that for links where the immediate link is not
 the bottleneck,
-equation~\ref{eq:ql} may not behave as desired; the sending host will now
+Equation~\ref{eq:ql} may not behave as desired; the sending host will now
 attempt to balance its local queue according to a queue further along the
-network path,
-potentially leaving the intermediary links without data to send, which could
-decrease throughput. This may be overcome by measuring the send delay variance
+network path. This could potentially leave the intermediary links without data
+to send, and so decrease throughput. This may be overcome by measuring the
+send delay variance
 of the immediate link directly and substituting that for $var$ in
 equation~\ref{eq:ql}.
 

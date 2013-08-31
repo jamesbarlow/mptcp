@@ -66,7 +66,7 @@ not behaving fairly. Instead, its subflows were taking more of the capacity in t
 After seeing this result in same-channel, non-overlapping and cross-band  
 tests, we reasoned that the problem had to be related somehow to the 
 behaviour of WiFi with uplink traffic in general.
-To investigate this, we looked for common elements in time plots of several
+To investigate this, we looked for common elements in the time plots of several
 tests where Coupled was behaving unfairly.
 
 \begin{figure}[h]
@@ -133,7 +133,7 @@ continue to grow its congestion window.  In fact, the loss that TCP does see
 will likely \textbf{not} be related to congestion, but rather to faulty links or interfaces,
 which would cause it to back off its congestion window incorrectly.
 
-With an every-increasing congestion window, TCP will continue to put data in the
+With an ever-increasing congestion window, TCP will continue to put data in the
 send queue faster than the NIC can send it causing the queue to become bloated.
 This becomes an issue because any packets sent by other
 flows on the same host will now be queued behind these, increasing their delay
