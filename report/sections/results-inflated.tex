@@ -5,11 +5,11 @@
 \end{figure}
 
 The issue identified in \S\ref{sec:results-fairness:up} will affect any
-connection where the bottleneck of the path is the immediate link a client is connected
-to, not necessarily just with WiFi links. As mentioned, it will also affect both TCP and Multipath TCP, albeit with
-different effects. In both cases, the congestion window will rarely be halved,
-and thus will grow far beyond the ``correct'' value of the paths'
-bandwidth delay products.
+connection where the bottleneck of the path is the immediate link a client is
+connected to, not necessarily just with WiFi links. As mentioned, it will also
+affect both TCP and Multipath TCP, albeit with different effects. In both cases,
+the congestion window will rarely be halved, and thus will grow far beyond the
+``correct'' value of the paths' bandwidth delay products.
 
 When the congestion window grows too large as shown in
 Figure~\ref{graph:logarithmic}, both TCP and Multipath TCP will continue to
@@ -17,22 +17,20 @@ assume that they are being fair by continuing to put packets onto the send
 queue, even though these packets are drained slower than they are being put in.
 The effect this has on Multipath TCP and TCP was discussed in
 \S\ref{sec:results-fairness:up}, but we briefly reiterate it here for reference.
-For TCP, this is
-not a problem beyond adding delay for any other flows on the host, as their
-packets will be queued behind an abnormally large number of packets from the
-bloated TCP flow. For Multipath TCP, however, it is problematic - because it
-will always have a packet in the queue to send, it will never yield the link
-voluntarily.
+For TCP, this is not a problem beyond adding delay for any other flows on the
+host, as their packets will be queued behind an abnormally large number of
+packets from the bloated TCP flow. For Multipath TCP, however, it is problematic
+- because it will always have a packet in the queue to send, it will never yield
+the link voluntarily.
 
 TCP Small Queues, which is the currently applied ``fix'' in the Linux kernel
 does not address the underlying problem, as it simply bounds the number of
-packets any given TCP flow can have in the queue to an
-arbitrary, fixed number. While this does reduce the
-amount of latency that a misbehaving TCP flow can inflict on other
-flows on the same host, the latency will still remain somewhat inflated without
-careful tuning the maximum queue size.
-A very conservative limit could be
-set, but this will then be incorrect for faster links or paths with different RTTs.
+packets any given TCP flow can have in the queue to an arbitrary, fixed number.
+While this does reduce the amount of latency that a misbehaving TCP flow can
+inflict on other flows on the same host, the latency will still remain somewhat
+inflated without careful tuning the maximum queue size. A very conservative
+limit could be set, but this will then be incorrect for faster links or paths
+with different RTTs.
 
 We believe that the correct way of overcoming this must be to modify TCP so that
 it reacts to congestion which does not manifest as packet loss. Altering TCP is
@@ -43,52 +41,49 @@ solve this issue.
 
 The intuition behind our change is that the growing size of the local queue
 could be used as another signal to TCP that there is congestion on the network.
-We have observed that the send queue for a
-normal TCP connection should usually be empty, but may occasionally grow by
-a small amount if the immediate link is temporarily busy. To determine if the queue is
-growing when it should not be, we need a way to determine how large it might
-reasonably grow to.
+We have observed that the send queue for a normal TCP connection should usually
+be empty, but may occasionally grow by a small amount if the immediate link is
+temporarily busy. To determine if the queue is growing when it should not be, we
+need a way to determine how large it might reasonably grow to.
 
 We base our suggestion on the observation that that the queue is unlikely to
 grow much larger than the number of bytes which could be transferred on the
-bottleneck link in one variance of the RTT.\@ This limit, $QL$, is calculated
-as shown in Equation~\ref{eq:ql}. For cases when the immediate link
-is the bottleneck, we believe that this reflects the maximum number of bytes that
-we should have to buffer up in order to always be able to send when the link becomes available. 
+bottleneck link in one variance of the RTT.\@ This limit, $QL$, is calculated as
+shown in Equation~\ref{eq:ql}. For cases when the immediate link is the
+bottleneck, we believe that this reflects the maximum number of bytes that we
+should have to buffer up in order to always be able to send when the link
+becomes available.
 
 \begin{align}
   QL = \frac{var \cdot cwnd}{RTT}\label{eq:ql}
 \end{align}
 
-The value of $var$ here is the RTT
-variance as measured by TCP.\@ We note that for links where the immediate link is not
-the bottleneck,
-Equation~\ref{eq:ql} may not behave as desired; the sending host will now
-attempt to balance its local queue according to a queue further along the
-network path. This could potentially leave the intermediary links without data
-to send, and so decrease throughput. This may be overcome by measuring the
-send delay variance
-of the immediate link directly and substituting that for $var$ in
-Equation~\ref{eq:ql}.
+The value of $var$ here is the RTT variance as measured by TCP.\@ We note that
+for links where the immediate link is not the bottleneck, Equation~\ref{eq:ql}
+may not behave as desired; the sending host will now attempt to balance its
+local queue according to a queue further along the network path. This could
+potentially leave the intermediary links without data to send, and so decrease
+throughput. This may be overcome by measuring the send delay variance of the
+immediate link directly and substituting that for $var$ in Equation~\ref{eq:ql}.
 
 Building on the intuition that $QL$ would represent the maximum expected send
 queue size, we believe it would be appropriate to consider the send queue
-exceeding that limit as a congestion event, and consequently halve TCP's congestion
-window when it happens. In
-theory, a single RTT should be enough to drain the send queue, and so we expect
-that adjusting the congestion window at most once per RTT should be sufficient.
+exceeding that limit as a congestion event, and consequently halve TCP's
+congestion window when it happens. In theory, a single RTT should be enough to
+drain the send queue, and so we expect that adjusting the congestion window at
+most once per RTT should be sufficient.
 
-To make this easier to implement with TCP, we also derive from Equation~\ref{eq:ql}
-a way to step down the congestion window size once per ACK.\@ We want one RTT
-worth of ACKs to decrease $cwnd$ by half, and so we can reduce the window size
-by $step$, as shown in Equation~\ref{eq:fix}.
+To make this easier to implement with TCP, we also derive from
+Equation~\ref{eq:ql} a way to step down the congestion window size once per
+ACK.\@ We want one RTT worth of ACKs to decrease $cwnd$ by half, and so we can
+reduce the window size by $step$, as shown in Equation~\ref{eq:fix}.
 
 \begin{align}
   step = \frac{MSS}{2} \cdot \frac{cwnd_i}{cwnd}\label{eq:fix}
 \end{align}
 
-Where $cwnd_i$ is set to $cwnd$ any time the send queue size is smaller than $QL$.
-Thus, we update the congestion window on every received ACK:
+Where $cwnd_i$ is set to $cwnd$ any time the send queue size is smaller than
+$QL$. Thus, we update the congestion window on every received ACK:
 
 \begin{verbatim}
 on_ack():
@@ -100,11 +95,12 @@ on_ack():
 
 We believe this should correct TCP's congestion window size, bringing it back to
 the point where the send queue is usually empty. Being dynamic, it would also be
-a superior solution to TCP Small Queues. Finally, it could potentially correct the fairness
-issue we have seen with Multipath TCP over lossless links, as the congestion
-windows would now be correct, giving Coupled the feedback which it depends on.
+a superior solution to TCP Small Queues. Finally, it could potentially correct
+the fairness issue we have seen with Multipath TCP over lossless links, as the
+congestion windows would now be correct, giving Coupled the feedback which it
+depends on.
 
-Due to time constraints, we have unfortunately not been able to implement nor test this
-solution, and thus it is presented solely as a suggestion for future work if
-this problem is revisited.
+Due to time constraints, we have unfortunately not been able to implement nor
+test this solution, and thus it is presented solely as a suggestion for future
+work if this problem is revisited.
 % vim:textwidth=80:colorcolumn=80:spell:

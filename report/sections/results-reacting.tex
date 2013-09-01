@@ -1,8 +1,8 @@
 One of the goals of Multipath TCP is to use the available links to improve
 reliability, and it does this partly by moving traffic away from congested
-paths. Considering that WiFi connectivity can change drastically as a user moves around,
-we felt it would be interesting to test Multipath TCP's ability to move traffic
-from one link to another.
+paths. Considering that WiFi connectivity can change drastically as a user moves
+around, we felt it would be interesting to test Multipath TCP's ability to move
+traffic from one link to another.
 
 \begin{figure}[h]
  \centering
@@ -13,15 +13,14 @@ from one link to another.
 %We therefore ran a test as described in \S\ref{sec:met:setups:mobility} in
 %which a client moved between two APs positioned sufficiently far apart that one
 %link was significantly better when near any one of the APs.
-The results shown in
-Figure~\ref{graph:mobility} show that Coupled is indeed doing exactly what
-we would expect. More traffic passes through one interface when the user is
-closer to that AP, but more importantly, it evenly distributes the
-traffic when the user moves back into a position where both networks are
+The results shown in Figure~\ref{graph:mobility} show that Coupled is indeed
+doing exactly what we would expect. More traffic passes through one interface
+when the user is closer to that AP, but more importantly, it evenly distributes
+the traffic when the user moves back into a position where both networks are
 approximately equally strong.
 
 We chose to only perform this test with downlink traffic since, as discussed in
-\S\ref{sec:results-fairness}, Coupled simply behaves like New Reno on the uplink,
-making the these results predictable.
+\S\ref{sec:results-fairness}, Coupled simply behaves like New Reno on the
+uplink, making the these results predictable.
 
 % vim:textwidth=80:colorcolumn=80:spell:

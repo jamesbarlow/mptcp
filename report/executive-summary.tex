@@ -37,15 +37,14 @@ With the proliferation of WiFi networks, however, a new source of connectivity
 is becoming relevant. If a device has more than one WiFi interface, it could
 potentially connect to multiple WiFi networks at the same time, distributing
 traffic and transitioning between them as necessary. Unfortunately, WiFi
-networks interfere with each other, and it is not immediately clear
-that putting traffic on one network will not severely impact other networks.
-Using Multipath TCP for such a configuration might therefore be
-counter-productive, as it might cause so much self-interference that any
-potential benefits are negated.
+networks interfere with each other, and it is not immediately clear that putting
+traffic on one network will not severely impact other networks. Using Multipath
+TCP for such a configuration might therefore be counter-productive, as it might
+cause so much self-interference that any potential benefits are negated.
 
 The purpose of this report is to evaluate the behaviour of Multipath TCP when
-using multiple WiFi interfaces on a single host, specifically with regard to
-how self-interference affects its ability to provide reliability and improved
+using multiple WiFi interfaces on a single host, specifically with regard to how
+self-interference affects its ability to provide reliability and improved
 throughput.
 
 Our results show that Multipath TCP can improve both reliability and throughput

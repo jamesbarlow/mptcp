@@ -1,47 +1,48 @@
 Throughout our experiments, we have come across several odd results,
 correlations and trends which we could not immediately explain. Some of these
-turned out to be errors, but many made complete sense after some hard
-thinking. This section aims to explain most of the oddities that can be observed
-in some of the graphs given in this report.
+turned out to be errors, but many made complete sense after some hard thinking.
+This section aims to explain most of the oddities that can be observed in some
+of the graphs given in this report.
 
 \subsubsection{Inflated RTT}
-A number of our tests experienced very high RTT estimates of around 600 ms despite the network
-being relatively fast (i.e.\ we see an RTT of $\approx 7$ ms with \texttt{ping}).
-The RTT also seemed to increase and decrease with the size of the send queue. As 
-discussed in \S\ref{sec:results-fairness}, the lack of packet loss causes 
-unbounded growth of the congestion window, but with most of the packets actually being
-the local send queue. Because TCP estimates RTT based on when the packet was put into 
-the send queue, \textbf{not} when it is actually sent by the network interface, 
-the RTT estimate will include the time a packet spent in the queue. Since the 
-queue is growing, so will the RTT.
+A number of our tests experienced very high RTT estimates of around 600 ms
+despite the network being relatively fast (i.e.\ we see an RTT of $\approx 7$ ms
+with \texttt{ping}). The RTT also seemed to increase and decrease with the size
+of the send queue. As discussed in \S\ref{sec:results-fairness}, the lack of
+packet loss causes unbounded growth of the congestion window, but with most of
+the packets actually being the local send queue. Because TCP estimates RTT based
+on when the packet was put into the send queue, \textbf{not} when it is actually
+sent by the network interface, the RTT estimate will include the time a packet
+spent in the queue. Since the queue is growing, so will the RTT.
 
 \subsubsection{Logarithmic growth of congestion window}
 Figure~\ref{graph:logarithmic} shows the congestion window size plotted over
 time for one test we ran in which we were seeing very little loss. It clearly
-shows something resembling logarithmic growth of the congestion window rather than the familiar linear
-saw-tooth. To understand why this is happening, it is necessary to look closer
-at how the congestion window is increased.
+shows something resembling logarithmic growth of the congestion window rather
+than the familiar linear saw-tooth. To understand why this is happening, it is
+necessary to look closer at how the congestion window is increased.
 
-The congestion control mechanisms used by Multipath TCP and regular TCP
-increase the congestion window by one MSS per RTT.\@ They do this by increasing
-the congestion window by approximately $\sfrac{1}{cwnd}$ per received ACK.\@
-This works well in the expected case where increasing the congestion window will
-cause more packets to be sent, and thus more ACKs to be received per RTT, but is not
-correct when the link layer masks loss.
+The congestion control mechanisms used by Multipath TCP and regular TCP increase
+the congestion window by one MSS per RTT.\@ They do this by increasing the
+congestion window by approximately $\sfrac{1}{cwnd}$ per received ACK.\@ This
+works well in the expected case where increasing the congestion window will
+cause more packets to be sent, and thus more ACKs to be received per RTT, but is
+not correct when the link layer masks loss.
 
-What happens when TCP does not see loss, as discussed in \S\ref{sec:results-fairness}, 
-is that the congestion window grows larger than what the network 
-interface can handle, and so increasing it will not cause any more packets to be 
-sent. The number of ACKs received in an RTT will therefore remain constant. The 
-$\sfrac{1}{cwnd}$ term, on the other hand, will grow smaller, and so the growth of the 
-congestion window relative to the congestion window size per RTT will decrease, 
-leading to the logarithmic growth seen in the results.
+What happens when TCP does not see loss, as discussed in
+\S\ref{sec:results-fairness}, is that the congestion window grows larger than
+what the network interface can handle, and so increasing it will not cause any
+more packets to be sent. The number of ACKs received in an RTT will therefore
+remain constant. The $\sfrac{1}{cwnd}$ term, on the other hand, will grow
+smaller, and so the growth of the congestion window relative to the congestion
+window size per RTT will decrease, leading to the logarithmic growth seen in the
+results.
 
 \subsubsection{Congestion window and the send queue}
 \label{sec:closing:sendq}
 Figure~\ref{graph:logarithmic}, and some other plots in this report, show the
-send queue size closely following the congestion window size through the entire test.
-Since we were seeing very little loss in many of our tests, and thus the
+send queue size closely following the congestion window size through the entire
+test. Since we were seeing very little loss in many of our tests, and thus the
 congestion window was clearly growing larger than it should be, we initially
 reasoned that most of the bytes of the congestion window were likely to be in
 the host's send queue. In this case, we would expect the send queue to closely
@@ -50,9 +51,9 @@ packets actually in flight.
 
 However, we then noticed that we were seeing the send queue following the
 congestion window also when we \textbf{were} seeing loss and the congestion
-window was \textbf{not} inflated, such as in \S\ref{sec:fairness:latency}.
-In these cases, there should not be many
-packets in the send queue at all; they should mostly all be in flight.
+window was \textbf{not} inflated, such as in \S\ref{sec:fairness:latency}. In
+these cases, there should not be many packets in the send queue at all; they
+should mostly all be in flight.
 
 It turned out that the reason for this is surprisingly simple; the send queue
 size reported by the kernel \emph{includes unacked packets}. TCP keeps packets
@@ -67,19 +68,19 @@ following the congestion window when loss was occurring.
 In Figure~\ref{graph:fairness-rtt-up-close}, we observe another very strange
 phenomenon that occurred in a number of experiments. Here, we see a curious
 correlation between throughput and the congestion window size. Other tests also
-show a correlation between the two, but it is particularly evident here as it 
+show a correlation between the two, but it is particularly evident here as it
 looks like the throughput is strictly bounded by the congestion window size.
 
-To determine why this was happening, we first tried to find similarities
-between the graphs that were showing this peculiar trend. It turned out that we
-were only seeing this in tests which showed either a high RTT with constant loss
+To determine why this was happening, we first tried to find similarities between
+the graphs that were showing this peculiar trend. It turned out that we were
+only seeing this in tests which showed either a high RTT with constant loss
 rates, or a high amount of loss. These cases both share the feature that the
 congestion window is constrained from growing to the full bandwidth delay
 product of the path, and so no queues are expected to build up anywhere in the
-network. The limiting factor for the throughput thus becomes the congestion window not
-allowing TCP to add more packets to the send queue, even though the link is
-ready to send. The net effect of this is that the throughput is limited by the
-congestion window; whenever the congestion window grows, the throughput
+network. The limiting factor for the throughput thus becomes the congestion
+window not allowing TCP to add more packets to the send queue, even though the
+link is ready to send. The net effect of this is that the throughput is limited
+by the congestion window; whenever the congestion window grows, the throughput
 increases, because TCP is allowed to put more packets on the wire. If the
 congestion window is halved, TCP stops sending packets almost immediately, and
 the throughput drops.
