@@ -1,4 +1,4 @@
-## Wireless interference and Multipath TCP
+## Wireless Interference and Multipath TCP
 *Barlow-Bignell, J, da Silva, C, Gjengset, J, and Oliha, P*
 
 MSc in Networked Computer Systems  
