@@ -164,7 +164,7 @@ additive increase across all subflows to ensure fairness. For each packet
 acknowledgement received on subflow $i$, the congestion window for that subflow
 is increased as shown in Equation~\ref{eq:mptcp}.
 
-% Reference RFC here
+% TODO: Reference RFC here
 \begin{align}
   cwnd_i &= cwnd_i +
     \min\left(\frac{\alpha}{cwnd_\text{total}}, \frac{1}{cwnd_i}\right)\label{eq:mptcp}

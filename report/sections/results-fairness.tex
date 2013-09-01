@@ -30,8 +30,6 @@ of the parallel flows that we can consider Coupled to be behaving fairly; the
 client with multiple interfaces is correctly taking only a third of the total
 network capacity, as opposed to half in the case of New Reno.
 
-% Don't show send queue?
-
 In \S\ref{sec:results-mptcp-down} we saw that congestion feedback in the
 downlink case is provided to the sender by the AP dropping packets if they
 arrive at a faster rate than they can be sent out out on the wireless channel.
@@ -173,8 +171,6 @@ wireless link is to the sender.
  \\
  \subfloat[][Multipath TCP time plot] {\
    \input{graphs/fairness-rtt-up-close.tex}\label{graph:fairness-rtt-up-close}
-   % TODO: congestion window is not /10 here, throughput is *10
-   % update oddities section calculation to match this
  }
  \caption{Uplink, non-overlapping 2.4 GHz, +100ms}\label{graph:fairness-rtt-up}
 \end{figure}
@@ -215,8 +211,5 @@ competing flows, and thus reduces its aggressiveness. This further limits the
 growth of each subflow's congestion window, which exaggerates the problem of the
 congestion window being too small, further reducing throughput.
 
-% TODO: We may need a better explanation for the above paragraph.
-
 % TODO: mention that this is the case for certain non-wireless networks as well?
-% TODO: should we discuss possible solutions here or somewhere else?
 % vim:textwidth=80:colorcolumn=80:spell:
